@@ -1,9 +1,6 @@
 /*
-* Generic UIO device driver
-* This driver is intended as an example of how to interact with a UIO device.
-* It contains only the boiler-plate necessary to open, close, read from, and
-*  write to a UIO device.  There are usually additional initialization steps
-*  that must be performed before you can actually use a UIO device.
+* Button Driver
+*
 *
 * ECEn 427
 * Clint Frandsen, Dax Eckles
@@ -26,13 +23,13 @@ static char *va; /* virtual address of the button registers */
 /* initializes the uio driver */
 int32_t btn_init(char devDevice[]) {
 	/* open the device */
-	f = open(devDevice, O_RDWR); /* what is O_RDWR */
+	fd = open(devDevice, O_RDWR);
 	if(f == UIO_BTN_ERROR) {
 		return UIO_BTN_ERROR;
 	}
 
-	va = mmap(NULL, UIO_BTN_MMAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, f, MMAP_OFFSET);
-	if(f == MAP_FAILED) {
+	va = mmap(NULL, UIO_BTN_MMAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, MMAP_OFFSET);
+	if(fd == MAP_FAILED) {
 		return UIO_EXAMPLE_ERROR;
 	}
 
@@ -52,5 +49,5 @@ uint32_t btn_read(uint32_t offset) {
 /* close the UIO device */
 void btn_exit() {
 	munmap(ptr, UIO_BTN_MMAP_SIZE);
-	close(f);
+	close(fd);
 }
