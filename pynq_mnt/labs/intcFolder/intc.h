@@ -35,9 +35,6 @@ void intc_ack_interrupt(uint32_t irq_mask);
 // (see the UIO documentation for how to do this)
 void intc_enable_uio_interrupts();
 
-// write to a register of the UIO device 4
-void interrupt_register_write(uint32_t offset, uint32_t value);
-
 // Enable interrupt line(s)
 // irq_mask: Bitmask of lines to enable
 // This function only enables interrupt lines, ie, a 0 bit in irq_mask
