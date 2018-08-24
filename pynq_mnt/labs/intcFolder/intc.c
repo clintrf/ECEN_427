@@ -15,8 +15,10 @@
 
 #define INTC_MMAP_SIZE 0x1000 /* size of memory to allocate */
 #define FOUR_BYTES 4 /* 32 bits to write to fd */
-#define IER_REG_OFFSET 0x08h /* IER register (unmasks corresponding ISR bit) */
-#define ENABLE_IER 7 /* turns on all GPIO interrupts */
+#define IER_REG_OFFSET 0x08H /* IER register (unmasks corresponding ISR bit) */
+#define SIE_REG_OFFSET 0x10H /* sets the register bits in the IER */
+#define CIE_REG_OFFSET 0x14H /* clears the resgiter bits in the IER */
+#define GPIO_BITS 7 /* turns on all GPIO interrupts */
 #define ENABLE
 #define DISABLE 0
 
@@ -43,7 +45,7 @@ int32_t intc_init(char devDevice[]){
 		return INTC_ERROR;
 	}
 
-	intc_irq_enable(ENABLE_IER); /* enables all the GPIO interrupts */
+	intc_irq_enable(GPIO_BITS); /* enables all the GPIO interrupts */
 
 	return INTC_SUCCESS;
 }
@@ -56,7 +58,9 @@ void intc_exit() {
 
 // This function will block until an interrupt occurrs
 // Returns: Bitmask of activated interrupts
-uint32_t intc_wait_for_interrupt(){return 0;};
+uint32_t intc_wait_for_interrupt() {
+	return 0;
+}
 
 // Acknowledge interrupt(s) in the interrupt controller
 // irq_mask: Bitmask of interrupt lines to acknowledge.
@@ -72,10 +76,12 @@ void intc_enable_uio_interrupts() {
 // irq_mask: Bitmask of lines to enable
 // This function only enables interrupt lines, ie, a 0 bit in irq_mask
 //	will not disable the interrupt line
-void intc_irq_enable(uint32_t irq_mask){
+void intc_irq_enable(uint32_t irq_mask) {
 	//the address is cast as a pointer so it can be dereferenced
-	*((volatile uint32_t *)(va + IER_REG_OFFSET)) = irq_mask;
+	*((volatile uint32_t *)(va + SIE_REG_OFFSET)) = irq_mask;
 }
 
 // Same as intc_irq_enable, except this disables interrupt lines
-void intc_irq_disable(uint32_t irq_mask);
+void intc_irq_disable(uint32_t irq_mask) {
+	*((volatile uint32_t *)(va + CIE_REG_OFFSET)) = irq_mask;
+}
