@@ -16,6 +16,8 @@
 #define INTC_MMAP_SIZE 0x1000 /* size of memory to allocate */
 #define FOUR_BYTES 4 /* 32 bits to write to fd */
 #define IER_REG_OFFSET 0x08h /* IER register (unmasks corresponding ISR bit) */
+#define ENABLE 1
+#define DISABLE 0
 
 /*********************************** globals ***********************************/
 static int fd; /* this is a file descriptor that describes the UIO device */
@@ -61,13 +63,14 @@ void intc_ack_interrupt(uint32_t irq_mask);
 // (see the UIO documentation for how to do this)
 void intc_enable_uio_interrupts() {
 	write(fd, &enable, FOUR_BYTES); /* enable linux interrupts from the GPIO */
-	interrupt_register_write(IER_REG_OFFSET, va); /* enable interrupts from the interrupt handler */
+	interrupt_register_write(IER_REG_OFFSET, ENABLE); /* enable interrupts from the interrupt handler */
 	/* enable interrupts in each individual GPIO */
 }
 
 // write to a register of the UIO device 4
 void interrupt_register_write(uint32_t offset, uint32_t value) {
-	return *((volatile uint32_t *)(ptr + offset));
+	//the address is cast as a pointer so it can be dereferenced
+	*((volatile uint32_t *)(va + offset)) = value;
 }
 
 // Enable interrupt line(s)
