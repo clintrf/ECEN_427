@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/xilinx/ECEN_427/lab03/image_render
+CMAKE_SOURCE_DIR = /home/xilinx/ECEN_427/lab03
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/xilinx/ECEN_427/lab03/image_render
+CMAKE_BINARY_DIR = /home/xilinx/ECEN_427/lab03
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,14 +80,14 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/image_render/CMakeFiles /home/xilinx/ECEN_427/lab03/image_render/CMakeFiles/progress.marks
-	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/image_render/CMakeFiles 0
+	cd /home/xilinx/ECEN_427/lab03 && $(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles /home/xilinx/ECEN_427/lab03/image_render/CMakeFiles/progress.marks
+	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f CMakeFiles/Makefile2 image_render/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	$(MAKE) -f CMakeFiles/Makefile2 clean
+	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f CMakeFiles/Makefile2 image_render/clean
 .PHONY : clean
 
 # The main clean target
@@ -97,84 +97,33 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	$(MAKE) -f CMakeFiles/Makefile2 preinstall
+	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f CMakeFiles/Makefile2 image_render/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	$(MAKE) -f CMakeFiles/Makefile2 preinstall
+	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f CMakeFiles/Makefile2 image_render/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	$(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /home/xilinx/ECEN_427/lab03 && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
-#=============================================================================
-# Target rules for targets named hdmi
+# Convenience name for target.
+image_render/CMakeFiles/render.dir/rule:
+	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f CMakeFiles/Makefile2 image_render/CMakeFiles/render.dir/rule
+.PHONY : image_render/CMakeFiles/render.dir/rule
 
-# Build rule for target.
-hdmi: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 hdmi
-.PHONY : hdmi
+# Convenience name for target.
+render: image_render/CMakeFiles/render.dir/rule
 
-# fast build rule for target.
-hdmi/fast:
-	$(MAKE) -f CMakeFiles/hdmi.dir/build.make CMakeFiles/hdmi.dir/build
-.PHONY : hdmi/fast
-
-#=============================================================================
-# Target rules for targets named render
-
-# Build rule for target.
-render: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 render
 .PHONY : render
 
 # fast build rule for target.
 render/fast:
-	$(MAKE) -f CMakeFiles/render.dir/build.make CMakeFiles/render.dir/build
+	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f image_render/CMakeFiles/render.dir/build.make image_render/CMakeFiles/render.dir/build
 .PHONY : render/fast
-
-#=============================================================================
-# Target rules for targets named sprites
-
-# Build rule for target.
-sprites: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 sprites
-.PHONY : sprites
-
-# fast build rule for target.
-sprites/fast:
-	$(MAKE) -f CMakeFiles/sprites.dir/build.make CMakeFiles/sprites.dir/build
-.PHONY : sprites/fast
-
-hdmi.o: hdmi.c.o
-
-.PHONY : hdmi.o
-
-# target to build an object file
-hdmi.c.o:
-	$(MAKE) -f CMakeFiles/hdmi.dir/build.make CMakeFiles/hdmi.dir/hdmi.c.o
-.PHONY : hdmi.c.o
-
-hdmi.i: hdmi.c.i
-
-.PHONY : hdmi.i
-
-# target to preprocess a source file
-hdmi.c.i:
-	$(MAKE) -f CMakeFiles/hdmi.dir/build.make CMakeFiles/hdmi.dir/hdmi.c.i
-.PHONY : hdmi.c.i
-
-hdmi.s: hdmi.c.s
-
-.PHONY : hdmi.s
-
-# target to generate assembly for a file
-hdmi.c.s:
-	$(MAKE) -f CMakeFiles/hdmi.dir/build.make CMakeFiles/hdmi.dir/hdmi.c.s
-.PHONY : hdmi.c.s
 
 image_render.o: image_render.c.o
 
@@ -182,7 +131,7 @@ image_render.o: image_render.c.o
 
 # target to build an object file
 image_render.c.o:
-	$(MAKE) -f CMakeFiles/render.dir/build.make CMakeFiles/render.dir/image_render.c.o
+	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f image_render/CMakeFiles/render.dir/build.make image_render/CMakeFiles/render.dir/image_render.c.o
 .PHONY : image_render.c.o
 
 image_render.i: image_render.c.i
@@ -191,7 +140,7 @@ image_render.i: image_render.c.i
 
 # target to preprocess a source file
 image_render.c.i:
-	$(MAKE) -f CMakeFiles/render.dir/build.make CMakeFiles/render.dir/image_render.c.i
+	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f image_render/CMakeFiles/render.dir/build.make image_render/CMakeFiles/render.dir/image_render.c.i
 .PHONY : image_render.c.i
 
 image_render.s: image_render.c.s
@@ -200,35 +149,8 @@ image_render.s: image_render.c.s
 
 # target to generate assembly for a file
 image_render.c.s:
-	$(MAKE) -f CMakeFiles/render.dir/build.make CMakeFiles/render.dir/image_render.c.s
+	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f image_render/CMakeFiles/render.dir/build.make image_render/CMakeFiles/render.dir/image_render.c.s
 .PHONY : image_render.c.s
-
-sprites.o: sprites.c.o
-
-.PHONY : sprites.o
-
-# target to build an object file
-sprites.c.o:
-	$(MAKE) -f CMakeFiles/sprites.dir/build.make CMakeFiles/sprites.dir/sprites.c.o
-.PHONY : sprites.c.o
-
-sprites.i: sprites.c.i
-
-.PHONY : sprites.i
-
-# target to preprocess a source file
-sprites.c.i:
-	$(MAKE) -f CMakeFiles/sprites.dir/build.make CMakeFiles/sprites.dir/sprites.c.i
-.PHONY : sprites.c.i
-
-sprites.s: sprites.c.s
-
-.PHONY : sprites.s
-
-# target to generate assembly for a file
-sprites.c.s:
-	$(MAKE) -f CMakeFiles/sprites.dir/build.make CMakeFiles/sprites.dir/sprites.c.s
-.PHONY : sprites.c.s
 
 # Help Target
 help:
@@ -237,19 +159,11 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... edit_cache"
-	@echo "... hdmi"
-	@echo "... render"
-	@echo "... sprites"
 	@echo "... rebuild_cache"
-	@echo "... hdmi.o"
-	@echo "... hdmi.i"
-	@echo "... hdmi.s"
+	@echo "... render"
 	@echo "... image_render.o"
 	@echo "... image_render.i"
 	@echo "... image_render.s"
-	@echo "... sprites.o"
-	@echo "... sprites.i"
-	@echo "... sprites.s"
 .PHONY : help
 
 
@@ -261,6 +175,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	$(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /home/xilinx/ECEN_427/lab03 && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

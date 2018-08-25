@@ -90,6 +90,9 @@ space_invaders_EXTERNAL_OBJECTS =
 
 space_invaders: CMakeFiles/space_invaders.dir/main.c.o
 space_invaders: CMakeFiles/space_invaders.dir/build.make
+space_invaders: image_render/librender.a
+space_invaders: image_render/hdmi/libhdmi.a
+space_invaders: image_render/sprites/libsprites.a
 space_invaders: CMakeFiles/space_invaders.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/xilinx/ECEN_427/lab03/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking C executable space_invaders"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/space_invaders.dir/link.txt --verbose=$(VERBOSE)

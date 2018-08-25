@@ -1,6 +1,5 @@
 #include "hdmi.h"
 #include "sprites.h"
-#include "graphics.h"
 
 /********************************** macros ***********************************/
 #define IMAGE_RENDER_SCREEN_WIDTH 640 /* number of pixels across the screen */
@@ -10,10 +9,12 @@
 #define IMAGE_RENDER_WHOLE_SCREEN IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_HEIGHT
 
 /********************************** globals **********************************/
+char black[3] = {0x00,0x00,0x00};
 
 /********************************* functions *********************************/
 void image_render_print_black_screen() {
-  hdmi_write(BLACK,IMAGE_RENDER_WHOLE_SCREEN);
+  hdmi_init(HDMI_FILE_PATH);
+  hdmi_write(black,IMAGE_RENDER_WHOLE_SCREEN);
 }
 
 void image_render_print_game_over_screen() {}

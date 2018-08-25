@@ -35,7 +35,7 @@ uint32_t hdmi_set_offset(uint32_t offset);
 // *buf : points to the buffer where we should place our read
 // bytes : the amount of bytes to read from the screen
 // return : returns the number of bytes that are read
-uint32_t hdmi_read(const void *buf, uint32_t bytes);
+uint32_t hdmi_read(void *buf, uint32_t bytes);
 
 // Called to exit the driver (unmap and close UIO file)
 void hdmi_exit();

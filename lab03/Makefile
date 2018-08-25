@@ -123,6 +123,45 @@ space_invaders/fast:
 	$(MAKE) -f CMakeFiles/space_invaders.dir/build.make CMakeFiles/space_invaders.dir/build
 .PHONY : space_invaders/fast
 
+#=============================================================================
+# Target rules for targets named render
+
+# Build rule for target.
+render: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 render
+.PHONY : render
+
+# fast build rule for target.
+render/fast:
+	$(MAKE) -f image_render/CMakeFiles/render.dir/build.make image_render/CMakeFiles/render.dir/build
+.PHONY : render/fast
+
+#=============================================================================
+# Target rules for targets named hdmi
+
+# Build rule for target.
+hdmi: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hdmi
+.PHONY : hdmi
+
+# fast build rule for target.
+hdmi/fast:
+	$(MAKE) -f image_render/hdmi/CMakeFiles/hdmi.dir/build.make image_render/hdmi/CMakeFiles/hdmi.dir/build
+.PHONY : hdmi/fast
+
+#=============================================================================
+# Target rules for targets named sprites
+
+# Build rule for target.
+sprites: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 sprites
+.PHONY : sprites
+
+# fast build rule for target.
+sprites/fast:
+	$(MAKE) -f image_render/sprites/CMakeFiles/sprites.dir/build.make image_render/sprites/CMakeFiles/sprites.dir/build
+.PHONY : sprites/fast
+
 main.o: main.c.o
 
 .PHONY : main.o
@@ -159,6 +198,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... space_invaders"
+	@echo "... render"
+	@echo "... hdmi"
+	@echo "... sprites"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

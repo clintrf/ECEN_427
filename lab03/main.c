@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "image_render.h"
-#include "hdmi.h"
 #define ALIEN_HEIGHT 16
 
 // Packs each horizontal line of the figures into a single 32 bit word.
@@ -49,6 +48,5 @@ int main() {
   //   }
   //   printf("\n");
   // }
-  hdmi_init(HDMI_FILE_PATH);
   image_render_print_black_screen();
 }

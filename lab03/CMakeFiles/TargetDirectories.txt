@@ -1,3 +1,12 @@
 /home/xilinx/ECEN_427/lab03/CMakeFiles/edit_cache.dir
 /home/xilinx/ECEN_427/lab03/CMakeFiles/rebuild_cache.dir
 /home/xilinx/ECEN_427/lab03/CMakeFiles/space_invaders.dir
+/home/xilinx/ECEN_427/lab03/image_render/CMakeFiles/edit_cache.dir
+/home/xilinx/ECEN_427/lab03/image_render/CMakeFiles/rebuild_cache.dir
+/home/xilinx/ECEN_427/lab03/image_render/CMakeFiles/render.dir
+/home/xilinx/ECEN_427/lab03/image_render/hdmi/CMakeFiles/edit_cache.dir
+/home/xilinx/ECEN_427/lab03/image_render/hdmi/CMakeFiles/rebuild_cache.dir
+/home/xilinx/ECEN_427/lab03/image_render/hdmi/CMakeFiles/hdmi.dir
+/home/xilinx/ECEN_427/lab03/image_render/sprites/CMakeFiles/edit_cache.dir
+/home/xilinx/ECEN_427/lab03/image_render/sprites/CMakeFiles/rebuild_cache.dir
+/home/xilinx/ECEN_427/lab03/image_render/sprites/CMakeFiles/sprites.dir
