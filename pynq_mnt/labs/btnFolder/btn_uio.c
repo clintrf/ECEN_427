@@ -34,6 +34,7 @@ int32_t btn_init(char devDevice[]) {
 	}
 
 	/* put hardware setup here */
+	/* configure the button port by writing the corresponding bit with the value of 1 */
 
 	return UIO_BTN_SUCCESS;
 }

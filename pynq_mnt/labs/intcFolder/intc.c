@@ -1,6 +1,6 @@
 /*
 * Interrupt Driver
-* initializes interrupts
+* Initializes interrupts
 *
 * ECEn 427
 * Clint Frandsen, Dax Eckles
@@ -17,8 +17,10 @@
 #define FOUR_BYTES 4 /* 32 bits to write to fd */
 #define SIE_REG_OFFSET 0x10 /* sets the register bits in the IER */
 #define CIE_REG_OFFSET 0x14 /* clears the resgiter bits in the IER */
-#define IAR_REG_OFFSET 0x0C /* acknowledges interrupts */
+#define IAR_REG_OFFSET 0xC /* acknowledges interrupts */
+#define GIER_REG_OFFSET 0x11C /* global interrupt register offset */
 #define GPIO_BITS 7 /* turns on all GPIO interrupts */
+#define GIER_MASK 0x8000 /* top register bit (31) is set to one */
 
 /*********************************** globals ***********************************/
 static int fd; /* this is a file descriptor that describes the UIO device */
@@ -43,6 +45,7 @@ int32_t intc_init(char devDevice[]){
 		return INTC_ERROR;
 	}
 
+	intc_enable_global_interrupts(); /*enables global interrupts */
 	intc_irq_enable(GPIO_BITS); /* enables all the GPIO interrupts */
 
 	return INTC_SUCCESS;
@@ -70,6 +73,11 @@ void intc_ack_interrupt(uint32_t irq_mask) {
 // (see the UIO documentation for how to do this)
 void intc_enable_uio_interrupts() {
 	write(fd, &enable, FOUR_BYTES); /* enable linux interrupts from the GPIO */
+}
+
+// Enables global interrupts in the GPIO
+void intc_enable_global_interrupts(){
+	*((volatile uint32_t *)(va + GIER_REG_OFFSET)) | GIER_MASK;
 }
 
 // Enable interrupt line(s)

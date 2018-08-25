@@ -35,6 +35,9 @@ void intc_ack_interrupt(uint32_t irq_mask);
 // (see the UIO documentation for how to do this)
 void intc_enable_uio_interrupts();
 
+// Enables global interrupts in the GPIO
+void intc_enable_global_interrupts();
+
 // Enable interrupt line(s)
 // irq_mask: Bitmask of lines to enable
 // This function only enables interrupt lines, ie, a 0 bit in irq_mask
