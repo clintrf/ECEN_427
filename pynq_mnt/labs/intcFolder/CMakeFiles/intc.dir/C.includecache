@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/xilinx/ECEN_427/pynq_mnt/labs/intcFolder/intc.c
+stdint.h
+-
+unistd.h
+-
+fcntl.h
+-
+sys/mman.h
+-
+intc.h
+/home/xilinx/ECEN_427/pynq_mnt/labs/intcFolder/intc.h
+
+/home/xilinx/ECEN_427/pynq_mnt/labs/intcFolder/intc.h
+stdint.h
+-
+

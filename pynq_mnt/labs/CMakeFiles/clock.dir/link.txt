@@ -1,0 +1,1 @@
+/usr/bin/cc     CMakeFiles/clock.dir/main.c.o  -o clock intcFolder/libintc.a 

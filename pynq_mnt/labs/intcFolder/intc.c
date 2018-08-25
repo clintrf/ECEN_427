@@ -15,9 +15,9 @@
 
 #define INTC_MMAP_SIZE 0x1000 /* size of memory to allocate */
 #define FOUR_BYTES 4 /* 32 bits to write to fd */
-#define SIE_REG_OFFSET 0x10H /* sets the register bits in the IER */
-#define CIE_REG_OFFSET 0x14H /* clears the resgiter bits in the IER */
-#define IAR_REG_OFFSET 0x0CH /* acknowledges interrupts */
+#define SIE_REG_OFFSET 0x10 /* sets the register bits in the IER */
+#define CIE_REG_OFFSET 0x14 /* clears the resgiter bits in the IER */
+#define IAR_REG_OFFSET 0x0C /* acknowledges interrupts */
 #define GPIO_BITS 7 /* turns on all GPIO interrupts */
 
 /*********************************** globals ***********************************/
@@ -39,7 +39,7 @@ int32_t intc_init(char devDevice[]){
 	}
 
 	va = mmap(NULL, INTC_MMAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, MMAP_OFFSET);
-	if(fd == MAP_FAILED) {
+	if(va == MAP_FAILED) {
 		return INTC_ERROR;
 	}
 
@@ -50,7 +50,7 @@ int32_t intc_init(char devDevice[]){
 
 // Called to exit the driver (unmap and close UIO file)
 void intc_exit() {
-	munmap(ptr, UIO_BTN_MMAP_SIZE);
+	munmap(va, INTC_MMAP_SIZE);
 	close(fd);
 }
 
