@@ -13,7 +13,7 @@
 #include "uioFolder/button_uio.h"
 
 /*********************************** macros ***********************************/
-
+#define MOVE_ONE_SPACE 1
 
 /*********************************** globals ***********************************/
 char white_t[BYTES_PER_PIXEL] = {0xFF, 0xFF, 0xFF};
@@ -24,6 +24,7 @@ uint32_t interrupts;
 char letter_1;
 char letter_2;
 char letter_3;
+uint32_t alien_counter = 0;
 
 /*********************************** functions ***********************************/
 // moves the cursor around so the player can type in their name after the game is done
@@ -108,18 +109,17 @@ void run_game_over() {
   print_high_scores(); // prints out the high scores
 }
 
-void move_tank( uint32_t buttonPressed){
+void move_tank(uint32_t buttonPressed) {
   switch(buttonPressed) { // reads in which button was pressed
     case BTN_0_MASK:
-      printf("%s moving right\r\n", "tank");
-      image_render_tank(1, 1);
+      image_render_tank(MOVE_ONE_SPACE,IMAGE_RENDER_RIGHT_MOVEMENT);
       break;
     case BTN_1_MASK:
       printf("%s shooting\r\n", "tank");
       break;
     case BTN_2_MASK:
       printf("%s moving left\r\n", "tank");
-      image_render_tank(1, 0);
+      image_render_tank(MOVE_ONE_SPACE,IMAGE_RENDER_LEFT_MOVEMENT);
       break;
   }
 }
@@ -135,12 +135,17 @@ void isr_buttons() {
   while (buttonPressed == button_uio_read(BUTTON_UIO_GPIO_DATA_OFFSET) && buttonPressed != 0){
     move_tank(buttonPressed);
   }
-  printf("%s moving or shooting\r\n", "not");
-  // reset all counters
-  //multiple_buttons = 0;
   button_counter = 0;
   button_uio_acknowledge(BUTTON_UIO_CHANNEL_ONE_MASK); /* acknowledges an interrupt from the GPIO */
   intc_ack_interrupt(INTC_BTNS_MASK); /* acknowledges an interrupt from the interrupt controller */
+}
+
+void isr_fit() {
+  alien_counter++;
+  if(alien_counter > 50) {
+      image_render_move_alien_block();
+      alien_counter = 0;
+  }
 }
 
 // main function that contains the main basic state machine
@@ -148,9 +153,7 @@ int main() {
   intc_init(INTC_GPIO_FILE_PATH); // intializes interrupts
   button_uio_init(BUTTON_UIO_GPIO_FILE_PATH); // initializes buttons
   image_render_init(); // initializes image making abilities
-  printf("Checkpoint1\n");
   image_render_print_start_screen();
-  printf("Checkpoint3\n");
   // bulk of state machine programming
   while(1) {
     /* need to run this each time that we block, because this function will unblock */
@@ -158,7 +161,7 @@ int main() {
     uint32_t interrupts = intc_wait_for_interrupt();
     // Check which interrupt lines are high and call the appropriate ISR functions
     if(interrupts & INTC_FIT_MASK) {
-      //isr_fit();
+      isr_fit();
     }
     if(interrupts & INTC_BTNS_MASK) {
       isr_buttons();

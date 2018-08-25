@@ -9,10 +9,8 @@
 #define IMAGE_RENDER_ALIEN_IN 0
 #define IMAGE_RENDER_ALIEN_ALIVE 1
 #define IMAGE_RENDER_ALIEN_DESTROYED 0
-// #define IMAGE_RENDER_ALIEN_MOVING_RIGHT 1
-// #define IMAGE_RENDER_ALIEN_MOVING_LEFT 2
-// #define IMAGE_RENDER_ALIEN_MOVING_DOWN 3
-// #define IMAGE_RENDER_ALIEN_SHOT 4
+#define IMAGE_RENDER_LEFT_MOVEMENT 0
+#define IMAGE_RENDER_RIGHT_MOVEMENT 1
 
 
 // a struct containing the data for an individual alien
@@ -47,7 +45,9 @@ Alien image_render_create_alien(const uint32_t image[], uint32_t starting_locati
 void image_render_modify_alien(Alien alien, uint16_t modifier);
 
 // creates the entire alien block
-void image_render_create_alien_block();
+// starting_position : where to start drawing the alien block
+// in_out : whether the aliens are in the in or out position
+void image_render_create_alien_block(uint16_t in_out);
 
 // prints the first part of the game over screen
 // this will display "GAME OVER" and "Enter your name" and a place to enter the player name
@@ -60,9 +60,12 @@ void image_render_print_game_over_screen_high_scores();
 // prints the start screen and everything on it
 void image_render_print_start_screen();
 
-void image_render_update_screen();
+// moves the tank around on the screen
+// move : direction of movement
+void image_render_tank(uint32_t move, uint16_t dir);
 
-void image_render_tank(uint32_t move, char dir);
+// moves the alien block around the screen
+void image_render_move_alien_block();
 
 // closes the hdmi connection
 void image_render_close();
