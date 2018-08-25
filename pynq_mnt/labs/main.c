@@ -1,9 +1,9 @@
     #include <stdint.h>
-    #include "intc.h"
+    #include "intcFolder/intc.h"
 
     #define btns_mask 0x01
-    #define switches_mask
-    #define fit_mask
+    #define switches_mask 0x02
+    #define fit_mask 0x03
 
     // This is invoked in response to a timer interrupt.
     // It does 2 things: 1) debounce switches, and 2) advances the time.
@@ -32,10 +32,14 @@
             uint32_t interrupts = intc_wait_for_interrupt();
 
             // Check which interrupt lines are high and call the appropriate ISR functions
-            if (interrupts & fit_mask)
+            if(interrupts & fit_mask) {
               isr_fit();
-            if (interrupts & btns_mask)
+            }
+
+            if(interrupts & btns_mask) {
               isr_buttons();
-            if(interrupts & switches_mask)
+            }
+
+            if(interrupts & switches_mask) {}
         }
     }

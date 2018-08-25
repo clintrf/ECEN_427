@@ -4,5 +4,5 @@
 /home/xilinx/ECEN_427/pynq_mnt/labs/intcFolder/CMakeFiles/edit_cache.dir
 /home/xilinx/ECEN_427/pynq_mnt/labs/intcFolder/CMakeFiles/rebuild_cache.dir
 /home/xilinx/ECEN_427/pynq_mnt/labs/intcFolder/CMakeFiles/intc.dir
-/home/xilinx/ECEN_427/pynq_mnt/labs/btnFolder/CMakeFiles/edit_cache.dir
-/home/xilinx/ECEN_427/pynq_mnt/labs/btnFolder/CMakeFiles/rebuild_cache.dir
+/home/xilinx/ECEN_427/pynq_mnt/labs/uioFolder/CMakeFiles/edit_cache.dir
+/home/xilinx/ECEN_427/pynq_mnt/labs/uioFolder/CMakeFiles/rebuild_cache.dir

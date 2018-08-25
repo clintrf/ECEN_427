@@ -35,7 +35,7 @@ endif()
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/home/xilinx/ECEN_427/pynq_mnt/labs/intcFolder/cmake_install.cmake")
-  include("/home/xilinx/ECEN_427/pynq_mnt/labs/btnFolder/cmake_install.cmake")
+  include("/home/xilinx/ECEN_427/pynq_mnt/labs/uioFolder/cmake_install.cmake")
 
 endif()
 

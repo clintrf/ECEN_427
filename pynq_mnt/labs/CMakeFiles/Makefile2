@@ -152,22 +152,22 @@ clean: intcFolder/CMakeFiles/intc.dir/clean
 .PHONY : clean
 
 #=============================================================================
-# Directory level rules for directory btnFolder
+# Directory level rules for directory uioFolder
 
 # Convenience name for "all" pass in the directory.
-btnFolder/all:
+uioFolder/all:
 
-.PHONY : btnFolder/all
+.PHONY : uioFolder/all
 
 # Convenience name for "clean" pass in the directory.
-btnFolder/clean:
+uioFolder/clean:
 
-.PHONY : btnFolder/clean
+.PHONY : uioFolder/clean
 
 # Convenience name for "preinstall" pass in the directory.
-btnFolder/preinstall:
+uioFolder/preinstall:
 
-.PHONY : btnFolder/preinstall
+.PHONY : uioFolder/preinstall
 
 #=============================================================================
 # Special targets to cleanup operation of make.

@@ -17,15 +17,15 @@
 
 /**************************** function prototypes *****************************/
 // initializes the uio driver
-int32_t btn_init(char devDevice[]);
+int32_t generic_init(char devDevice[]);
 
 // write to a register of the UIO device
-void btn_write(uint32_t offset, uint32_t value);
+void generic_write(uint32_t offset, uint32_t value);
 
 // read from a register of the UIO device
-uint32_t btn_read(uint32_t offset);
+uint32_t generic_read(uint32_t offset);
 
 // close the UIO device
-void btn_exit();
+void generic_exit();
 
 

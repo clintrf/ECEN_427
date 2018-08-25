@@ -6,5 +6,5 @@ C_FLAGS =
 
 C_DEFINES = 
 
-C_INCLUDES = -I/home/xilinx/ECEN_427/pynq_mnt/labs/btnFolder 
+C_INCLUDES = -I/home/xilinx/ECEN_427/pynq_mnt/labs/uioFolder 
 

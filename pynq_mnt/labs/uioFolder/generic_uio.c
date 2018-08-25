@@ -10,7 +10,7 @@
 #include <stdint.h>
 #include <fcntl.h>
 #include <sys/mman.h>
-#include "btn_uio.h"
+#include "generic_uio.h"
 
 #define UIO_BTN_MMAP_SIZE 0x1000 /* size of memory to allocate */
 #define GIER_MASK 0x8000 /* top register bit (31) is set to one */
@@ -23,7 +23,7 @@ static char *va; /* virtual address of the button registers */
 
 /**************************** functions *****************************/
 /* initializes the uio driver */
-int32_t btn_init(char devDevice[]) {
+int32_t generic_init(char devDevice[]) {
 	/* open the device */
 	fd = open(devDevice, O_RDWR);
 	if(f == UIO_BTN_ERROR) {
@@ -36,21 +36,22 @@ int32_t btn_init(char devDevice[]) {
 	}
 
 	/* put hardware setup here */
-	/* configure the button port by writing the corresponding bit with the value of 1 */
+	/* enable channel interrupt ub the IP IER */
+	/* enable global interrupt by setting bit 31 of the GIR */
 
 	return UIO_BTN_SUCCESS;
 }
 
 // write to a register of the UIO device
-void btn_write(uint32_t offset, uint32_t value);
+void generic_write(uint32_t offset, uint32_t value);
 
 // read from a register of the UIO device
-uint32_t btn_read(uint32_t offset) {
+uint32_t generic_read(uint32_t offset) {
 	return *((volatile uint32_t *)(ptr + offset));
 }
 
 /* close the UIO device */
-void btn_exit() {
+void generic_exit() {
 	munmap(ptr, UIO_BTN_MMAP_SIZE);
 	close(fd);
 }

@@ -80,14 +80,14 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	cd /home/xilinx/ECEN_427/pynq_mnt/labs && $(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/pynq_mnt/labs/CMakeFiles /home/xilinx/ECEN_427/pynq_mnt/labs/btnFolder/CMakeFiles/progress.marks
-	cd /home/xilinx/ECEN_427/pynq_mnt/labs && $(MAKE) -f CMakeFiles/Makefile2 btnFolder/all
+	cd /home/xilinx/ECEN_427/pynq_mnt/labs && $(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/pynq_mnt/labs/CMakeFiles /home/xilinx/ECEN_427/pynq_mnt/labs/uioFolder/CMakeFiles/progress.marks
+	cd /home/xilinx/ECEN_427/pynq_mnt/labs && $(MAKE) -f CMakeFiles/Makefile2 uioFolder/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/pynq_mnt/labs/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /home/xilinx/ECEN_427/pynq_mnt/labs && $(MAKE) -f CMakeFiles/Makefile2 btnFolder/clean
+	cd /home/xilinx/ECEN_427/pynq_mnt/labs && $(MAKE) -f CMakeFiles/Makefile2 uioFolder/clean
 .PHONY : clean
 
 # The main clean target
@@ -97,12 +97,12 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /home/xilinx/ECEN_427/pynq_mnt/labs && $(MAKE) -f CMakeFiles/Makefile2 btnFolder/preinstall
+	cd /home/xilinx/ECEN_427/pynq_mnt/labs && $(MAKE) -f CMakeFiles/Makefile2 uioFolder/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /home/xilinx/ECEN_427/pynq_mnt/labs && $(MAKE) -f CMakeFiles/Makefile2 btnFolder/preinstall
+	cd /home/xilinx/ECEN_427/pynq_mnt/labs && $(MAKE) -f CMakeFiles/Makefile2 uioFolder/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
