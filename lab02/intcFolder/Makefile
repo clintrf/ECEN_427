@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/xilinx/ECEN_427/pynq_mnt/labs
+CMAKE_SOURCE_DIR = /home/xilinx/ECEN_427/lab02
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/xilinx/ECEN_427/pynq_mnt/labs
+CMAKE_BINARY_DIR = /home/xilinx/ECEN_427/lab02
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,14 +80,14 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	cd /home/xilinx/ECEN_427/pynq_mnt/labs && $(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/pynq_mnt/labs/CMakeFiles /home/xilinx/ECEN_427/pynq_mnt/labs/intcFolder/CMakeFiles/progress.marks
-	cd /home/xilinx/ECEN_427/pynq_mnt/labs && $(MAKE) -f CMakeFiles/Makefile2 intcFolder/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/pynq_mnt/labs/CMakeFiles 0
+	cd /home/xilinx/ECEN_427/lab02 && $(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab02/CMakeFiles /home/xilinx/ECEN_427/lab02/intcFolder/CMakeFiles/progress.marks
+	cd /home/xilinx/ECEN_427/lab02 && $(MAKE) -f CMakeFiles/Makefile2 intcFolder/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab02/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /home/xilinx/ECEN_427/pynq_mnt/labs && $(MAKE) -f CMakeFiles/Makefile2 intcFolder/clean
+	cd /home/xilinx/ECEN_427/lab02 && $(MAKE) -f CMakeFiles/Makefile2 intcFolder/clean
 .PHONY : clean
 
 # The main clean target
@@ -97,22 +97,22 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /home/xilinx/ECEN_427/pynq_mnt/labs && $(MAKE) -f CMakeFiles/Makefile2 intcFolder/preinstall
+	cd /home/xilinx/ECEN_427/lab02 && $(MAKE) -f CMakeFiles/Makefile2 intcFolder/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /home/xilinx/ECEN_427/pynq_mnt/labs && $(MAKE) -f CMakeFiles/Makefile2 intcFolder/preinstall
+	cd /home/xilinx/ECEN_427/lab02 && $(MAKE) -f CMakeFiles/Makefile2 intcFolder/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /home/xilinx/ECEN_427/pynq_mnt/labs && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /home/xilinx/ECEN_427/lab02 && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
 # Convenience name for target.
 intcFolder/CMakeFiles/intc.dir/rule:
-	cd /home/xilinx/ECEN_427/pynq_mnt/labs && $(MAKE) -f CMakeFiles/Makefile2 intcFolder/CMakeFiles/intc.dir/rule
+	cd /home/xilinx/ECEN_427/lab02 && $(MAKE) -f CMakeFiles/Makefile2 intcFolder/CMakeFiles/intc.dir/rule
 .PHONY : intcFolder/CMakeFiles/intc.dir/rule
 
 # Convenience name for target.
@@ -122,7 +122,7 @@ intc: intcFolder/CMakeFiles/intc.dir/rule
 
 # fast build rule for target.
 intc/fast:
-	cd /home/xilinx/ECEN_427/pynq_mnt/labs && $(MAKE) -f intcFolder/CMakeFiles/intc.dir/build.make intcFolder/CMakeFiles/intc.dir/build
+	cd /home/xilinx/ECEN_427/lab02 && $(MAKE) -f intcFolder/CMakeFiles/intc.dir/build.make intcFolder/CMakeFiles/intc.dir/build
 .PHONY : intc/fast
 
 intc.o: intc.c.o
@@ -131,7 +131,7 @@ intc.o: intc.c.o
 
 # target to build an object file
 intc.c.o:
-	cd /home/xilinx/ECEN_427/pynq_mnt/labs && $(MAKE) -f intcFolder/CMakeFiles/intc.dir/build.make intcFolder/CMakeFiles/intc.dir/intc.c.o
+	cd /home/xilinx/ECEN_427/lab02 && $(MAKE) -f intcFolder/CMakeFiles/intc.dir/build.make intcFolder/CMakeFiles/intc.dir/intc.c.o
 .PHONY : intc.c.o
 
 intc.i: intc.c.i
@@ -140,7 +140,7 @@ intc.i: intc.c.i
 
 # target to preprocess a source file
 intc.c.i:
-	cd /home/xilinx/ECEN_427/pynq_mnt/labs && $(MAKE) -f intcFolder/CMakeFiles/intc.dir/build.make intcFolder/CMakeFiles/intc.dir/intc.c.i
+	cd /home/xilinx/ECEN_427/lab02 && $(MAKE) -f intcFolder/CMakeFiles/intc.dir/build.make intcFolder/CMakeFiles/intc.dir/intc.c.i
 .PHONY : intc.c.i
 
 intc.s: intc.c.s
@@ -149,7 +149,7 @@ intc.s: intc.c.s
 
 # target to generate assembly for a file
 intc.c.s:
-	cd /home/xilinx/ECEN_427/pynq_mnt/labs && $(MAKE) -f intcFolder/CMakeFiles/intc.dir/build.make intcFolder/CMakeFiles/intc.dir/intc.c.s
+	cd /home/xilinx/ECEN_427/lab02 && $(MAKE) -f intcFolder/CMakeFiles/intc.dir/build.make intcFolder/CMakeFiles/intc.dir/intc.c.s
 .PHONY : intc.c.s
 
 # Help Target
@@ -175,6 +175,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /home/xilinx/ECEN_427/pynq_mnt/labs && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /home/xilinx/ECEN_427/lab02 && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

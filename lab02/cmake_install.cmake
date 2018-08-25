@@ -1,4 +1,4 @@
-# Install script for directory: /home/xilinx/ECEN_427/pynq_mnt/labs
+# Install script for directory: /home/xilinx/ECEN_427/lab02
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -34,8 +34,8 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/xilinx/ECEN_427/pynq_mnt/labs/intcFolder/cmake_install.cmake")
-  include("/home/xilinx/ECEN_427/pynq_mnt/labs/uioFolder/cmake_install.cmake")
+  include("/home/xilinx/ECEN_427/lab02/intcFolder/cmake_install.cmake")
+  include("/home/xilinx/ECEN_427/lab02/uioFolder/cmake_install.cmake")
 
 endif()
 
@@ -47,5 +47,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/xilinx/ECEN_427/pynq_mnt/labs/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/xilinx/ECEN_427/lab02/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

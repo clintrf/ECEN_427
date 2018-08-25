@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_C
-  "/home/xilinx/ECEN_427/pynq_mnt/labs/main.c" "/home/xilinx/ECEN_427/pynq_mnt/labs/CMakeFiles/clock.dir/main.c.o"
+  "/home/xilinx/ECEN_427/lab02/main.c" "/home/xilinx/ECEN_427/lab02/CMakeFiles/clock.dir/main.c.o"
   )
 set(CMAKE_C_COMPILER_ID "GNU")
 
@@ -15,7 +15,7 @@ set(CMAKE_C_TARGET_INCLUDE_PATH
 
 # Targets to which this target links.
 set(CMAKE_TARGET_LINKED_INFO_FILES
-  "/home/xilinx/ECEN_427/pynq_mnt/labs/intcFolder/CMakeFiles/intc.dir/DependInfo.cmake"
+  "/home/xilinx/ECEN_427/lab02/intcFolder/CMakeFiles/intc.dir/DependInfo.cmake"
   )
 
 # Fortran module output directory.

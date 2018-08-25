@@ -54,10 +54,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/xilinx/ECEN_427/pynq_mnt/labs
+CMAKE_SOURCE_DIR = /home/xilinx/ECEN_427/lab02
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/xilinx/ECEN_427/pynq_mnt/labs
+CMAKE_BINARY_DIR = /home/xilinx/ECEN_427/lab02
 
 #=============================================================================
 # Target rules for target CMakeFiles/clock.dir
@@ -66,7 +66,7 @@ CMAKE_BINARY_DIR = /home/xilinx/ECEN_427/pynq_mnt/labs
 CMakeFiles/clock.dir/all: intcFolder/CMakeFiles/intc.dir/all
 	$(MAKE) -f CMakeFiles/clock.dir/build.make CMakeFiles/clock.dir/depend
 	$(MAKE) -f CMakeFiles/clock.dir/build.make CMakeFiles/clock.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/pynq_mnt/labs/CMakeFiles --progress-num=1,2 "Built target clock"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/lab02/CMakeFiles --progress-num=1,2 "Built target clock"
 .PHONY : CMakeFiles/clock.dir/all
 
 # Include target in all.
@@ -76,9 +76,9 @@ all: CMakeFiles/clock.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/clock.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/pynq_mnt/labs/CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab02/CMakeFiles 4
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/clock.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/pynq_mnt/labs/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab02/CMakeFiles 0
 .PHONY : CMakeFiles/clock.dir/rule
 
 # Convenience name for target.
@@ -121,7 +121,7 @@ intcFolder/preinstall:
 intcFolder/CMakeFiles/intc.dir/all:
 	$(MAKE) -f intcFolder/CMakeFiles/intc.dir/build.make intcFolder/CMakeFiles/intc.dir/depend
 	$(MAKE) -f intcFolder/CMakeFiles/intc.dir/build.make intcFolder/CMakeFiles/intc.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/pynq_mnt/labs/CMakeFiles --progress-num=3,4 "Built target intc"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/lab02/CMakeFiles --progress-num=3,4 "Built target intc"
 .PHONY : intcFolder/CMakeFiles/intc.dir/all
 
 # Include target in all.
@@ -131,9 +131,9 @@ all: intcFolder/CMakeFiles/intc.dir/all
 
 # Build rule for subdir invocation for target.
 intcFolder/CMakeFiles/intc.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/pynq_mnt/labs/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab02/CMakeFiles 2
 	$(MAKE) -f CMakeFiles/Makefile2 intcFolder/CMakeFiles/intc.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/pynq_mnt/labs/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab02/CMakeFiles 0
 .PHONY : intcFolder/CMakeFiles/intc.dir/rule
 
 # Convenience name for target.

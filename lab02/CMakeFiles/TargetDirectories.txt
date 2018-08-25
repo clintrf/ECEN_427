@@ -1,8 +1,8 @@
-/home/xilinx/ECEN_427/pynq_mnt/labs/CMakeFiles/edit_cache.dir
-/home/xilinx/ECEN_427/pynq_mnt/labs/CMakeFiles/rebuild_cache.dir
-/home/xilinx/ECEN_427/pynq_mnt/labs/CMakeFiles/clock.dir
-/home/xilinx/ECEN_427/pynq_mnt/labs/intcFolder/CMakeFiles/edit_cache.dir
-/home/xilinx/ECEN_427/pynq_mnt/labs/intcFolder/CMakeFiles/rebuild_cache.dir
-/home/xilinx/ECEN_427/pynq_mnt/labs/intcFolder/CMakeFiles/intc.dir
-/home/xilinx/ECEN_427/pynq_mnt/labs/uioFolder/CMakeFiles/edit_cache.dir
-/home/xilinx/ECEN_427/pynq_mnt/labs/uioFolder/CMakeFiles/rebuild_cache.dir
+/home/xilinx/ECEN_427/lab02/CMakeFiles/edit_cache.dir
+/home/xilinx/ECEN_427/lab02/CMakeFiles/rebuild_cache.dir
+/home/xilinx/ECEN_427/lab02/CMakeFiles/clock.dir
+/home/xilinx/ECEN_427/lab02/intcFolder/CMakeFiles/edit_cache.dir
+/home/xilinx/ECEN_427/lab02/intcFolder/CMakeFiles/rebuild_cache.dir
+/home/xilinx/ECEN_427/lab02/intcFolder/CMakeFiles/intc.dir
+/home/xilinx/ECEN_427/lab02/uioFolder/CMakeFiles/edit_cache.dir
+/home/xilinx/ECEN_427/lab02/uioFolder/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,3 @@
+/home/xilinx/ECEN_427/lab02/intcFolder/CMakeFiles/edit_cache.dir
+/home/xilinx/ECEN_427/lab02/intcFolder/CMakeFiles/rebuild_cache.dir
+/home/xilinx/ECEN_427/lab02/intcFolder/CMakeFiles/intc.dir

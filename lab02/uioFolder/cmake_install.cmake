@@ -1,4 +1,4 @@
-# Install script for directory: /home/xilinx/ECEN_427/pynq_mnt/labs/uioFolder
+# Install script for directory: /home/xilinx/ECEN_427/lab02/uioFolder
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
