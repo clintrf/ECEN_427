@@ -17,6 +17,44 @@
 #define NUMBER_THREE_POSITION ((SCORE_BOARD_START_POS+50*ONE_PIXEL*DEFAULT_CHAR_SCALE)+(SCALE_NEXT_LINE_*i*DEFAULT_CHAR_SCALE)+(2*DEFAULT_CHAR_SCALE*ONE_PIXEL*10))
 #define NUMBER_FOUR_POSITION ((SCORE_BOARD_START_POS+50*ONE_PIXEL*DEFAULT_CHAR_SCALE)+(SCALE_NEXT_LINE_*i*DEFAULT_CHAR_SCALE)+(3*DEFAULT_CHAR_SCALE*ONE_PIXEL*10))
 #define NUMBER_FIVE_POSITION ((SCORE_BOARD_START_POS+50*ONE_PIXEL*DEFAULT_CHAR_SCALE)+(SCALE_NEXT_LINE_*i*DEFAULT_CHAR_SCALE)+(4*DEFAULT_CHAR_SCALE*ONE_PIXEL*10))
+#define POSTION_0 0
+#define POSTION_1 1
+#define POSTION_2 2
+#define POSTION_3 3
+#define POSTION_4 4
+#define POSTION_5 5
+#define POSTION_6 6
+#define POSTION_7 7
+#define POSTION_8 8
+#define POSTION_9 9
+#define POSTION_10 10
+#define POSTION_11 11
+#define POSTION_12 12
+#define POSTION_13 13
+#define POSTION_14 14
+#define POSTION_15 15
+#define POSTION_16 16
+#define POSTION_17 17
+#define POSTION_18 18
+#define POSTION_19 19
+#define POSTION_20 20
+#define POSTION_21 21
+#define POSTION_22 22
+#define POSTION_23 23
+#define POSTION_24 24
+#define POSTION_25 25
+#define POSTION_26 26
+#define POSTION_27 27
+#define POSTION_28 28
+#define POSTION_29 29
+#define POSTION_30 30
+#define POSTION_31 31
+#define POSTION_32 32
+#define POSTION_33 33
+#define POSTION_34 34
+#define POSTION_35 35
+#define POSTION_36 36
+
 
 /*********************************** globals ***********************************/
 char white_test[BYTES_PER_PIXEL] = {0xFF, 0xFF, 0xFF};
@@ -30,79 +68,79 @@ const uint32_t *convert_to_array(int chrt){
   char temp = chrt;
   switch(temp){ // simple switch statement that maps to the correct index containing pixelized version of the letters
     case '0':
-      return char_array[0];
+      return char_array[POSTION_0];
     case '1':
-      return char_array[1];
+      return char_array[POSTION_1];
     case '2':
-      return char_array[2];
+      return char_array[POSTION_2];
     case '3':
-      return char_array[3];
+      return char_array[POSTION_3];
     case '4':
-      return char_array[4];
+      return char_array[POSTION_4];
     case '5':
-      return char_array[5];
+      return char_array[POSTION_5];
     case '6':
-      return char_array[6];
+      return char_array[POSTION_6];
     case '7':
-      return char_array[7];
+      return char_array[POSTION_7];
     case '8':
-      return char_array[8];
+      return char_array[POSTION_8];
     case '9':
-      return char_array[9];
+      return char_array[POSTION_9];
     case ' ':
-      return char_array[10];
+      return char_array[POSTION_10];
     case 'A':
-      return char_array[11];
+      return char_array[POSTION_11];
     case 'B':
-      return char_array[12];
+      return char_array[POSTION_12];
     case 'C':
-      return char_array[13];
+      return char_array[POSTION_13];
     case 'D':
-      return char_array[14];
+      return char_array[POSTION_14];
     case 'E':
-      return char_array[15];
+      return char_array[POSTION_15];
     case 'F':
-      return char_array[16];
+      return char_array[POSTION_16];
     case 'G':
-      return char_array[17];
+      return char_array[POSTION_17];
     case 'H':
-      return char_array[18];
+      return char_array[POSTION_18];
     case 'I':
-      return char_array[19];
+      return char_array[POSTION_19];
     case 'J':
-      return char_array[20];
+      return char_array[POSTION_20];
     case 'K':
-      return char_array[21];
+      return char_array[POSTION_21];
     case 'L':
-      return char_array[22];
+      return char_array[POSTION_22];
     case 'M':
-      return char_array[23];
+      return char_array[POSTION_23];
     case 'N':
-      return char_array[24];
+      return char_array[POSTION_24];
     case 'O':
-      return char_array[25];
+      return char_array[POSTION_25];
     case 'P':
-      return char_array[26];
+      return char_array[POSTION_26];
     case 'Q':
-      return char_array[27];
+      return char_array[POSTION_27];
     case 'R':
-      return char_array[28];
+      return char_array[POSTION_28];
     case 'S':
-      return char_array[29];
+      return char_array[POSTION_29];
     case 'T':
-      return char_array[30];
+      return char_array[POSTION_30];
     case 'U':
-      return char_array[31];
+      return char_array[POSTION_31];
     case 'V':
-      return char_array[32];
+      return char_array[POSTION_32];
     case 'W':
-      return char_array[33];
+      return char_array[POSTION_33];
     case 'X':
-      return char_array[34];
+      return char_array[POSTION_34];
     case 'Y':
-      return char_array[35];
+      return char_array[POSTION_35];
     case 'Z':
-      return char_array[36];
+      return char_array[POSTION_36];
   }
 };
 
@@ -140,14 +178,14 @@ void save_score_board(){
     high_scores[i].letter3 = nam3;
 
     for(int j = 0; j < CHAR_ARRAY_SIZE;j++){ // converts those numbers to the array version
-      high_scores[i].name_char[0][j] = convert_to_array(nam1)[j];
-      high_scores[i].name_char[1][j] = convert_to_array(nam2)[j];
-      high_scores[i].name_char[2][j] = convert_to_array(nam3)[j];
-      high_scores[i].score_char[0][j] = convert_to_array(num1)[j];
-      high_scores[i].score_char[1][j] = convert_to_array(num2)[j];
-      high_scores[i].score_char[2][j] = convert_to_array(num3)[j];
-      high_scores[i].score_char[3][j] = convert_to_array(num4)[j];
-      high_scores[i].score_char[4][j] = convert_to_array(num5)[j];
+      high_scores[i].name_char[POSTION_0][j] = convert_to_array(nam1)[j];
+      high_scores[i].name_char[POSTION_1][j] = convert_to_array(nam2)[j];
+      high_scores[i].name_char[POSTION_2][j] = convert_to_array(nam3)[j];
+      high_scores[i].score_char[POSTION_0][j] = convert_to_array(num1)[j];
+      high_scores[i].score_char[POSTION_1][j] = convert_to_array(num2)[j];
+      high_scores[i].score_char[POSTION_2][j] = convert_to_array(num3)[j];
+      high_scores[i].score_char[POSTION_3][j] = convert_to_array(num4)[j];
+      high_scores[i].score_char[POSTION_4][j] = convert_to_array(num5)[j];
     }
   }
   fclose(fp); // closes the file
@@ -156,15 +194,15 @@ void save_score_board(){
 // function to print the top 10 high scores
 void print_high_scores(){
   for(int i = 0; i < TOP_TEN_SCORES; i++){ // prints the high scores onto the screen via for loop
-    sprites_render_image(high_scores[i].name_char[0],CHARACTER_WIDTH,CHARACTER_HEIGHT,CHARACTER_ONE_POSITION,DEFAULT_CHAR_SCALE,white_test);
-    sprites_render_image(high_scores[i].name_char[1],CHARACTER_WIDTH,CHARACTER_HEIGHT,CHARACTER_TWO_POSITION,DEFAULT_CHAR_SCALE,white_test);
-    sprites_render_image(high_scores[i].name_char[2],CHARACTER_WIDTH,CHARACTER_HEIGHT,CHARACTER_THREE_POSITION,DEFAULT_CHAR_SCALE,white_test);
+    sprites_render_image(high_scores[i].name_char[POSTION_0],CHARACTER_WIDTH,CHARACTER_HEIGHT,CHARACTER_ONE_POSITION,DEFAULT_CHAR_SCALE,white_test);
+    sprites_render_image(high_scores[i].name_char[POSTION_1],CHARACTER_WIDTH,CHARACTER_HEIGHT,CHARACTER_TWO_POSITION,DEFAULT_CHAR_SCALE,white_test);
+    sprites_render_image(high_scores[i].name_char[POSTION_2],CHARACTER_WIDTH,CHARACTER_HEIGHT,CHARACTER_THREE_POSITION,DEFAULT_CHAR_SCALE,white_test);
 
-    sprites_render_image(high_scores[i].score_char[0],CHARACTER_WIDTH,CHARACTER_HEIGHT,NUMBER_ONE_POSITION,DEFAULT_CHAR_SCALE,white_test);
-    sprites_render_image(high_scores[i].score_char[1],CHARACTER_WIDTH,CHARACTER_HEIGHT,NUMBER_TWO_POSITION,DEFAULT_CHAR_SCALE,white_test);
-    sprites_render_image(high_scores[i].score_char[2],CHARACTER_WIDTH,CHARACTER_HEIGHT,NUMBER_THREE_POSITION,DEFAULT_CHAR_SCALE,white_test);
-    sprites_render_image(high_scores[i].score_char[3],CHARACTER_WIDTH,CHARACTER_HEIGHT,NUMBER_FOUR_POSITION,DEFAULT_CHAR_SCALE,white_test);
-    sprites_render_image(high_scores[i].score_char[4],CHARACTER_WIDTH,CHARACTER_HEIGHT,NUMBER_FIVE_POSITION,DEFAULT_CHAR_SCALE,white_test);
+    sprites_render_image(high_scores[i].score_char[POSTION_0],CHARACTER_WIDTH,CHARACTER_HEIGHT,NUMBER_ONE_POSITION,DEFAULT_CHAR_SCALE,white_test);
+    sprites_render_image(high_scores[i].score_char[POSTION_1],CHARACTER_WIDTH,CHARACTER_HEIGHT,NUMBER_TWO_POSITION,DEFAULT_CHAR_SCALE,white_test);
+    sprites_render_image(high_scores[i].score_char[POSTION_2],CHARACTER_WIDTH,CHARACTER_HEIGHT,NUMBER_THREE_POSITION,DEFAULT_CHAR_SCALE,white_test);
+    sprites_render_image(high_scores[i].score_char[POSTION_3],CHARACTER_WIDTH,CHARACTER_HEIGHT,NUMBER_FOUR_POSITION,DEFAULT_CHAR_SCALE,white_test);
+    sprites_render_image(high_scores[i].score_char[POSTION_4],CHARACTER_WIDTH,CHARACTER_HEIGHT,NUMBER_FIVE_POSITION,DEFAULT_CHAR_SCALE,white_test);
   }
 }
 
