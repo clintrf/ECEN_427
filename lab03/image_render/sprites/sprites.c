@@ -38,14 +38,14 @@ void sprites_render_image(const uint32_t image[], uint32_t width, uint32_t heigh
       for(int w=0; w<width; w++) {
         if(image[h*width+w]==1) {
           for(int i=0; i<scaling_factor; i++) {
-            printf("printing\n");
             hdmi_write(color,ONE_PIXEL);
           }
         }
         else {
           for(int i=0; i<scaling_factor; i++) {
-            uint32_t stuff = hdmi_set_offset(starting_location+(h*scaling_factor)*SCALE_NEXT_LINE+(SCALE_NEXT_LINE*j)+((w*scaling_factor)*ONE_PIXEL)+ONE_PIXEL+ONE_PIXEL*i);
-            printf("skippin: %zu offset @ \n",stuff);
+            uint32_t scaled_h = h*scaling_factor*SCALE_NEXT_LINE;
+            uint32_t scaled_w = w*scaling_factor*ONE_PIXEL;
+            hdmi_set_offset(starting_location+scaled_h+(SCALE_NEXT_LINE*j)+scaled_w+(ONE_PIXEL*i)+ONE_PIXEL);
           }
         }
       }
