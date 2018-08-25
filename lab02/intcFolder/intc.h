@@ -9,9 +9,13 @@
 #include <stdint.h>
 
 /*********************************** macros ***********************************/
-#define MMAP_OFFSET   0
+#define INTC_MMAP_OFFSET   0
 #define INTC_SUCCESS  0
 #define INTC_ERROR   -1      //error return value
+#define INTC_GPIO_FILE_PATH "/dev/uio4"
+#define INTC_FIT_MASK 0x1 /* interrupt handler's first bit: corresponds to fit */
+#define INTC_BTNS_MASK 0x2 /* interrupt handler's second bit: corresponds to buttons */
+#define INTC_SWITCHES_MASK 0x4 /* interrupt handler's third bit: corresponds to switches */
 
 /**************************** function prototypes *****************************/
 // Initializes the driver (opens UIO file and calls mmap)

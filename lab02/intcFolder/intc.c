@@ -16,7 +16,7 @@
 
 /*********************************** macros ***********************************/
 #define INTC_MMAP_SIZE 0x1000 /* size of memory to allocate */
-#define FOUR_BYTES 4 /* 32 bits to write to fd */
+#define FOUR_BYTES_SIZE 4 /* 32 bits to write to fd */
 #define SIE_REG_OFFSET 0x10 /* sets the register bits in the IER */
 #define CIE_REG_OFFSET 0x14 /* clears the resgiter bits in the IER */
 #define IAR_REG_OFFSET 0xC /* acknowledges interrupts */
@@ -40,12 +40,14 @@ static int32_t int_buffer = 0; /* buffer for the interrupt */
 int32_t intc_init(char devDevice[]){
 	/* open the device */
 	fd = open(devDevice, O_RDWR);
-
+	/* if there is a problem, return an error */
 	if(fd == INTC_ERROR) {
 		return INTC_ERROR;
 	}
 
-	va = mmap(NULL, INTC_MMAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, MMAP_OFFSET);
+	/* map the virtual address to the appropriate location on the pynq */
+	va = mmap(NULL, INTC_MMAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, INTC_MMAP_OFFSET);
+	/* if there's a problem, return an error */
 	if(va == MAP_FAILED) {
 		return INTC_ERROR;
 	}
@@ -66,7 +68,7 @@ void intc_exit() {
 // This function will block until an interrupt occurrs
 // Returns: Bitmask of activated interrupts
 uint32_t intc_wait_for_interrupt() {
-	read(fd, &int_buffer, FOUR_BYTES);
+	read(fd, &int_buffer, FOUR_BYTES_SIZE); /* blocks interrupts */
 	return *((volatile uint32_t *)(va + ISR_REG_OFFSET));
 }
 
@@ -79,7 +81,7 @@ void intc_ack_interrupt(uint32_t irq_mask) {
 // Instruct the UIO to enable interrupts for this device in Linux
 // (see the UIO documentation for how to do this)
 void intc_enable_uio_interrupts() {
-	write(fd, &enable, FOUR_BYTES); /* enable linux interrupts from the GPIO */
+	write(fd, &enable, FOUR_BYTES_SIZE); /* enable linux interrupts from the GPIO */
 }
 
 // Enable interrupt line(s)
