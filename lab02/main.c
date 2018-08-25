@@ -1,5 +1,6 @@
     #include <stdint.h>
     #include "intcFolder/intc.h"
+    #include <stdio.h>
 
     #define btns_mask 0x01
     #define switches_mask 0x02
@@ -30,7 +31,9 @@
         while(1) {
             // Call interrupt controller function to wait for interrupt
             uint32_t interrupts = intc_wait_for_interrupt();
-
+            
+            printf("%zu  \r\n", interrupts);
+            printf("%zu \r\n", switches_mask);
             // Check which interrupt lines are high and call the appropriate ISR functions
             if(interrupts & fit_mask) {
               isr_fit();
@@ -40,6 +43,8 @@
               isr_buttons();
             }
 
-            if(interrupts & switches_mask) {}
+            if(interrupts & switches_mask) {
+            printf("switches\r\n");
+        }
         }
     }
