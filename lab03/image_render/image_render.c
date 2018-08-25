@@ -50,7 +50,10 @@ void image_render_update_screen() {}
 
 void image_render_print_high_scores() {}
 
-void image_render_print_gameover() {}
+void image_render_print_gameover() {
+  hdmi_write(full_screen_black,IMAGE_RENDER_WHOLE_SCREEN);
+  sprites_render_image(letterG_5x5,5,5,0,5,white);
+}
 
 void image_render_test_image() {
   // uint32_t image[], uint32_t width, uint32_t height, uint32_t starting_location,
