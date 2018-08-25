@@ -1,0 +1,26 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/xilinx/ECEN_427/lab03/image_render/hdmi.c
+stdint.h
+-
+fcntl.h
+-
+unistd.h
+-
+sys/mman.h
+-
+sys/types.h
+-
+hdmi.h
+/home/xilinx/ECEN_427/lab03/image_render/hdmi.h
+
+/home/xilinx/ECEN_427/lab03/image_render/hdmi.h
+stdint.h
+-
+

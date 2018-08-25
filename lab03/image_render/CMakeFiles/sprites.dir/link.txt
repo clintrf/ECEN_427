@@ -1,0 +1,2 @@
+/usr/bin/ar qc libsprites.a  CMakeFiles/sprites.dir/sprites.c.o
+/usr/bin/ranlib libsprites.a

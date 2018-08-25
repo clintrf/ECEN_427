@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
+#include "image_render.h"
 #include "hdmi.h"
-#include "sprites.h"
 #define ALIEN_HEIGHT 16
 
 // Packs each horizontal line of the figures into a single 32 bit word.
@@ -38,15 +38,17 @@ int main() {
   // Each line of the alien is a 32-bit integer. We just need to strip the bits out and send
   // them to stdout.
   // MSB is the left-most pixel for the alien, so start from the MSB as we print from left to right.
-  uint32_t row, column;
-  for (row=0; row<ALIEN_HEIGHT; row++) {
-    for (column=0; column<WORD_WIDTH; column++) {
-      if ((topOutAlienSymbol[row] & (1<<(WORD_WIDTH-1-column)))) {
-	       printf("#");
-      } else {
-	       printf(" ");
-      }
-    }
-    printf("\n");
-  }
+  // uint32_t row, column;
+  // for (row=0; row<ALIEN_HEIGHT; row++) {
+  //   for (column=0; column<WORD_WIDTH; column++) {
+  //     if ((topOutAlienSymbol[row] & (1<<(WORD_WIDTH-1-column)))) {
+	//        printf("#");
+  //     } else {
+	//        printf(" ");
+  //     }
+  //   }
+  //   printf("\n");
+  // }
+  hdmi_init(HDMI_FILE_PATH);
+  image_render_print_black_screen();
 }

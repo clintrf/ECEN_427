@@ -1,0 +1,2 @@
+/usr/bin/ar qc libhdmi.a  CMakeFiles/hdmi.dir/hdmi.c.o
+/usr/bin/ranlib libhdmi.a

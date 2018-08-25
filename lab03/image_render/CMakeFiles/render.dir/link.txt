@@ -1,0 +1,2 @@
+/usr/bin/ar qc librender.a  CMakeFiles/render.dir/image_render.c.o
+/usr/bin/ranlib librender.a

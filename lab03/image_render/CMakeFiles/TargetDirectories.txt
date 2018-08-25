@@ -1,0 +1,5 @@
+/home/xilinx/ECEN_427/lab03/image_render/CMakeFiles/edit_cache.dir
+/home/xilinx/ECEN_427/lab03/image_render/CMakeFiles/hdmi.dir
+/home/xilinx/ECEN_427/lab03/image_render/CMakeFiles/render.dir
+/home/xilinx/ECEN_427/lab03/image_render/CMakeFiles/sprites.dir
+/home/xilinx/ECEN_427/lab03/image_render/CMakeFiles/rebuild_cache.dir
