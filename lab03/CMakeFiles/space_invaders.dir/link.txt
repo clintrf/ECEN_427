@@ -1,1 +1,1 @@
-/usr/bin/cc     CMakeFiles/space_invaders.dir/main.c.o  -o space_invaders image_render/librender.a image_render/hdmi/libhdmi.a image_render/sprites/libsprites.a 
+/usr/bin/cc     CMakeFiles/space_invaders.dir/main.c.o  -o space_invaders image_render/librender.a intcFolder/libintc.a uioFolder/libbtn.a image_render/hdmi/libhdmi.a image_render/sprites/libsprites.a 

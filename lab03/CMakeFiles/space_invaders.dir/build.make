@@ -91,6 +91,8 @@ space_invaders_EXTERNAL_OBJECTS =
 space_invaders: CMakeFiles/space_invaders.dir/main.c.o
 space_invaders: CMakeFiles/space_invaders.dir/build.make
 space_invaders: image_render/librender.a
+space_invaders: intcFolder/libintc.a
+space_invaders: uioFolder/libbtn.a
 space_invaders: image_render/hdmi/libhdmi.a
 space_invaders: image_render/sprites/libsprites.a
 space_invaders: CMakeFiles/space_invaders.dir/link.txt

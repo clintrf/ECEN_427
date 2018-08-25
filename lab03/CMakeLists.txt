@@ -1,8 +1,14 @@
 cmake_minimum_required (VERSION 3.5)
 
 add_subdirectory(/home/xilinx/ECEN_427/lab03/image_render /home/xilinx/ECEN_427/lab03/image_render)
+add_subdirectory(/home/xilinx/ECEN_427/lab03/intcFolder /home/xilinx/ECEN_427/lab03/intcFolder)
+add_subdirectory(/home/xilinx/ECEN_427/lab03/uioFolder /home/xilinx/ECEN_427/lab03/uioFolder)
 
 include_directories(/home/xilinx/ECEN_427/lab03/image_render)
+include_directories(/home/xilinx/ECEN_427/lab03/intcFolder)
+include_directories(/home/xilinx/ECEN_427/lab03/uioFolder)
 
 add_executable(space_invaders main.c)
 target_link_libraries(space_invaders render)
+target_link_libraries(space_invaders intc)
+target_link_libraries(space_invaders btn)

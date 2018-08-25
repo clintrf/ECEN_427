@@ -1,0 +1,2 @@
+/usr/bin/ar qc libuio.a  CMakeFiles/uio.dir/generic_uio.c.o
+/usr/bin/ranlib libuio.a

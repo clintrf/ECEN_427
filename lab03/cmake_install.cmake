@@ -35,6 +35,8 @@ endif()
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/home/xilinx/ECEN_427/lab03/image_render/cmake_install.cmake")
+  include("/home/xilinx/ECEN_427/lab03/intcFolder/cmake_install.cmake")
+  include("/home/xilinx/ECEN_427/lab03/uioFolder/cmake_install.cmake")
 
 endif()
 

@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/xilinx/ECEN_427/lab03/uioFolder/button_uio.c
+stdint.h
+-
+fcntl.h
+-
+unistd.h
+-
+sys/mman.h
+-
+button_uio.h
+/home/xilinx/ECEN_427/lab03/uioFolder/button_uio.h
+
+/home/xilinx/ECEN_427/lab03/uioFolder/button_uio.h
+stdint.h
+-
+

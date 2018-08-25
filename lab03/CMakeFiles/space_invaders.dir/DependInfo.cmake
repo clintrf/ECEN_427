@@ -11,11 +11,15 @@ set(CMAKE_C_COMPILER_ID "GNU")
 # The include file search paths:
 set(CMAKE_C_TARGET_INCLUDE_PATH
   "image_render"
+  "intcFolder"
+  "uioFolder"
   )
 
 # Targets to which this target links.
 set(CMAKE_TARGET_LINKED_INFO_FILES
   "/home/xilinx/ECEN_427/lab03/image_render/CMakeFiles/render.dir/DependInfo.cmake"
+  "/home/xilinx/ECEN_427/lab03/intcFolder/CMakeFiles/intc.dir/DependInfo.cmake"
+  "/home/xilinx/ECEN_427/lab03/uioFolder/CMakeFiles/btn.dir/DependInfo.cmake"
   "/home/xilinx/ECEN_427/lab03/image_render/hdmi/CMakeFiles/hdmi.dir/DependInfo.cmake"
   "/home/xilinx/ECEN_427/lab03/image_render/sprites/CMakeFiles/sprites.dir/DependInfo.cmake"
   )

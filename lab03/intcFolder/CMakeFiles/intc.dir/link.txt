@@ -1,0 +1,2 @@
+/usr/bin/ar qc libintc.a  CMakeFiles/intc.dir/intc.c.o
+/usr/bin/ranlib libintc.a

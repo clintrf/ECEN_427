@@ -10,3 +10,10 @@
 /home/xilinx/ECEN_427/lab03/image_render/sprites/CMakeFiles/edit_cache.dir
 /home/xilinx/ECEN_427/lab03/image_render/sprites/CMakeFiles/rebuild_cache.dir
 /home/xilinx/ECEN_427/lab03/image_render/sprites/CMakeFiles/sprites.dir
+/home/xilinx/ECEN_427/lab03/intcFolder/CMakeFiles/edit_cache.dir
+/home/xilinx/ECEN_427/lab03/intcFolder/CMakeFiles/rebuild_cache.dir
+/home/xilinx/ECEN_427/lab03/intcFolder/CMakeFiles/intc.dir
+/home/xilinx/ECEN_427/lab03/uioFolder/CMakeFiles/edit_cache.dir
+/home/xilinx/ECEN_427/lab03/uioFolder/CMakeFiles/rebuild_cache.dir
+/home/xilinx/ECEN_427/lab03/uioFolder/CMakeFiles/swtch.dir
+/home/xilinx/ECEN_427/lab03/uioFolder/CMakeFiles/btn.dir

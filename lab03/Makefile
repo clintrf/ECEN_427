@@ -162,6 +162,45 @@ sprites/fast:
 	$(MAKE) -f image_render/sprites/CMakeFiles/sprites.dir/build.make image_render/sprites/CMakeFiles/sprites.dir/build
 .PHONY : sprites/fast
 
+#=============================================================================
+# Target rules for targets named intc
+
+# Build rule for target.
+intc: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 intc
+.PHONY : intc
+
+# fast build rule for target.
+intc/fast:
+	$(MAKE) -f intcFolder/CMakeFiles/intc.dir/build.make intcFolder/CMakeFiles/intc.dir/build
+.PHONY : intc/fast
+
+#=============================================================================
+# Target rules for targets named swtch
+
+# Build rule for target.
+swtch: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 swtch
+.PHONY : swtch
+
+# fast build rule for target.
+swtch/fast:
+	$(MAKE) -f uioFolder/CMakeFiles/swtch.dir/build.make uioFolder/CMakeFiles/swtch.dir/build
+.PHONY : swtch/fast
+
+#=============================================================================
+# Target rules for targets named btn
+
+# Build rule for target.
+btn: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 btn
+.PHONY : btn
+
+# fast build rule for target.
+btn/fast:
+	$(MAKE) -f uioFolder/CMakeFiles/btn.dir/build.make uioFolder/CMakeFiles/btn.dir/build
+.PHONY : btn/fast
+
 main.o: main.c.o
 
 .PHONY : main.o
@@ -201,6 +240,9 @@ help:
 	@echo "... render"
 	@echo "... hdmi"
 	@echo "... sprites"
+	@echo "... intc"
+	@echo "... swtch"
+	@echo "... btn"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
