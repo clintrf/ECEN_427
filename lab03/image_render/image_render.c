@@ -7,10 +7,11 @@
 #define IMAGE_RENDER_BYTES_PER_PIXEL 3 /* number of bytes for every pixel */
 /* number of bytes for the whole screen */
 #define IMAGE_RENDER_WHOLE_SCREEN IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_SCREEN_HEIGHT*IMAGE_RENDER_BYTES_PER_PIXEL
+#define NUMBER_OF_CHARS_FOR_NAME 3
+#define NUMBER_OF_BITS_PER_CHAR 25
 
 /********************************** globals **********************************/
 char full_screen_black[IMAGE_RENDER_WHOLE_SCREEN];
-char white_buffer[IMAGE_RENDER_WHOLE_SCREEN];
 char black[3] = {0x00, 0x00, 0x00};
 char pink[3] = {0xFF, 0x69, 0xB4};
 char white[3] = {0xFF, 0xFF, 0xFF};
@@ -27,11 +28,6 @@ void image_render_init() {
     full_screen_black[i++] = 0x00; // if all bits are set to 0x00, the pixel will be black
     full_screen_black[i++] = 0x00;
     full_screen_black[i] = 0x00;
-  }
-  for(uint32_t i = 0; i < IMAGE_RENDER_WHOLE_SCREEN; i++) {
-    white_buffer[i++] = 0xff; // if all bits are set to 0x00, the pixel will be black
-    white_buffer[i++] = 0xff;
-    white_buffer[i] = 0xff;
   }
   image_render_print_black_screen(); // call the print screen function
 }
@@ -68,10 +64,6 @@ void image_render_print_game_over_screen_enter_name() {
   sprites_render_image(letterA_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,A_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,white);
   sprites_render_image(letterM_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,M_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,white);
   sprites_render_image(letterE_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,E3_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,white);
-}
-
-void update_player_name() {
-
 }
 
 // prints the second part of the game over screen

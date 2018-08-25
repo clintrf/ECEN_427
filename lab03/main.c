@@ -4,9 +4,23 @@
 #include "intcFolder/intc.h"
 #include "uioFolder/button_uio.h"
 
+#define BOUNCE 100000 /* value of the ticks to seconds */
+
 void run_game_over() {
+  /* acknowledges first button press so that we can continue on */
   button_uio_acknowledge(BUTTON_UIO_CHANNEL_ONE_MASK); /* acknowledges an interrupt from the GPIO */
   intc_ack_interrupt(INTC_BTNS_MASK); /* acknowledges an interrupt from the interrupt controller */
+
+  // debounces the buttons
+  while(button_counter < BOUNCE) {
+      button_counter++;
+  }
+
+  uint32_t buttonPressed = button_uio_read(BUTTON_UIO_GPIO_DATA_OFFSET); // reads data from buttons
+
+  button_uio_acknowledge(BUTTON_UIO_CHANNEL_ONE_MASK); /* acknowledges an interrupt from the GPIO */
+  intc_ack_interrupt(INTC_BTNS_MASK); /* acknowledges an interrupt from the interrupt controller */
+
   image_render_print_game_over_screen_enter_name();
 }
 
