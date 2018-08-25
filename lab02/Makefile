@@ -136,6 +136,19 @@ intc/fast:
 	$(MAKE) -f intcFolder/CMakeFiles/intc.dir/build.make intcFolder/CMakeFiles/intc.dir/build
 .PHONY : intc/fast
 
+#=============================================================================
+# Target rules for targets named uio
+
+# Build rule for target.
+uio: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 uio
+.PHONY : uio
+
+# fast build rule for target.
+uio/fast:
+	$(MAKE) -f uioFolder/CMakeFiles/uio.dir/build.make uioFolder/CMakeFiles/uio.dir/build
+.PHONY : uio/fast
+
 main.o: main.c.o
 
 .PHONY : main.o
@@ -173,6 +186,7 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... clock"
 	@echo "... intc"
+	@echo "... uio"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

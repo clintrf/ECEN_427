@@ -47,4 +47,5 @@ set(CMAKE_MAKEFILE_PRODUCTS
 set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/clock.dir/DependInfo.cmake"
   "intcFolder/CMakeFiles/intc.dir/DependInfo.cmake"
+  "uioFolder/CMakeFiles/uio.dir/DependInfo.cmake"
   )

@@ -1,5 +1,5 @@
 /*
-* btn_uio_.h
+* generic_uio.h
 *
 * ECEn 427
 * Clint Frandsen, Dax Eckles
@@ -10,8 +10,8 @@
 
 
 /*********************************** macros ***********************************/
-#define UIO_BTN_ERROR      -1      //error return value
-#define UIO_BTN_SUCCESS     0       //success return value
+#define UIO_ERROR      -1      //error return value
+#define UIO_SUCCESS     0       //success return value
 #define MMAP_OFFSET     0
 
 

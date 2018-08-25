@@ -6,5 +6,5 @@ C_FLAGS =
 
 C_DEFINES = 
 
-C_INCLUDES = -I/home/xilinx/ECEN_427/lab02/intcFolder -I/home/xilinx/ECEN_427/lab02/uioFolder 
+C_INCLUDES = 
 

@@ -6,3 +6,4 @@
 /home/xilinx/ECEN_427/lab02/intcFolder/CMakeFiles/intc.dir
 /home/xilinx/ECEN_427/lab02/uioFolder/CMakeFiles/edit_cache.dir
 /home/xilinx/ECEN_427/lab02/uioFolder/CMakeFiles/rebuild_cache.dir
+/home/xilinx/ECEN_427/lab02/uioFolder/CMakeFiles/uio.dir

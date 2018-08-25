@@ -64,6 +64,7 @@ CMAKE_BINARY_DIR = /home/xilinx/ECEN_427/lab02
 
 # All Build rule for target.
 CMakeFiles/clock.dir/all: intcFolder/CMakeFiles/intc.dir/all
+CMakeFiles/clock.dir/all: uioFolder/CMakeFiles/uio.dir/all
 	$(MAKE) -f CMakeFiles/clock.dir/build.make CMakeFiles/clock.dir/depend
 	$(MAKE) -f CMakeFiles/clock.dir/build.make CMakeFiles/clock.dir/build
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/lab02/CMakeFiles --progress-num=1,2 "Built target clock"
@@ -76,7 +77,7 @@ all: CMakeFiles/clock.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/clock.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab02/CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab02/CMakeFiles 6
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/clock.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab02/CMakeFiles 0
 .PHONY : CMakeFiles/clock.dir/rule
@@ -155,12 +156,12 @@ clean: intcFolder/CMakeFiles/intc.dir/clean
 # Directory level rules for directory uioFolder
 
 # Convenience name for "all" pass in the directory.
-uioFolder/all:
+uioFolder/all: uioFolder/CMakeFiles/uio.dir/all
 
 .PHONY : uioFolder/all
 
 # Convenience name for "clean" pass in the directory.
-uioFolder/clean:
+uioFolder/clean: uioFolder/CMakeFiles/uio.dir/clean
 
 .PHONY : uioFolder/clean
 
@@ -168,6 +169,43 @@ uioFolder/clean:
 uioFolder/preinstall:
 
 .PHONY : uioFolder/preinstall
+
+#=============================================================================
+# Target rules for target uioFolder/CMakeFiles/uio.dir
+
+# All Build rule for target.
+uioFolder/CMakeFiles/uio.dir/all:
+	$(MAKE) -f uioFolder/CMakeFiles/uio.dir/build.make uioFolder/CMakeFiles/uio.dir/depend
+	$(MAKE) -f uioFolder/CMakeFiles/uio.dir/build.make uioFolder/CMakeFiles/uio.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/lab02/CMakeFiles --progress-num=5,6 "Built target uio"
+.PHONY : uioFolder/CMakeFiles/uio.dir/all
+
+# Include target in all.
+all: uioFolder/CMakeFiles/uio.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+uioFolder/CMakeFiles/uio.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab02/CMakeFiles 2
+	$(MAKE) -f CMakeFiles/Makefile2 uioFolder/CMakeFiles/uio.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab02/CMakeFiles 0
+.PHONY : uioFolder/CMakeFiles/uio.dir/rule
+
+# Convenience name for target.
+uio: uioFolder/CMakeFiles/uio.dir/rule
+
+.PHONY : uio
+
+# clean rule for target.
+uioFolder/CMakeFiles/uio.dir/clean:
+	$(MAKE) -f uioFolder/CMakeFiles/uio.dir/build.make uioFolder/CMakeFiles/uio.dir/clean
+.PHONY : uioFolder/CMakeFiles/uio.dir/clean
+
+# clean rule for target.
+clean: uioFolder/CMakeFiles/uio.dir/clean
+
+.PHONY : clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

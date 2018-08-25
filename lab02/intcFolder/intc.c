@@ -8,6 +8,7 @@
 */
 
 #include <stdint.h>
+#include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/mman.h>
@@ -19,6 +20,7 @@
 #define CIE_REG_OFFSET 0x14 /* clears the resgiter bits in the IER */
 #define IAR_REG_OFFSET 0xC /* acknowledges interrupts */
 #define MER_REG_OFFSET 0x1C /* Master Enable Register */
+#define ISR_REG_OFFSET 0x0 /* ISR offset */
 #define GPIO_BITS 0x7 /* turns on all GPIO interrupts */
 #define MER_BITS 0x3 /* need to turn on lower two bits to enable interrupts */
 
@@ -27,7 +29,7 @@
 static int fd; /* this is a file descriptor that describes the UIO device */
 static char *va; /* virtual address of the interrupt handler registers */
 static int enable = 1; /* enable code for interrupt */
-static int32_t int_buffer; /* buffer for the interrupt */
+static int32_t int_buffer = 0; /* buffer for the interrupt */
 
 /**************************** functions *****************************/
 // Initializes the driver (opens UIO file and calls mmap)
@@ -46,11 +48,14 @@ int32_t intc_init(char devDevice[]){
 		return INTC_ERROR;
 	}
 
+  printf("%s\n","checkpoint 1");
 	intc_enable_uio_interrupts(); /* enables Linux interrupts */
+  printf("%s\n","checkpoint 2");
 	intc_irq_enable(GPIO_BITS); /* enables all the GPIO interrupts */
 	/* turns on Master IRQ enable & Hardware interrupt enable */
 	*((volatile uint32_t *)(va + MER_REG_OFFSET)) = MER_BITS;
 
+	printf("Success!\n");
 	return INTC_SUCCESS;
 }
 
@@ -63,7 +68,8 @@ void intc_exit() {
 // This function will block until an interrupt occurrs
 // Returns: Bitmask of activated interrupts
 uint32_t intc_wait_for_interrupt() {
-	return read(fd, &int_buffer, FOUR_BYTES);
+	read(fd, &int_buffer, FOUR_BYTES);
+	return *((volatile uint32_t *)(va + ISR_REG_OFFSET));
 }
 
 // Acknowledge interrupt(s) in the interrupt controller

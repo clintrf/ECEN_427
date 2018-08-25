@@ -147,6 +147,9 @@ Project_SOURCE_DIR:STATIC=/home/xilinx/ECEN_427/lab02
 //Dependencies for target
 intc_LIB_DEPENDS:STATIC=
 
+//Dependencies for target
+uio_LIB_DEPENDS:STATIC=
+
 
 ########################
 # INTERNAL cache entries

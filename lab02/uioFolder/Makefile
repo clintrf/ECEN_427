@@ -110,6 +110,48 @@ depend:
 	cd /home/xilinx/ECEN_427/lab02 && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
+# Convenience name for target.
+uioFolder/CMakeFiles/uio.dir/rule:
+	cd /home/xilinx/ECEN_427/lab02 && $(MAKE) -f CMakeFiles/Makefile2 uioFolder/CMakeFiles/uio.dir/rule
+.PHONY : uioFolder/CMakeFiles/uio.dir/rule
+
+# Convenience name for target.
+uio: uioFolder/CMakeFiles/uio.dir/rule
+
+.PHONY : uio
+
+# fast build rule for target.
+uio/fast:
+	cd /home/xilinx/ECEN_427/lab02 && $(MAKE) -f uioFolder/CMakeFiles/uio.dir/build.make uioFolder/CMakeFiles/uio.dir/build
+.PHONY : uio/fast
+
+generic_uio.o: generic_uio.c.o
+
+.PHONY : generic_uio.o
+
+# target to build an object file
+generic_uio.c.o:
+	cd /home/xilinx/ECEN_427/lab02 && $(MAKE) -f uioFolder/CMakeFiles/uio.dir/build.make uioFolder/CMakeFiles/uio.dir/generic_uio.c.o
+.PHONY : generic_uio.c.o
+
+generic_uio.i: generic_uio.c.i
+
+.PHONY : generic_uio.i
+
+# target to preprocess a source file
+generic_uio.c.i:
+	cd /home/xilinx/ECEN_427/lab02 && $(MAKE) -f uioFolder/CMakeFiles/uio.dir/build.make uioFolder/CMakeFiles/uio.dir/generic_uio.c.i
+.PHONY : generic_uio.c.i
+
+generic_uio.s: generic_uio.c.s
+
+.PHONY : generic_uio.s
+
+# target to generate assembly for a file
+generic_uio.c.s:
+	cd /home/xilinx/ECEN_427/lab02 && $(MAKE) -f uioFolder/CMakeFiles/uio.dir/build.make uioFolder/CMakeFiles/uio.dir/generic_uio.c.s
+.PHONY : generic_uio.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -118,6 +160,10 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... uio"
+	@echo "... generic_uio.o"
+	@echo "... generic_uio.i"
+	@echo "... generic_uio.s"
 .PHONY : help
 
 
