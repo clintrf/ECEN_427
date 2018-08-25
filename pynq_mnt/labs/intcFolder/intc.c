@@ -18,6 +18,7 @@
 #define IER_REG_OFFSET 0x08H /* IER register (unmasks corresponding ISR bit) */
 #define SIE_REG_OFFSET 0x10H /* sets the register bits in the IER */
 #define CIE_REG_OFFSET 0x14H /* clears the resgiter bits in the IER */
+#define IAR_REG_OFFSET 0x0CH /* acknowledges interrupts */
 #define GPIO_BITS 7 /* turns on all GPIO interrupts */
 #define ENABLE
 #define DISABLE 0
@@ -27,6 +28,7 @@ static int fd; /* this is a file descriptor that describes the UIO device */
 static char *va; /* virtual address of the interrupt handler registers */
 static int enable = 1; /* enable code for interrupt */
 static int disable = 0; /* disable code for interrupt */
+static int32_t int_buffer; /* buffer for the interrupt */
 
 /**************************** functions *****************************/
 // Initializes the driver (opens UIO file and calls mmap)
@@ -59,12 +61,14 @@ void intc_exit() {
 // This function will block until an interrupt occurrs
 // Returns: Bitmask of activated interrupts
 uint32_t intc_wait_for_interrupt() {
-	return 0;
+	return read(fd, &int_buffer, FOUR_BYTES);
 }
 
 // Acknowledge interrupt(s) in the interrupt controller
 // irq_mask: Bitmask of interrupt lines to acknowledge.
-void intc_ack_interrupt(uint32_t irq_mask);
+void intc_ack_interrupt(uint32_t irq_mask) {
+	*((volatile uint32_t *)(va + IAR_REG_OFFSET)) = irq_mask;
+}
 
 // Instruct the UIO to enable interrupts for this device in Linux
 // (see the UIO documentation for how to do this)
