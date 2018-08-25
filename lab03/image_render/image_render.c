@@ -10,6 +10,7 @@
 
 /********************************** globals **********************************/
 char full_screen_black[IMAGE_RENDER_WHOLE_SCREEN];
+char white_buffer[IMAGE_RENDER_WHOLE_SCREEN];
 char black[3] = {0x00, 0x00, 0x00};
 char pink[3] = {0xFF, 0x69, 0xB4};
 char white[3] = {0xFF, 0xFF, 0xFF};
@@ -18,19 +19,27 @@ char white[3] = {0xFF, 0xFF, 0xFF};
 void image_render_print_black_screen();
 
 /********************************* functions *********************************/
+// initializes a few of our necessary variables and starts the screen black
 void image_render_init() {
+  hdmi_init(HDMI_FILE_PATH); /* opens a path to the HDMI driver (enables/read write) */
+  // initializes a buffer that contains all zeroes to print black to the entire screen
   for(uint32_t i = 0; i < IMAGE_RENDER_WHOLE_SCREEN; i++) {
-    full_screen_black[i++] = 0x00;
+    full_screen_black[i++] = 0x00; // if all bits are set to 0x00, the pixel will be black
     full_screen_black[i++] = 0x00;
     full_screen_black[i] = 0x00;
   }
-  image_render_print_black_screen();
+  for(uint32_t i = 0; i < IMAGE_RENDER_WHOLE_SCREEN; i++) {
+    white_buffer[i++] = 0xff; // if all bits are set to 0x00, the pixel will be black
+    white_buffer[i++] = 0xff;
+    white_buffer[i] = 0xff;
+  }
+  image_render_print_black_screen(); // call the print screen function
 }
 
+// prints the screen black and resets the cursor to the top left corner of the screen
 void image_render_print_black_screen() {
-  hdmi_init("/dev/ecen427_hdmi"); /* opens a path to the HDMI driver (enables/read write) */
-  hdmi_set_offset(0); /* this will reset the fd offset back to the top left of the screen */
   hdmi_write(full_screen_black,IMAGE_RENDER_WHOLE_SCREEN); /* this will write a black screen to the hdmi monitor */
+  hdmi_set_offset(0); /* this will reset the fd offset back to the top left of the screen */
 }
 
 void image_render_print_game_over_screen() {}
@@ -43,6 +52,13 @@ void image_render_print_high_scores() {}
 
 void image_render_print_gameover() {}
 
+void image_render_test_image() {
+  // uint32_t image[], uint32_t width, uint32_t height, uint32_t starting_location,
+  // uint32_t scaling_factor, const void *color
+  sprites_render_image(letterR_5x5_test,5,5,0,1,white_buffer);
+}
+
+// closes the hdmi connection
 void image_render_close() {
   hdmi_exit();
 }

@@ -49,5 +49,6 @@ int main() {
   //   printf("\n");
   // }
   image_render_init();
+  image_render_test_image();
   image_render_close();
 }
