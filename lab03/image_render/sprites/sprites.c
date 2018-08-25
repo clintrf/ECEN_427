@@ -18,16 +18,16 @@ void sprites_render_image(const uint32_t image[], uint32_t width, uint32_t heigh
       for(int w=0; w<width; w++) { // this for loop iterates across the image (columns of the image)
         if(image[h*width+w]==1) { // if the image pixel is a 1, then draw that pixel with given color
           for(int i=0; i<scaling_factor; i++) { // this will iterate the amount of times we draw a pixl for scaling
-            hdmi_write(color,ONE_PIXEL); // draw the pixel
+            hdmi_write(color,SPRITES_ONE_PIXEL); // draw the pixel
           }
         }
         else { // if the pixel is a 0, then draw black in that space
           for(int i=0; i<scaling_factor; i++) { // this will iterate the amount of times we draw a pixl for scaling
-            hdmi_write(black_image,ONE_PIXEL); // draw black
+            hdmi_write(black_image,SPRITES_ONE_PIXEL); // draw black
           }
         }
       }
-      current_start_line = current_start_line+SCALE_NEXT_LINE; // sets the next line
+      current_start_line = current_start_line+SPRITES_SCALE_NEXT_LINE; // sets the next line
       hdmi_set_offset(current_start_line); // this will go down to the next line of the character and restart at the beginning
     }
   }

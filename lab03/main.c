@@ -60,7 +60,7 @@ void move_cursor(uint32_t buttonPressed) {
         letter_index++;
       }
       // write new character
-      sprites_render_image(char_array[letter_index],CHARACTER_WIDTH,CHARACTER_HEIGHT,(SCORE_BOARD_START_POS+(button_pressed_counter*DEFAULT_CHAR_SCALE*ONE_PIXEL*BUFFER_SPACE)),DEFAULT_CHAR_SCALE,white_t);
+      sprites_render_image(char_array[letter_index],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,(SPRITES_SCORE_BOARD_START_POS+(button_pressed_counter*SPRITES_NORMAL_CHARACTER_SCALING*SPRITES_ONE_PIXEL*BUFFER_SPACE)),SPRITES_NORMAL_CHARACTER_SCALING,white_t);
       break;
     case BTN_2_MASK:
     // if letter_index is less than  then letter_index is 36
@@ -71,7 +71,7 @@ void move_cursor(uint32_t buttonPressed) {
       letter_index--;
     }
     // write new character
-    sprites_render_image(char_array[letter_index],CHARACTER_WIDTH,CHARACTER_HEIGHT,(SCORE_BOARD_START_POS+(button_pressed_counter*DEFAULT_CHAR_SCALE*ONE_PIXEL*BUFFER_SPACE)),DEFAULT_CHAR_SCALE,white_t);
+    sprites_render_image(char_array[letter_index],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,(SPRITES_SCORE_BOARD_START_POS+(button_pressed_counter*SPRITES_NORMAL_CHARACTER_SCALING*SPRITES_ONE_PIXEL*BUFFER_SPACE)),SPRITES_NORMAL_CHARACTER_SCALING,white_t);
       break;
   }
 }

@@ -1,6 +1,7 @@
-#include "hdmi.h"
-#include "sprites.h"
 #include "score_board.h"
+#include "hdmi.h"
+#include "image_render.h"
+#include "sprites.h"
 
 /********************************** macros ***********************************/
 #define IMAGE_RENDER_SCREEN_WIDTH 640 /* number of pixels across the screen */
@@ -11,12 +12,72 @@
 #define NUMBER_OF_CHARS_FOR_NAME 3
 #define NUMBER_OF_BITS_PER_CHAR 25
 #define LETTER_A 11
+#define ALIEN_BLOCK_ROW_0 IMAGE_RENDER_SCREEN_WIDTH*45
+#define ALIEN_TOP_POINTS 40
+#define ROW_0_TOP 0
+#define COLUMN_O_LEFT 0
 
 /********************************** globals **********************************/
 char full_screen_black[IMAGE_RENDER_WHOLE_SCREEN];
 char black[3] = {0x00, 0x00, 0x00};
 char pink[3] = {0xFF, 0x69, 0xB4};
 char white[3] = {0xFF, 0xFF, 0xFF};
+Alien alien_0_0;
+Alien alien_0_1;
+Alien alien_0_2;
+Alien alien_0_3;
+Alien alien_0_4;
+Alien alien_0_5;
+Alien alien_0_6;
+Alien alien_0_7;
+Alien alien_0_8;
+Alien alien_0_9;
+Alien alien_0_10;
+Alien alien_1_0;
+Alien alien_1_1;
+Alien alien_1_2;
+Alien alien_1_3;
+Alien alien_1_4;
+Alien alien_1_5;
+Alien alien_1_6;
+Alien alien_1_7;
+Alien alien_1_8;
+Alien alien_1_9;
+Alien alien_1_10;
+Alien alien_2_0;
+Alien alien_2_1;
+Alien alien_2_2;
+Alien alien_2_3;
+Alien alien_2_4;
+Alien alien_2_5;
+Alien alien_2_6;
+Alien alien_2_7;
+Alien alien_2_8;
+Alien alien_2_9;
+Alien alien_2_10;
+Alien alien_3_0;
+Alien alien_3_1;
+Alien alien_3_2;
+Alien alien_3_3;
+Alien alien_3_4;
+Alien alien_3_5;
+Alien alien_3_6;
+Alien alien_3_7;
+Alien alien_3_8;
+Alien alien_3_9;
+Alien alien_3_10;
+Alien alien_4_0;
+Alien alien_4_1;
+Alien alien_4_2;
+Alien alien_4_3;
+Alien alien_4_4;
+Alien alien_4_5;
+Alien alien_4_6;
+Alien alien_4_7;
+Alien alien_4_8;
+Alien alien_4_9;
+Alien alien_4_10;
+
 
 /**************************** function prototypes ****************************/
 void image_render_print_black_screen();
@@ -41,67 +102,153 @@ void image_render_print_black_screen() {
   hdmi_set_offset(0); /* this will reset the fd offset back to the top left of the screen */
 }
 
+// creates a single alien object
+// image : the image of the alien to be created
+// starting_location : starting location of the alien
+// points : how many points the alien is worth
+// placement : where the alien is inside the block
+Alien image_render_create_alien(const uint32_t image[], uint32_t starting_location, uint32_t points, uint32_t placement) {
+  Alien alien;
+  for (int i = 0; i < IMAGE_RENDER_ALIEN_PIXEL_TOTAL; i++) { // sets the alien image
+    alien.alien_image[i] = image[i];
+  }
+  alien.alien_current_location = starting_location;
+  alien.alien_points = points;
+  alien.alien_block_placement = placement;
+  alien.alien_position = IMAGE_RENDER_ALIEN_OUT;
+  alien.alien_width = SPRITES_ALIEN_WIDTH;
+  alien.alien_height = SPRITES_ALIEN_HEIGHT;
+  alien.alien_alive = IMAGE_RENDER_ALIEN_ALIVE;
+  return alien;
+}
+
+// modifies a single alien
+// alien : passed in the alien to be modified
+// modifer : how the alien is to be modified (moving or destroyed)
+void image_render_modify_alien(Alien alien, uint16_t modifier) {
+
+}
+
+// creates the entire alien block
+void image_render_create_alien_block() {
+  alien_0_0 = image_render_create_alien(alien_top_out_12x8,ALIEN_BLOCK_ROW_0,ALIEN_TOP_POINTS,ROW_0_TOP+COLUMN_O_LEFT);
+  alien_0_1;
+  alien_0_2;
+  alien_0_3;
+  alien_0_4;
+  alien_0_5;
+  alien_0_6;
+  alien_0_7;
+  alien_0_8;
+  alien_0_9;
+  alien_0_10;
+  alien_1_0;
+  alien_1_1;
+  alien_1_2;
+  alien_1_3;
+  alien_1_4;
+  alien_1_5;
+  alien_1_6;
+  alien_1_7;
+  alien_1_8;
+  alien_1_9;
+  alien_1_10;
+  alien_2_0;
+  alien_2_1;
+  alien_2_2;
+  alien_2_3;
+  alien_2_4;
+  alien_2_5;
+  alien_2_6;
+  alien_2_7;
+  alien_2_8;
+  alien_2_9;
+  alien_2_10;
+  alien_3_0;
+  alien_3_1;
+  alien_3_2;
+  alien_3_3;
+  alien_3_4;
+  alien_3_5;
+  alien_3_6;
+  alien_3_7;
+  alien_3_8;
+  alien_3_9;
+  alien_3_10;
+  alien_4_0;
+  alien_4_1;
+  alien_4_2;
+  alien_4_3;
+  alien_4_4;
+  alien_4_5;
+  alien_4_6;
+  alien_4_7;
+  alien_4_8;
+  alien_4_9;
+  alien_4_10;
+}
+
 // prints the first part of the game over screen
 // this will display "GAME OVER" and "Enter your name" and a place to enter the player name
 void image_render_print_game_over_screen_enter_name() {
   image_render_print_black_screen(); // print the whole screen black
   /* print out the words GAME OVER */
-  sprites_render_image(letterG_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,G_START_LOCATION_GO,GAME_OVER_SCALING,white);
-  sprites_render_image(letterA_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,A_START_LOCATION_GO,GAME_OVER_SCALING,white);
-  sprites_render_image(letterM_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,M_START_LOCATION_GO,GAME_OVER_SCALING,white);
-  sprites_render_image(letterE_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,E_START_LOCATION_GO,GAME_OVER_SCALING,white);
-  sprites_render_image(letterO_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,O_START_LOCATION_GO,GAME_OVER_SCALING,white);
-  sprites_render_image(letterV_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,V_START_LOCATION_GO,GAME_OVER_SCALING,white);
-  sprites_render_image(letterE_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,E2_START_LOCATION_GO,GAME_OVER_SCALING,white);
-  sprites_render_image(letterR_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,R_START_LOCATION_GO,GAME_OVER_SCALING,white);
+  sprites_render_image(letterG_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_G_START_LOCATION_GO,SPRITES_GAME_OVER_SCALING,white);
+  sprites_render_image(letterA_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_A_START_LOCATION_GO,SPRITES_GAME_OVER_SCALING,white);
+  sprites_render_image(letterM_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_M_START_LOCATION_GO,SPRITES_GAME_OVER_SCALING,white);
+  sprites_render_image(letterE_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_E_START_LOCATION_GO,SPRITES_GAME_OVER_SCALING,white);
+  sprites_render_image(letterO_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_O_START_LOCATION_GO,SPRITES_GAME_OVER_SCALING,white);
+  sprites_render_image(letterV_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_V_START_LOCATION_GO,SPRITES_GAME_OVER_SCALING,white);
+  sprites_render_image(letterE_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_E2_START_LOCATION_GO,SPRITES_GAME_OVER_SCALING,white);
+  sprites_render_image(letterR_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_R_START_LOCATION_GO,SPRITES_GAME_OVER_SCALING,white);
   /* print out the words ENTER YOUR NAME */
-  sprites_render_image(letterE_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,E_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,white);
-  sprites_render_image(letterN_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,N_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,white);
-  sprites_render_image(letterT_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,T_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,white);
-  sprites_render_image(letterE_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,E2_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,white);
-  sprites_render_image(letterR_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,R_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,white);
-  sprites_render_image(letterY_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,Y_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,white);
-  sprites_render_image(letterO_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,O_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,white);
-  sprites_render_image(letterU_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,U_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,white);
-  sprites_render_image(letterR_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,R2_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,white);
-  sprites_render_image(letterN_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,N2_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,white);
-  sprites_render_image(letterA_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,A_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,white);
-  sprites_render_image(letterM_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,M_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,white);
-  sprites_render_image(letterE_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,E3_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterE_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_E_START_LOCATION_YN,SPRITES_NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterN_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_N_START_LOCATION_YN,SPRITES_NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterT_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_T_START_LOCATION_YN,SPRITES_NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterE_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_E2_START_LOCATION_YN,SPRITES_NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterR_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_R_START_LOCATION_YN,SPRITES_NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterY_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_Y_START_LOCATION_YN,SPRITES_NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterO_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_O_START_LOCATION_YN,SPRITES_NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterU_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_U_START_LOCATION_YN,SPRITES_NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterR_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_R2_START_LOCATION_YN,SPRITES_NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterN_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_N2_START_LOCATION_YN,SPRITES_NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterA_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_A_START_LOCATION_YN,SPRITES_NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterM_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_M_START_LOCATION_YN,SPRITES_NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterE_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_E3_START_LOCATION_YN,SPRITES_NORMAL_CHARACTER_SCALING,white);
   /* print out three original characters for player name */
-  sprites_render_image(char_array[LETTER_A],CHARACTER_WIDTH,CHARACTER_HEIGHT,CHARACTER_ONE_START_LOCATION,NORMAL_CHARACTER_SCALING,white);
-  sprites_render_image(char_array[LETTER_A],CHARACTER_WIDTH,CHARACTER_HEIGHT,CHARACTER_TWO_START_LOCATION,NORMAL_CHARACTER_SCALING,white);
-  sprites_render_image(char_array[LETTER_A],CHARACTER_WIDTH,CHARACTER_HEIGHT,CHARACTER_THREE_START_LOCATION,NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(char_array[LETTER_A],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_CHARACTER_ONE_START_LOCATION,SPRITES_NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(char_array[LETTER_A],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_CHARACTER_TWO_START_LOCATION,SPRITES_NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(char_array[LETTER_A],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_CHARACTER_THREE_START_LOCATION,SPRITES_NORMAL_CHARACTER_SCALING,white);
 }
 
 // prints the second part of the game over screen
 // this will display "GAME OVER" and "High Scores" and the list of high scores
 void image_render_print_game_over_screen_high_scores() {
   /* clear the bottom portion of the screen */
-  sprites_render_image(letterE_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,E_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,black);
-  sprites_render_image(letterN_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,N_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,black);
-  sprites_render_image(letterT_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,T_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,black);
-  sprites_render_image(letterE_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,E2_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,black);
-  sprites_render_image(letterR_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,R_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,black);
-  sprites_render_image(letterY_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,Y_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,black);
-  sprites_render_image(letterO_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,O_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,black);
-  sprites_render_image(letterU_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,U_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,black);
-  sprites_render_image(letterR_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,R2_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,black);
-  sprites_render_image(letterN_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,N2_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,black);
-  sprites_render_image(letterA_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,A_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,black);
-  sprites_render_image(letterM_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,M_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,black);
-  sprites_render_image(letterE_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,E3_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,black);
+  sprites_render_image(letterE_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_E_START_LOCATION_YN,SPRITES_NORMAL_CHARACTER_SCALING,black);
+  sprites_render_image(letterN_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_N_START_LOCATION_YN,SPRITES_NORMAL_CHARACTER_SCALING,black);
+  sprites_render_image(letterT_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_T_START_LOCATION_YN,SPRITES_NORMAL_CHARACTER_SCALING,black);
+  sprites_render_image(letterE_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_E2_START_LOCATION_YN,SPRITES_NORMAL_CHARACTER_SCALING,black);
+  sprites_render_image(letterR_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_R_START_LOCATION_YN,SPRITES_NORMAL_CHARACTER_SCALING,black);
+  sprites_render_image(letterY_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_Y_START_LOCATION_YN,SPRITES_NORMAL_CHARACTER_SCALING,black);
+  sprites_render_image(letterO_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_O_START_LOCATION_YN,SPRITES_NORMAL_CHARACTER_SCALING,black);
+  sprites_render_image(letterU_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_U_START_LOCATION_YN,SPRITES_NORMAL_CHARACTER_SCALING,black);
+  sprites_render_image(letterR_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_R2_START_LOCATION_YN,SPRITES_NORMAL_CHARACTER_SCALING,black);
+  sprites_render_image(letterN_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_N2_START_LOCATION_YN,SPRITES_NORMAL_CHARACTER_SCALING,black);
+  sprites_render_image(letterA_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_A_START_LOCATION_YN,SPRITES_NORMAL_CHARACTER_SCALING,black);
+  sprites_render_image(letterM_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_M_START_LOCATION_YN,SPRITES_NORMAL_CHARACTER_SCALING,black);
+  sprites_render_image(letterE_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_E3_START_LOCATION_YN,SPRITES_NORMAL_CHARACTER_SCALING,black);
   /* print high scores image */
-  sprites_render_image(letterH_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,H_START_LOCATION_HS,NORMAL_CHARACTER_SCALING,white);
-  sprites_render_image(letterI_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,I_START_LOCATION_HS,NORMAL_CHARACTER_SCALING,white);
-  sprites_render_image(letterG_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,G_START_LOCATION_HS,NORMAL_CHARACTER_SCALING,white);
-  sprites_render_image(letterH_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,H2_START_LOCATION_HS,NORMAL_CHARACTER_SCALING,white);
-  sprites_render_image(letterS_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,S_START_LOCATION_HS,NORMAL_CHARACTER_SCALING,white);
-  sprites_render_image(letterC_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,C_START_LOCATION_HS,NORMAL_CHARACTER_SCALING,white);
-  sprites_render_image(letterO_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,O_START_LOCATION_HS,NORMAL_CHARACTER_SCALING,white);
-  sprites_render_image(letterR_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,R_START_LOCATION_HS,NORMAL_CHARACTER_SCALING,white);
-  sprites_render_image(letterE_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,E_START_LOCATION_HS,NORMAL_CHARACTER_SCALING,white);
-  sprites_render_image(letterS_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,S2_START_LOCATION_HS,NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterH_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_H_START_LOCATION_HS,SPRITES_NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterI_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_I_START_LOCATION_HS,SPRITES_NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterG_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_G_START_LOCATION_HS,SPRITES_NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterH_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_H2_START_LOCATION_HS,SPRITES_NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterS_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_S_START_LOCATION_HS,SPRITES_NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterC_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_C_START_LOCATION_HS,SPRITES_NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterO_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_O_START_LOCATION_HS,SPRITES_NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterR_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_R_START_LOCATION_HS,SPRITES_NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterE_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_E_START_LOCATION_HS,SPRITES_NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterS_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_S2_START_LOCATION_HS,SPRITES_NORMAL_CHARACTER_SCALING,white);
 }
 
 void image_render_print_start_screen() {}

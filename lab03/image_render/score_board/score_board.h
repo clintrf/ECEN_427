@@ -1,14 +1,14 @@
 #include <stdint.h>
 #include <stdio.h>
 /********************************** macros ***********************************/
-#define NUMBER_OF_CHARS_IN_NAME 3
-#define NUMBER_OF_NUMBERS_IN_SCORE 5
-#define CHAR_ARRAY_SIZE 25
+#define SCORE_BOARD_NUMBER_OF_CHARS_IN_NAME 3
+#define SCORE_BOARD_NUMBER_OF_NUMBERS_IN_SCORE 5
+#define SCORE_BOARD_CHAR_ARRAY_SIZE 25
 /*********************************** globals ***********************************/
 // the players stats as he plays the game
 struct player_stats{
-  uint32_t name_char[NUMBER_OF_CHARS_IN_NAME][CHAR_ARRAY_SIZE];
-  uint32_t score_char[NUMBER_OF_NUMBERS_IN_SCORE][CHAR_ARRAY_SIZE];
+  uint32_t name_char[SCORE_BOARD_NUMBER_OF_CHARS_IN_NAME][SCORE_BOARD_CHAR_ARRAY_SIZE];
+  uint32_t score_char[SCORE_BOARD_NUMBER_OF_NUMBERS_IN_SCORE][SCORE_BOARD_CHAR_ARRAY_SIZE];
   char letter1;
   char letter2;
   char letter3;
@@ -25,7 +25,7 @@ struct text_map{
 // converts an integer or char passed into the function out as its array form for printing to the screen
 // chrt : the char we wish to convert to an array form
 // returns : the array form of the passed in character
-const uint32_t *convert_to_array();
+const uint32_t *convert_to_array(int chrt);
 
 // saves the scores to the board data structures in the program
 void save_score_board();

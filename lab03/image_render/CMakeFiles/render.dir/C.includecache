@@ -7,12 +7,20 @@
 #IncludeRegexTransform: 
 
 /home/xilinx/ECEN_427/lab03/image_render/image_render.c
-hdmi.h
-/home/xilinx/ECEN_427/lab03/image_render/hdmi.h
-sprites.h
-/home/xilinx/ECEN_427/lab03/image_render/sprites.h
 score_board.h
 /home/xilinx/ECEN_427/lab03/image_render/score_board.h
+hdmi.h
+/home/xilinx/ECEN_427/lab03/image_render/hdmi.h
+image_render.h
+/home/xilinx/ECEN_427/lab03/image_render/image_render.h
+sprites.h
+/home/xilinx/ECEN_427/lab03/image_render/sprites.h
+
+/home/xilinx/ECEN_427/lab03/image_render/image_render.h
+stdint.h
+-
+stdio.h
+-
 
 image_render/hdmi/hdmi.h
 stdint.h
