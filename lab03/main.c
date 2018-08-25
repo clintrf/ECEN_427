@@ -50,5 +50,6 @@ int main() {
   // }
   image_render_init();
   image_render_test_image();
+  image_render_print_game_over_screen_enter_name();
   image_render_close();
 }

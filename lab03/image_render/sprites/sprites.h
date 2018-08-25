@@ -1,42 +1,54 @@
 #include <stdint.h>
 #include <stdio.h>
 
-// Packs each horizontal line of the figures into a single 1 bit word.
-#define packWord1(b0) \
-(b0 << 0)
-// Packs each horizontal line of the figures into a single 3 bit word.
-#define packWord3(b2,b1,b0) \
-( (b2 << 2) | (b1 << 1) | (b0 << 0) )
-// Packs each horizontal line of the figures into a single 5 bit word.
-#define packWord5(b4,b3,b2,b1,b0) \
-( (b4 << 4) | (b3 << 3) | (b2 << 2) | (b1 << 1) | (b0 << 0) )
-// Packs each horizontal line of the figures into a single 6 bit word.
-#define packWord6(b5,b4,b3,b2,b1,b0) \
-( (b5 << 5) | (b4 << 4) | (b3 << 3) | (b2 << 2) | (b1 << 1) | (b0 << 0) )
-// Packs each horizontal line of the figures into a single 12 bit word.
-#define packWord12(b11,b10,b9,b8,b7,b6,b5,b4,b3,b2,b1,b0) \
-( (b11 << 11) | (b10 << 10) | (b9 << 9) | (b8 << 8) | (b7 << 7) | (b6 << 6) |  \
-  (b5  << 5) | (b4   << 4) | (b3  << 3) | (b2 << 2) | (b1 << 1) | (b0 << 0) )
-// Packs each horizontal line of the figures into a single 15 bit word.
-#define packWord15(b14,b13,b12,b11,b10,b9,b8,b7,b6,b5,b4,b3,b2,b1,b0) \
-( (b14 << 14) | (b13 << 13) | (b12 << 12) | (b11 << 11) | (b10 << 10) | (b9 << 9) | (b8 << 8) |  \
-(b7 << 7) | (b6 << 6) | (b5 << 5) | (b4 << 4) | (b3 << 3) | (b2 << 2) | (b1 << 1) | (b0 << 0) )
-// Packs each horizontal line of the figures into a single 16 bit word.
-#define packWord16(b15,b14,b13,b12,b11,b10,b9,b8,b7,b6,b5,b4,b3,b2,b1,b0) \
-( (b15 << 15) | (b14 << 14) | (b13 << 13) | (b12 << 12) | (b11 << 11) | (b10 << 10) | (b9  << 9 ) | (b8  << 8 ) |  \
-  (b7  << 7 ) | (b6  << 6 ) | (b5  << 5 ) | (b4  << 4 ) | (b3  << 3 ) | (b2  << 2 ) | (b1  << 1 ) | (b0  << 0 ) )
-// Packs each horizontal line of the figures into a single 24 bit word.
-#define packWord24(b23,b22,b21,b20,b19,b18,b17,b16,b15,b14,b13,b12,b11,b10,b9,b8,b7,b6,b5,b4,b3,b2,b1,b0) \
- ( (b23 << 23) | (b22 << 22) | (b21 << 21) | (b20 << 20) | (b19 << 19) | (b18 << 18) | (b17 << 17) | (b16 << 16) |  \
-   (b15 << 15) | (b14 << 14) | (b13 << 13) | (b12 << 12) | (b11 << 11) | (b10 << 10) | (b9  << 9 ) | (b8  << 8 ) |  \
-   (b7  << 7 ) | (b6  << 6 ) | (b5  << 5 ) | (b4  << 4 ) | (b3  << 3 ) | (b2  << 2 ) | (b1  << 1 ) | (b0  << 0 ) )
-
-// Packs each horizontal line of the figures into a single 32 bit word.
-#define packWord32(b31,b30,b29,b28,b27,b26,b25,b24,b23,b22,b21,b20,b19,b18,b17,b16,b15,b14,b13,b12,b11,b10,b9,b8,b7,b6,b5,b4,b3,b2,b1,b0) \
-((b31 << 31) | (b30 << 30) | (b29 << 29) | (b28 << 28) | (b27 << 27) | (b26 << 26) | (b25 << 25) | (b24 << 24) |						  \
- (b23 << 23) | (b22 << 22) | (b21 << 21) | (b20 << 20) | (b19 << 19) | (b18 << 18) | (b17 << 17) | (b16 << 16) |						  \
- (b15 << 15) | (b14 << 14) | (b13 << 13) | (b12 << 12) | (b11 << 11) | (b10 << 10) | (b9  << 9 ) | (b8  << 8 ) |						  \
- (b7  << 7 ) | (b6  << 6 ) | (b5  << 5 ) | (b4  << 4 ) | (b3  << 3 ) | (b2  << 2 ) | (b1  << 1 ) | (b0  << 0 ) )
+/********************************** macros ***********************************/
+#define SAUCER_WIDTH 16
+#define SAUCER_HEIGHT 7
+#define ALIEN_EXPLOSION_WIDTH 12
+#define ALIEN_EXPLOSION_HEIGHT 10
+#define ALIEN_WIDTH 12
+#define ALIEN_HEIGHT 8
+#define TANK_WIDTH 15
+#define TANK_HEIGHT 8
+#define BUNKER_WIDTH 24
+#define BUNKER_HEIGHT 18
+#define BUNKER_DAMAGE_WIDTH 6
+#define BUNKER_DAMAGE_HEIGHT 6
+#define TANK_BULLET_WIDTH 1
+#define ALIEN_BULLET_WIDTH 3
+#define BULLET_HEIGHT 5
+#define CHARACTER_WIDTH 5
+#define CHARACTER_HEIGHT 5
+#define SCALE_NEXT_LINE 640*3
+#define ONE_PIXEL 3
+#define GAME_OVER_SCALING 8
+#define NORMAL_CHARACTER_SCALING 3
+#define MIDPOINT_WIDTH 960
+#define CHARACTER_SPACE_GO 24
+#define G_START_LOCATION_GO 360
+#define A_START_LOCATION_GO 504
+#define M_START_LOCATION_GO 648
+#define E_START_LOCATION_GO 792
+#define O_START_LOCATION_GO 1008
+#define V_START_LOCATION_GO 1152
+#define E2_START_LOCATION_GO 1296
+#define R_START_LOCATION_GO 1440
+#define GAME_OVER_CHARACTER_HEIGHT GAME_OVER_SCALING*CHARACTER_HEIGHT
+#define GAME_OVER_END_LINE GAME_OVER_CHARACTER_HEIGHT*SCALE_NEXT_LINE
+#define EXTRA_INFORMATION_START_LINE GAME_OVER_END_LINE+(SCALE_NEXT_LINE*10)
+#define E_START_LOCATION_YN EXTRA_INFORMATION_START_LINE+960-60-(45*7)
+#define N_START_LOCATION_YN EXTRA_INFORMATION_START_LINE+960-54-(45*6)
+#define T_START_LOCATION_YN EXTRA_INFORMATION_START_LINE+960-48-(45*5)
+#define E2_START_LOCATION_YN EXTRA_INFORMATION_START_LINE+960-42-(45*4)
+#define R_START_LOCATION_YN EXTRA_INFORMATION_START_LINE+960-36-(45*3)
+#define Y_START_LOCATION_YN EXTRA_INFORMATION_START_LINE+960-12-(45*2)
+#define O_START_LOCATION_YN EXTRA_INFORMATION_START_LINE+960-6-(45*1)
+#define U_START_LOCATION_YN EXTRA_INFORMATION_START_LINE+960+6+(45*0)
+#define R2_START_LOCATION_YN EXTRA_INFORMATION_START_LINE+960+12+(45*1)
+#define N2_START_LOCATION_YN EXTRA_INFORMATION_START_LINE+960+36+(45*2)
+#define A_START_LOCATION_YN EXTRA_INFORMATION_START_LINE+960+42+(45*3)
+#define M_START_LOCATION_YN EXTRA_INFORMATION_START_LINE+960+48+(45*4)
+#define E3_START_LOCATION_YN EXTRA_INFORMATION_START_LINE+960+54+(45*5)
 
 static const uint32_t saucer_16x7[] =
 {

@@ -38,22 +38,45 @@ void image_render_init() {
 
 // prints the screen black and resets the cursor to the top left corner of the screen
 void image_render_print_black_screen() {
+  hdmi_set_offset(0); /* this will set the fd offset back to the top left of the screen */
   hdmi_write(full_screen_black,IMAGE_RENDER_WHOLE_SCREEN); /* this will write a black screen to the hdmi monitor */
   hdmi_set_offset(0); /* this will reset the fd offset back to the top left of the screen */
 }
 
-void image_render_print_game_over_screen() {}
+void image_render_print_game_over_screen_enter_name() {
+  image_render_print_black_screen();
+  sprites_render_image(letterG_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,G_START_LOCATION_GO,GAME_OVER_SCALING,white);
+  sprites_render_image(letterA_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,A_START_LOCATION_GO,GAME_OVER_SCALING,white);
+  sprites_render_image(letterM_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,M_START_LOCATION_GO,GAME_OVER_SCALING,white);
+  sprites_render_image(letterE_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,E_START_LOCATION_GO,GAME_OVER_SCALING,white);
+  sprites_render_image(letterO_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,O_START_LOCATION_GO,GAME_OVER_SCALING,white);
+  sprites_render_image(letterV_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,V_START_LOCATION_GO,GAME_OVER_SCALING,white);
+  sprites_render_image(letterE_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,E2_START_LOCATION_GO,GAME_OVER_SCALING,white);
+  sprites_render_image(letterR_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,R_START_LOCATION_GO,GAME_OVER_SCALING,white);
+  sprites_render_image(letterE_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,E_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterN_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,N_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterT_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,T_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterE_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,E2_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterR_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,R_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterY_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,Y_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterO_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,O_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterU_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,U_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterR_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,R2_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterN_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,N2_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterA_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,A_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterM_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,M_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterE_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,E3_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,white);
+}
+
+void image_render_print_game_over_screen_high_scores() {
+
+}
 
 void image_render_print_start_screen() {}
 
 void image_render_update_screen() {}
 
 void image_render_print_high_scores() {}
-
-void image_render_print_gameover() {
-  hdmi_write(full_screen_black,IMAGE_RENDER_WHOLE_SCREEN);
-  sprites_render_image(letterG_5x5,5,5,0,5,white);
-}
 
 void image_render_test_image() {
   // uint32_t image[], uint32_t width, uint32_t height, uint32_t starting_location,
