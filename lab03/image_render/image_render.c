@@ -79,6 +79,7 @@ void image_render_init() {
     full_screen_black[i] = 0x00;
   }
   image_render_print_black_screen(); // call the print screen function
+  image_render_create_alien_block(); // creates the original alien block
 }
 
 // prints the screen black and resets the cursor to the top left corner of the screen
@@ -239,6 +240,7 @@ void image_render_print_game_over_screen_high_scores() {
 
 // prints the start screen and everything on it
 void image_render_print_start_screen() {
+  printf("Checkpoint2\n");
   /* Print the word score in the top left corner and then print the score */
   sprites_render_image(letterS_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,S_START_LOCATION_SC,SPRITES_NORMAL_CHARACTER_SCALING,white);
   sprites_render_image(letterC_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,C_START_LOCATION_SC,SPRITES_NORMAL_CHARACTER_SCALING,white);

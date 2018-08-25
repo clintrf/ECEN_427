@@ -113,8 +113,9 @@ int main() {
   intc_init(INTC_GPIO_FILE_PATH); // intializes interrupts
   button_uio_init(BUTTON_UIO_GPIO_FILE_PATH); // initializes buttons
   image_render_init(); // initializes image making abilities
-  //image_render_test_image(); // print out a test image
-  image_render_create_alien_block();
+  printf("Checkpoint1\n");
+  image_render_print_start_screen();
+  printf("Checkpoint3\n");
   // bulk of state machine programming
   while(1) {
     /* need to run this each time that we block, because this function will unblock */
