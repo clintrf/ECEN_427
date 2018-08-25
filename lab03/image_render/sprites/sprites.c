@@ -43,9 +43,9 @@ void sprites_render_image(const uint32_t image[], uint32_t width, uint32_t heigh
         }
         else {
           for(int i=0; i<scaling_factor; i++) {
-            uint32_t scaled_h = h*scaling_factor*SCALE_NEXT_LINE;
-            uint32_t scaled_w = w*scaling_factor*ONE_PIXEL;
-            hdmi_set_offset(starting_location+scaled_h+(SCALE_NEXT_LINE*j)+scaled_w+(ONE_PIXEL*i)+ONE_PIXEL);
+            uint32_t scaled_h = h*scaling_factor*SCALE_NEXT_LINE+(SCALE_NEXT_LINE*j);
+            uint32_t scaled_w = w*scaling_factor*ONE_PIXEL+(ONE_PIXEL*i);
+            hdmi_set_offset(starting_location+scaled_h+scaled_w+ONE_PIXEL);
           }
         }
       }
