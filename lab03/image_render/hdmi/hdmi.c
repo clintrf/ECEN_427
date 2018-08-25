@@ -23,13 +23,6 @@ int32_t hdmi_init(char devDevice[]) {
   if(fd == HDMI_ERROR) {
     return HDMI_ERROR;
   }
-
-  // va = mmap(NULL, HDMI_MMAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, HDMI_MMAP_OFFSET);
-  // /* if there is a problem, return an error */
-  // if(va == MAP_FAILED) {
-  //   return HDMI_ERROR;
-  // }
-
   return HDMI_SUCCESS;
 }
 
@@ -55,8 +48,7 @@ uint32_t hdmi_read(void *buf, uint32_t bytes) {
   return read(fd, buf, bytes);
 }
 
-// Called to exit the driver (unmap and close UIO file)
+// Called to exit the driver
 void hdmi_exit() {
-  // munmap(va, HDMI_MMAP_SIZE);
   close(fd);
 }

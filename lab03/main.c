@@ -48,6 +48,6 @@ int main() {
   //   }
   //   printf("\n");
   // }
-  image_render_print_black_screen();
+  image_render_init();
   image_render_close();
 }
