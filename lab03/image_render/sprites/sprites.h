@@ -75,6 +75,18 @@ static const uint32_t alien_top_in_12x8[] =
 	packWord12(0,0,0,1,0,0,0,0,1,0,0,0)
 };
 
+static const uint32_t alien_top_in_12x8_test[] =
+{
+  0,0,0,0,0,1,1,0,0,0,0,0,
+  0,0,0,0,1,1,1,1,0,0,0,0,
+  0,0,0,1,1,1,1,1,1,0,0,0,
+  0,0,1,1,0,1,1,0,1,1,0,0,
+  0,0,1,1,1,1,1,1,1,1,0,0,
+  0,0,0,1,0,1,1,0,1,0,0,0,
+  0,0,1,0,0,0,0,0,0,1,0,0,
+  0,0,0,1,0,0,0,0,1,0,0,0
+};
+
 static const uint32_t alien_top_out_12x8[] =
 {
 	packWord12(0,0,0,0,0,1,1,0,0,0,0,0),
@@ -480,7 +492,7 @@ static const uint32_t letterR_5x5[] = {
 	packWord5(1,0,0,0,1)
 };
 
-static const uint32_t letterR_5x5_test[] = 
+static const uint32_t letterR_5x5_test[] =
 	{1,1,1,1,0,1,0,0,0,1,1,1,1,1,0,1,0,0,0,1,1,0,0,0,1};
 
 static const uint32_t letterS_5x5[] = {

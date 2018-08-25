@@ -55,7 +55,10 @@ void image_render_print_gameover() {}
 void image_render_test_image() {
   // uint32_t image[], uint32_t width, uint32_t height, uint32_t starting_location,
   // uint32_t scaling_factor, const void *color
-  sprites_render_image(letterR_5x5_test,5,5,0,1,white_buffer);
+  sprites_render_image(letterR_5x5_test,5,5,0,2,white_buffer);
+  sprites_render_image(letterR_5x5_test,5,5,60,1,white_buffer);
+  sprites_render_image(alien_top_in_12x8_test,12,8,108,1,pink);
+  sprites_render_image(alien_top_in_12x8_test,12,8,999,5,pink);
 }
 
 // closes the hdmi connection
