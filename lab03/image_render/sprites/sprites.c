@@ -21,7 +21,7 @@
 #define BULLET_HEIGHT 5
 #define CHARACTER_WIDTH 5
 #define CHARATCER_HEIGHT 5
-#define SCALE_NEXT_LINE 640
+#define SCALE_NEXT_LINE 640*3
 #define ONE_PIXEL 3
 
 /********************************** globals **********************************/
@@ -36,13 +36,11 @@ void sprites_render_image(const uint32_t image[], uint32_t width, uint32_t heigh
   uint32_t true_width = width*ONE_PIXEL;
   for(int h = 0; h < height; h++) {
     for(int w = 0; w < width; w++) {
-      uint32_t offset = h*true_width+(w*ONE_PIXEL);
       if(image[h*width+w] == 1) {
-        printf("I'm writing now\n");
         hdmi_write(color,ONE_PIXEL);
       }
       else {
-        hdmi_set_offset(starting_location+offset+ONE_PIXEL);
+        hdmi_set_offset(starting_location+(h*SCALE_NEXT_LINE)+(w*ONE_PIXEL)+ONE_PIXEL);
       }
     }
     current_start_line = current_start_line+SCALE_NEXT_LINE;
