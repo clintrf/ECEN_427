@@ -1,5 +1,5 @@
 /*
-* button_uio.h
+* hdmi.h
 *
 * ECEn 427
 * Clint Frandsen, Dax Eckles
@@ -13,7 +13,7 @@
 #define HDMI_ERROR      -1      //error return value
 #define HDMI_SUCCESS     0      //success return value
 #define HDMI_MMAP_OFFSET 0      //mmap offset location for virtual address
-#define HDMI_FILE_PATH   "/dev/ecen427_hdmi" //pathway to follow to acccess the drivers
+#define HDMI_FILE_PATH "/dev/ecen427_hdmi" //pathway to follow to acccess the drivers
 
 /**************************** function prototypes *****************************/
 // initializes the hdmi driver
@@ -24,7 +24,7 @@ int32_t hdmi_init(char devDevice[]);
 // allows you to change the screen and what appears on it
 // color : the desired color to change the pixel to
 // pixels : the amount of pixels you wish to write to (multiples of 3)
-void hdmi_write(const void *color, uint32_t pixels);
+uint32_t hdmi_write(const void *color, uint32_t pixels);
 
 // use to change the offset without reading or writing
 // offset : desired offset to change to

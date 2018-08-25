@@ -24,18 +24,20 @@ int32_t hdmi_init(char devDevice[]) {
     return HDMI_ERROR;
   }
 
-  va = mmap(NULL, HDMI_MMAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, HDMI_MMAP_OFFSET);
-  /* if there is a problem, return an error */
-  if(va == MAP_FAILED) {
-    return HDMI_ERROR;
-  }
+  // va = mmap(NULL, HDMI_MMAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, HDMI_MMAP_OFFSET);
+  // /* if there is a problem, return an error */
+  // if(va == MAP_FAILED) {
+  //   return HDMI_ERROR;
+  // }
+
+  return HDMI_SUCCESS;
 }
 
 // allows you to change the screen and what appears on it
 // color : the desired color to change the pixel to
 // pixels : the amount of pixels you wish to write to (multiples of 3)
-void hdmi_write(const void *color, uint32_t pixels) {
-  write(fd, color, pixels); // it will begin to write wherever you are on the screen according to the offset of fd)
+uint32_t hdmi_write(const void *color, uint32_t pixels) {
+  return write(fd, color, pixels); // it will begin to write wherever you are on the screen according to the offset of fd)
 }
 
 // use to change the offset without reading or writing
@@ -55,6 +57,6 @@ uint32_t hdmi_read(void *buf, uint32_t bytes) {
 
 // Called to exit the driver (unmap and close UIO file)
 void hdmi_exit() {
-  munmap(va, HDMI_MMAP_SIZE);
+  // munmap(va, HDMI_MMAP_SIZE);
   close(fd);
 }

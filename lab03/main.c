@@ -49,4 +49,5 @@ int main() {
   //   printf("\n");
   // }
   image_render_print_black_screen();
+  image_render_close();
 }
