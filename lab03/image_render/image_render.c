@@ -55,10 +55,25 @@ void image_render_print_gameover() {}
 void image_render_test_image() {
   // uint32_t image[], uint32_t width, uint32_t height, uint32_t starting_location,
   // uint32_t scaling_factor, const void *color
-  sprites_render_image(letterR_5x5_test,5,5,0,2,white_buffer);
-  sprites_render_image(letterR_5x5_test,5,5,60,1,white_buffer);
-  sprites_render_image(alien_top_in_12x8_test,12,8,108,1,pink);
-  sprites_render_image(alien_top_in_12x8_test,12,8,999,5,pink);
+  sprites_render_image(saucer_16x7,16,7,0,1,white);
+  sprites_render_image(alien_explosion_12x10,12,10,60,1,white);
+  sprites_render_image(alien_top_in_12x8,12,8,108,1,pink);
+  sprites_render_image(alien_top_out_12x8,12,8,156,1,pink);
+  sprites_render_image(alien_middle_in_12x8,12,8,204,1,pink);
+  sprites_render_image(alien_middle_out_12x8,12,8,252,1,pink);
+  sprites_render_image(alien_bottom_in_12x8,12,8,300,1,pink);
+  sprites_render_image(alien_bottom_out_12x8,12,8,348,1,pink);
+  sprites_render_image(tank_15x8,15,8,405,1,white);
+  sprites_render_image(bunker_24x18,24,18,462,1,white);
+  sprites_render_image(bunkerDamage0_6x6,6,6,546,1,white);
+  sprites_render_image(tankbullet_1x5,1,5,576,1,pink);
+  sprites_render_image(alienbullet1_down_3x5,3,5,591,1,pink);
+  sprites_render_image(alienbullet2_up_3x5,3,5,612,1,pink);
+  sprites_render_image(letterD_5x5,5,5,633,1,white);
+  sprites_render_image(letterA_5x5,5,5,660,1,white);
+  sprites_render_image(letterX_5x5,5,5,687,1,white);
+  sprites_render_image(number2_5x5,5,5,714,1,white);
+  sprites_render_image(number1_5x5,5,5,741,1,white);
 }
 
 // closes the hdmi connection
