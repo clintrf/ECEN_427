@@ -18,9 +18,10 @@
 #define SIE_REG_OFFSET 0x10 /* sets the register bits in the IER */
 #define CIE_REG_OFFSET 0x14 /* clears the resgiter bits in the IER */
 #define IAR_REG_OFFSET 0xC /* acknowledges interrupts */
-#define GIER_REG_OFFSET 0x11C /* global interrupt register offset */
-#define GPIO_BITS 7 /* turns on all GPIO interrupts */
-#define GIER_MASK 0x8000 /* top register bit (31) is set to one */
+#define MER_REG_OFFSET 0x1C /* Master Enable Register */
+#define GPIO_BITS 0x7 /* turns on all GPIO interrupts */
+#define MER_BITS 0x3 /* need to turn on lower two bits to enable interrupts */
+
 
 /*********************************** globals ***********************************/
 static int fd; /* this is a file descriptor that describes the UIO device */
@@ -45,8 +46,10 @@ int32_t intc_init(char devDevice[]){
 		return INTC_ERROR;
 	}
 
-	intc_enable_global_interrupts(); /*enables global interrupts */
+	intc_enable_uio_interrupts(); /* enables Linux interrupts */
 	intc_irq_enable(GPIO_BITS); /* enables all the GPIO interrupts */
+	/* turns on Master IRQ enable & Hardware interrupt enable */
+	*((volatile uint32_t *)(va + MER_REG_OFFSET)) = MER_BITS;
 
 	return INTC_SUCCESS;
 }
@@ -73,11 +76,6 @@ void intc_ack_interrupt(uint32_t irq_mask) {
 // (see the UIO documentation for how to do this)
 void intc_enable_uio_interrupts() {
 	write(fd, &enable, FOUR_BYTES); /* enable linux interrupts from the GPIO */
-}
-
-// Enables global interrupts in the GPIO
-void intc_enable_global_interrupts(){
-	*((volatile uint32_t *)(va + GIER_REG_OFFSET)) | GIER_MASK;
 }
 
 // Enable interrupt line(s)

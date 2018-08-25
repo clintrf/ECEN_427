@@ -13,6 +13,8 @@
 #include "btn_uio.h"
 
 #define UIO_BTN_MMAP_SIZE 0x1000 /* size of memory to allocate */
+#define GIER_MASK 0x8000 /* top register bit (31) is set to one */
+#define GIER_REG_OFFSET 0x11C /* global interrupt register offset */
 
 /*********************************** globals ***********************************/
 static int fd; /* this is a file descriptor that describes the UIO device */
