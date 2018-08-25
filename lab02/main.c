@@ -25,31 +25,33 @@
 
     int main() {
         // Initialize interrupt controller driver
-        printf("%s\n","checkpoint 0");
-        int32_t stuff = intc_init("/dev/uio4");
-        printf("%l",stuff);
-        // Initialize buttons
-        generic_init("/dev/uio1");
-        // Enable interrupt output from button
-        // Enable button and FIT interrupt lines on interrupt controller
+        intc_init("/dev/uio4");
 
+        // Initialize buttons
+        int32_t stuff = generic_init("/dev/uio1");
+
+        // Enable interrupt output from button
+        
+        // Enable button and FIT interrupt lines on interrupt controller
+        
+        
         while(1) {
             // Call interrupt controller function to wait for interrupt
             uint32_t interrupts = intc_wait_for_interrupt();
 
             printf("%zu  \r\n", interrupts);
-//            printf("%zu \r\n", switches_mask);
+            
             // Check which interrupt lines are high and call the appropriate ISR functions
             if(interrupts & FIT_MASK) {
               isr_fit();
             }
-
+		
             if(interrupts & BTNS_MASK) {
               isr_buttons();
             }
 
             if(interrupts & SWITCHES_MASK) {
-            printf("switches\r\n");
-        }
+              printf("switches\r\n");
+            }
         }
     }
