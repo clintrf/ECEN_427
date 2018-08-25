@@ -15,19 +15,15 @@
 
 #define INTC_MMAP_SIZE 0x1000 /* size of memory to allocate */
 #define FOUR_BYTES 4 /* 32 bits to write to fd */
-#define IER_REG_OFFSET 0x08H /* IER register (unmasks corresponding ISR bit) */
 #define SIE_REG_OFFSET 0x10H /* sets the register bits in the IER */
 #define CIE_REG_OFFSET 0x14H /* clears the resgiter bits in the IER */
 #define IAR_REG_OFFSET 0x0CH /* acknowledges interrupts */
 #define GPIO_BITS 7 /* turns on all GPIO interrupts */
-#define ENABLE
-#define DISABLE 0
 
 /*********************************** globals ***********************************/
 static int fd; /* this is a file descriptor that describes the UIO device */
 static char *va; /* virtual address of the interrupt handler registers */
 static int enable = 1; /* enable code for interrupt */
-static int disable = 0; /* disable code for interrupt */
 static int32_t int_buffer; /* buffer for the interrupt */
 
 /**************************** functions *****************************/
