@@ -6,21 +6,17 @@
 #define SPRITES_SAUCER_HEIGHT 9
 #define SPRITES_ALIEN_EXPLOSION_WIDTH 12
 #define SPRITES_ALIEN_EXPLOSION_HEIGHT 10
-//#define SPRITES_ALIEN_WIDTH 12
-//#define APRITES_ALIEN_HEIGHT 8
 #define SPRITES_ALIEN_WIDTH 14
 #define SPRITES_ALIEN_HEIGHT 10
 #define SPRITES_TANK_WIDTH 17
 #define SPRITES_TANK_HEIGHT 10
-//#define SPRITES_TANK_WIDTH 15
-//#define SPRITES_TANK_HEIGHT 8
 #define SPRITES_BUNKER_WIDTH 24
 #define SPRITES_BUNKER_HEIGHT 18
 #define SPRITES_BUNKER_DAMAGE_WIDTH 6
 #define SPRITES_BUNKER_DAMAGE_HEIGHT 6
 #define SPRITES_TANK_BULLET_WIDTH 1
 #define SPRITES_ALIEN_BULLET_WIDTH 3
-#define SPRITES_BULLET_HEIGHT 5
+#define SPRITES_BULLET_HEIGHT 7
 #define SPRITES_CHARACTER_WIDTH 5
 #define SPRITES_CHARACTER_HEIGHT 5
 #define SPRITES_SCALE_NEXT_LINE 640*3
@@ -63,7 +59,6 @@
 #define SPRITES_E_START_LOCATION_HS EXTRA_INFORMATION_START_LINE+960+24+(45*4)
 #define SPRITES_S2_START_LOCATION_HS EXTRA_INFORMATION_START_LINE+960+30+(45*5)
 #define ENTER_NAME_CHARACTER_HEIGHT EXTRA_INFORMATION_START_LINE+NORMAL_CHARACTER_SCALING*SPRITES_CHARACTER_HEIGHT*SPRITES_SCALE_NEXT_LINE
-// #define NAME_LINE_START_LOCATION ENTER_NAME_CHARACTER_HEIGHT+(SCALE_NEXT_LINE*20)
 #define SPRITES_CHARACTER_ONE_START_LOCATION (SPRITES_SCORE_BOARD_START_POS+(0*SPRITES_NORMAL_CHARACTER_SCALING*SPRITES_ONE_PIXEL*10))
 #define SPRITES_CHARACTER_TWO_START_LOCATION (SPRITES_SCORE_BOARD_START_POS+(1*SPRITES_NORMAL_CHARACTER_SCALING*SPRITES_ONE_PIXEL*10))
 #define SPRITES_CHARACTER_THREE_START_LOCATION (SPRITES_SCORE_BOARD_START_POS+(2*SPRITES_NORMAL_CHARACTER_SCALING*SPRITES_ONE_PIXEL*10))
@@ -1023,4 +1018,11 @@ static const uint32_t ll_14x10[] =
 // color : desired color of the image
 void sprites_render_image(const uint32_t image[], uint32_t width, uint32_t height, uint32_t starting_location, uint32_t scaling_factor, const void *color);
 
+// adds the image into a buffer for printing to the screen (performance increase)
+// image[] : the image to be printed
+// width : the pixel width of the image
+// height : the pixel height of the image
+// starting_location : top left pixel of the character
+// scaling_factor : scale of the figure. must be int. size >= 1. place 1 for normal image
+// color : desired color of the image
 void sprites_render_buffer(const uint32_t image[], uint32_t width, uint32_t height, uint32_t starting_location, uint32_t scaling_factor, uint32_t color[3]);

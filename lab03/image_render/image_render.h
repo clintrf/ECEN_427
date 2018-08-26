@@ -64,6 +64,12 @@ void image_render_print_start_screen();
 // dir : the direction to move the tank
 void image_render_tank(uint32_t move, uint16_t dir);
 
+// fires a bullet from the tank position
+void image_render_fire_tank_bullet();
+
+// moves the tank bullet up the screen
+void image_render_move_tank_bullet();
+
 // moves the saucer around the screen
 void image_render_saucer();
 

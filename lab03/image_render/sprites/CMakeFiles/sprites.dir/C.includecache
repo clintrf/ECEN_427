@@ -6,16 +6,6 @@
 
 #IncludeRegexTransform: 
 
-/home/xilinx/ECEN_427/lab03/globals/globals.c
-globals.h
-/home/xilinx/ECEN_427/lab03/globals/globals.h
-
-/home/xilinx/ECEN_427/lab03/globals/globals.h
-stdio.h
--
-stdint.h
--
-
 /home/xilinx/ECEN_427/lab03/image_render/hdmi/hdmi.h
 stdint.h
 -
@@ -25,8 +15,6 @@ sprites.h
 /home/xilinx/ECEN_427/lab03/image_render/sprites/sprites.h
 ../hdmi/hdmi.h
 /home/xilinx/ECEN_427/lab03/image_render/hdmi/hdmi.h
-../../globals/globals.c
-/home/xilinx/ECEN_427/lab03/globals/globals.c
 
 /home/xilinx/ECEN_427/lab03/image_render/sprites/sprites.h
 stdint.h

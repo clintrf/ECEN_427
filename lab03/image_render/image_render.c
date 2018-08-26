@@ -2,6 +2,7 @@
 #include "hdmi.h"
 #include "image_render.h"
 #include "sprites.h"
+#include "../globals/globals.h"
 
 /********************************** macros ***********************************/
 #define IMAGE_RENDER_SCREEN_WIDTH 640
@@ -103,17 +104,20 @@
 #define BUNKER_TWO (400*(IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL)+(3*72*3))
 #define BUNKER_THREE (400*(IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL)+(5*72*3))
 #define BUNKER_FOUR (400*(IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL)+(7*72*3))
+#define TOP_LEFT_CORNER_OF_SCREEN 0
+#define TANK_BULLET_START_POS BOTTOM_LEFT_CORNER_OF_SCREEN+(tank_start_pos*IMAGE_RENDER_BYTES_PER_PIXEL)-(SPRITES_BULLET_HEIGHT*640*3*ALIEN_SIZE-8*3*ALIEN_SIZE)
+#define BULLET_MOVEMENT_TWO_PIXELS 640*3*2
 
 /********************************** globals **********************************/
 /* global arrays */
 char full_screen_black[IMAGE_RENDER_WHOLE_SCREEN];
 Alien alien_block[ALIEN_BLOCK_SIZE];
 /* colors!! */
-uint32_t black[3] = {0x00, 0x00, 0x00};
-uint32_t pink[3] = {0xFF, 0x69, 0xB4};
-uint32_t white[3] = {0xFF, 0xFF, 0xFF};
-uint32_t green[3] = {0x00,0x80,0x00};
-uint32_t red[3] = {0xFF,0x00,0x00};
+uint32_t black[IMAGE_RENDER_BYTES_PER_PIXEL] = {0x00, 0x00, 0x00};
+uint32_t pink[IMAGE_RENDER_BYTES_PER_PIXEL] = {0xFF, 0x69, 0xB4};
+uint32_t white[IMAGE_RENDER_BYTES_PER_PIXEL] = {0xFF, 0xFF, 0xFF};
+uint32_t green[IMAGE_RENDER_BYTES_PER_PIXEL] = {0x00,0x80,0x00};
+uint32_t red[IMAGE_RENDER_BYTES_PER_PIXEL] = {0xFF,0x00,0x00};
 /* global variables */
 uint32_t tank_start_pos;
 uint32_t saucer_start_pos;
@@ -155,9 +159,9 @@ void image_render_init() {
 
 // prints the screen black and resets the cursor to the top left corner of the screen
 void image_render_print_black_screen() {
-  hdmi_set_offset(0); /* this will set the fd offset back to the top left of the screen */
+  hdmi_set_offset(TOP_LEFT_CORNER_OF_SCREEN); /* this will set the fd offset back to the top left of the screen */
   hdmi_write(full_screen_black,IMAGE_RENDER_WHOLE_SCREEN); /* this will write a black screen to the hdmi monitor */
-  hdmi_set_offset(0); /* this will reset the fd offset back to the top left of the screen */
+  // hdmi_set_offset(TOP_LEFT_CORNER_OF_SCREEN); /* this will reset the fd offset back to the top left of the screen */
 }
 
 // creates a single alien object
@@ -324,6 +328,27 @@ void image_render_tank(uint32_t move, uint16_t dir){
   else if(dir == IMAGE_RENDER_LEFT_MOVEMENT && tank_start_pos >= LEFT_BOUND) {
     tank_start_pos = tank_start_pos-move;
     sprites_render_buffer(tank_17x10,SPRITES_TANK_WIDTH,SPRITES_TANK_HEIGHT,BOTTOM_LEFT_CORNER_OF_SCREEN+(tank_start_pos*IMAGE_RENDER_BYTES_PER_PIXEL),ALIEN_SIZE,green);
+  }
+}
+
+// fires a bullet from the tank position
+void image_render_fire_tank_bullet() {
+  globals_fire_tank_bullet(); // says that the bullet has been fired
+  globals_set_tank_bullet_position(TANK_BULLET_START_POS);
+  sprites_render_buffer(tankbullet_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,TANK_BULLET_START_POS,ALIEN_SIZE,white);
+}
+
+// moves the tank bullet up the screen
+void image_render_move_tank_bullet() {
+  uint32_t current_pos = globals_get_tank_bullet_position(); // fetches current bullet position
+  globals_set_tank_bullet_position(current_pos-(BULLET_MOVEMENT_TWO_PIXELS)); // sets the new bullet position moving up the screen
+  current_pos = globals_get_tank_bullet_position(); // fetch the updated bullet position
+  if(current_pos < SAUCER_ROW_START_LOCATION) { // if the bullet reaches the top of the screen, delete the bullet
+    sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+    globals_tank_bullet_stopped();
+  }
+  else { // if the bullet hasn't hit anything or reached the top of the screen, move it up
+    sprites_render_buffer(tankbullet_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
   }
 }
 
