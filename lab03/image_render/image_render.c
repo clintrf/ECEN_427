@@ -119,7 +119,7 @@
 #define BULLET_MOVEMENT_TWO_PIXELS 640*3*2
 #define BULLET_MOVEMENT_ONE_PIXELS 640*3
 #define SAUCER_SHOT 0
-#define ALIEN_EXPLOSION_TIMER 1000000
+#define ALIEN_EXPLOSION_TIMER 2000000
 #define TANK_EXPLOSION_TIMER 50000000
 #define ALIEN_ALIVE 1
 #define LEFT 1
@@ -175,6 +175,7 @@ uint16_t current_alien_position;
 uint32_t odd_0;                       // tracks alien pop wiggles
 uint32_t odd_1;                       // tracks alien pop wiggles
 uint32_t odd_2;                       // tracks alien pop wiggles
+uint16_t alien_killed;
 uint32_t total_shooters_0;
 uint32_t total_shooters_1;
 uint32_t total_shooters_2;
@@ -200,6 +201,7 @@ void image_render_init() {
   maximum_bound_right_alien = ALIEN_BLOCK_ROW_0+IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL-30;
   maximum_bound_left_alien = ALIEN_BLOCK_ROW_0;
   current_alien_position = ALIEN_OUT;
+  alien_killed = 0;
   odd_0 = ALIEN_OUT;
   odd_1 = ALIEN_OUT;
   odd_2 = ALIEN_OUT;
@@ -252,7 +254,7 @@ Bunker image_render_create_bunker(uint32_t pos) {
   bunker.position = pos;
   for(int i = 0; i < IMAGE_RENDER_NUM_BUNKER_BLOCKS; i++) {
     if(i == BUNKER_BLOCK_5 || i == BUNKER_BLOCK_6) {
-      bunker.block_hit_points[i] = ONE_HIT_POINT;
+      bunker.block_hit_points[i] = TWO_HIT_POINTS;
     }
     else if(i == BUNKER_BLOCK_9 || i == BUNKER_BLOCK_10) {
       bunker.block_hit_points[i] = NO_HIT_POINTS;
@@ -641,9 +643,11 @@ void image_render_check_for_aliens(uint32_t current_pos) {
           globals_decrement_total_alien_count(); // decreases total alien count
           image_render_set_left_bound(); // sets the left boundary
           image_render_set_right_bound(); // sets the right boundary
-          uint32_t counter = 0;
-          while(counter < ALIEN_EXPLOSION_TIMER) { counter++; } // timer to display the explosion
-          sprites_render_buffer(alien_explosion_14x12,SPRITES_ALIEN_WIDTH,SPRITES_ALIEN_HEIGHT,alien_pos,ALIEN_SIZE,black);
+          alien_killed = 1;
+          globals_set_dead_alien_loc(alien_block[i].current_location);
+          // uint32_t counter = 0;
+          // while(counter < ALIEN_EXPLOSION_TIMER) { counter++; } // timer to display the explosion
+          // sprites_render_buffer(alien_explosion_14x12,SPRITES_ALIEN_WIDTH,SPRITES_ALIEN_HEIGHT,alien_pos,ALIEN_SIZE,black);
         }
       }
     }
@@ -659,9 +663,6 @@ void image_render_blow_tank_up(uint32_t current_pos) {
   sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,globals_get_alien_bullet_position_2(),ALIEN_SIZE,green);
 
   sprites_render_buffer(tank_explosion2_17x10,SPRITES_TANK_WIDTH,SPRITES_TANK_HEIGHT,(IMAGE_RENDER_SCREEN_WIDTH*TANK_FIND_DEPTH+tank_pos)*IMAGE_RENDER_BYTES_PER_PIXEL,ALIEN_SIZE,green);
-  //globals_alien_bullet_stopped_0();
-  //globals_alien_bullet_stopped_1();
-  //globals_alien_bullet_stopped_2();
   globals_decrement_current_lives();
   uint32_t counter = 0;
   while(counter < TANK_EXPLOSION_TIMER) { counter++; } // timer to display the explosion
@@ -874,7 +875,27 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
     }
   }
   else if(block_num == BUNKER_BLOCK_5) { // lower middle left case
-    if(hp == ONE_HIT_POINT) {
+    if(hp == TWO_HIT_POINTS) { // if the block hasn't been hit yet
+      sprites_render_buffer(bunker_lower_middle_left_damage0_6x6,SPRITES_BUNKER_DAMAGE_WIDTH,SPRITES_BUNKER_DAMAGE_HEIGHT,bunker_set[bunker_num].position+BLOCK_FIVE_OFFSET,ALIEN_SIZE,green);
+      if(bullet_id == TANK_BULLET) {
+        sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        globals_tank_bullet_stopped();
+      }
+      if(bullet_id == ALIEN_BULLET_0){
+        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        globals_alien_bullet_stopped_0();
+      }
+      if(bullet_id == ALIEN_BULLET_1){
+        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        globals_alien_bullet_stopped_1();
+      }
+      if(bullet_id == ALIEN_BULLET_2){
+        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        globals_alien_bullet_stopped_2();
+      }
+      bunker_set[bunker_num].block_hit_points[block_num]--;
+    }
+    else if(hp == ONE_HIT_POINT) { // if the block hasn't been hit yet
       sprites_render_buffer(bunker_lower_middle_left_gone_6x6,SPRITES_BUNKER_DAMAGE_WIDTH,SPRITES_BUNKER_DAMAGE_HEIGHT,bunker_set[bunker_num].position+BLOCK_FIVE_OFFSET,ALIEN_SIZE,black);
       if(bullet_id == TANK_BULLET) {
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
@@ -896,7 +917,27 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
     }
   }
   else if(block_num == BUNKER_BLOCK_6) { // lower middle right case
-    if(hp == ONE_HIT_POINT) { // if the block hasn't been hit yet
+    if(hp == TWO_HIT_POINTS) { // if the block hasn't been hit yet
+      sprites_render_buffer(bunker_lower_middle_right_damage0_6x6,SPRITES_BUNKER_DAMAGE_WIDTH,SPRITES_BUNKER_DAMAGE_HEIGHT,bunker_set[bunker_num].position+BLOCK_SIX_OFFSET,ALIEN_SIZE,green);
+      if(bullet_id == TANK_BULLET) {
+        sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        globals_tank_bullet_stopped();
+      }
+      if(bullet_id == ALIEN_BULLET_0){
+        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        globals_alien_bullet_stopped_0();
+      }
+      if(bullet_id == ALIEN_BULLET_1){
+        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        globals_alien_bullet_stopped_1();
+      }
+      if(bullet_id == ALIEN_BULLET_2){
+        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        globals_alien_bullet_stopped_2();
+      }
+      bunker_set[bunker_num].block_hit_points[block_num]--;
+    }
+    else if(hp == ONE_HIT_POINT) { // if the block hasn't been hit yet
       sprites_render_buffer(bunker_lower_middle_right_gone_6x6,SPRITES_BUNKER_DAMAGE_WIDTH,SPRITES_BUNKER_DAMAGE_HEIGHT,bunker_set[bunker_num].position+BLOCK_SIX_OFFSET,ALIEN_SIZE,black);
       if(bullet_id == TANK_BULLET) {
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
@@ -1129,6 +1170,7 @@ void image_render_move_alien_bullet_0(){
   }
   odd_0 = ~odd_0;
 }
+
 void image_render_move_alien_bullet_1(){
   uint32_t current_pos_1 = globals_get_alien_bullet_position_1(); // fetches current bullet position
   globals_set_alien_bullet_position_1(current_pos_1+(BULLET_MOVEMENT_ONE_PIXELS)); // sets the new bullet position moving up the screen
@@ -1155,6 +1197,7 @@ void image_render_move_alien_bullet_1(){
   }
   odd_1 = ~odd_1;
 }
+
 // moves the tank bullet up the screen
 void image_render_move_alien_bullet_2(){
   uint32_t current_pos_2 = globals_get_alien_bullet_position_2(); // fetches current bullet position
@@ -1211,6 +1254,13 @@ void check_for_overrun() {
 // moves the alien block around the screen
 void image_render_move_alien_block() {
   check_for_overrun();
+
+  if(alien_killed) {
+    uint32_t loc = globals_get_dead_alien_loc();
+    sprites_render_buffer(alien_top_in_14x10,SPRITES_ALIEN_WIDTH,SPRITES_ALIEN_HEIGHT,loc,ALIEN_SIZE,black);
+    alien_killed = 0;
+  }
+
   /* If we run out of aliens in the block, create a new alien block */
   if(globals_get_total_alien_count() == 0) {
     image_render_create_alien_block();
@@ -1410,7 +1460,6 @@ void image_render_alien_fire_bullet_2(){
     if(alien_block[j].shooter){
       if (temp_2 == 0){
         current_shooter_2 = alien_block[j].current_location + IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE*SPRITES_CHARACTER_WIDTH+640*3*SPRITES_CHARACTER_HEIGHT*ALIEN_SIZE*ALIEN_SIZE; //+ SPRITES_CHARACTER_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE + IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*RANDOM_SHOOTER;
-
       }
       temp_2--;
     }

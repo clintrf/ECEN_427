@@ -32,6 +32,12 @@
 #define SAUCER_SHOT_DELAY_TIME 300
 #define SAUCER_SHOT 0
 #define SAUCER_ALIVE 1
+#define BULLET_DELAY_0 100
+#define BULLET_DELAY_1 120
+#define BULLET_DELAY_2 150
+#define TANK_BULLET_DELAY 2
+#define COUNTER_DELAY 10
+#define SAUCER_DELAY 2
 
 /*********************************** globals ***********************************/
 int32_t white_t[BYTES_PER_PIXEL] = {0xFF, 0xFF, 0xFF};
@@ -159,28 +165,6 @@ void move_tank(uint32_t buttonPressed) {
   }
 }
 
-#define TEN_THOUSAND_POINTS 10000
-#define EIGHT_THOUSAND_POINTS 8000
-#define SIX_THOUSAND_POINTS 6000
-#define FOUR_THOUSAND_POINTS 4000
-#define TWO_THOUSAND_FIVE_HUNDRED_POINTS 2500
-#define ONE_THOUSAND_POINTS 1000
-#define FASTEST_MOVEMENT 2
-#define MOST_SHOTS 5
-#define LEVEL_FOUR 4
-#define LEVEL_TWO_MOVE 7
-#define LEVEL_TWO_SHOTS 2
-#define LEVEL_THREE_MOVE 6
-#define LEVEL_THREE_SHOTS 3
-#define MOVE_DELAY_FIVE 5
-#define MOVE_DELAY_THREE 3
-#define BULLET_DELAY_0 100
-#define BULLET_DELAY_1 120
-#define BULLET_DELAY_2 150
-#define TANK_BULLET_DELAY 2
-#define COUNTER_DELAY 10
-#define SAUCER_DELAY 2
-
 // handles the FIT interrupts, moves the saucer, alien block, and bullets
 void isr_fit() {
   intc_ack_interrupt(INTC_FIT_MASK); // acknowledges the received FIT interrupt
@@ -193,37 +177,7 @@ void isr_fit() {
     globals_decrement_current_lives();
   }
 
-  if(globals_get_current_score() > TEN_THOUSAND_POINTS) {
-    alien_movement_delay = FASTEST_MOVEMENT;
-  }
-  else if(globals_get_current_score() > EIGHT_THOUSAND_POINTS) {
-    alien_movement_delay = MOVE_DELAY_THREE;
-    max_alien_shots = MOST_SHOTS;
-  }
-  else if(globals_get_current_score() > SIX_THOUSAND_POINTS) {
-    alien_movement_delay = LEVEL_FOUR;
-    max_alien_shots = LEVEL_FOUR;
-  }
-  else if(globals_get_current_score() > FOUR_THOUSAND_POINTS) {
-    alien_movement_delay = MOVE_DELAY_FIVE;
-  }
-  else if(globals_get_current_score() > TWO_THOUSAND_FIVE_HUNDRED_POINTS) {
-    alien_movement_delay = LEVEL_THREE_MOVE;
-    max_alien_shots = LEVEL_THREE_SHOTS;
-  }
-  else if(globals_get_current_score() > ONE_THOUSAND_POINTS) {
-    alien_movement_delay = LEVEL_TWO_MOVE;
-    max_alien_shots = LEVEL_TWO_SHOTS;
-  }
-
-  //printf("Bullets fired: %zu\n", globals_get_alien_bullets_fired());
-
-
-  // if(globals_get_alien_bullets_fired() < max_alien_shots) {
-  //   image_render_alien_fire_bullet();
-  //   image_render_fire_alien_bullet();
-  // }
-  if(bullet_delay_0> BULLET_DELAY_0){
+  if(bullet_delay_0 > BULLET_DELAY_0){
     if(globals_get_alien_bullet_fired_0() != SHOTS_FIRED){
       image_render_alien_fire_bullet_0();
       image_render_fire_alien_bullet_0();
@@ -231,7 +185,7 @@ void isr_fit() {
     }
     bullet_delay_0 = 0;
   }
-  if(bullet_delay_1> BULLET_DELAY_1){
+  if(bullet_delay_1 > BULLET_DELAY_1){
     if(globals_get_alien_bullet_fired_1() != SHOTS_FIRED){
       image_render_alien_fire_bullet_1();
       image_render_fire_alien_bullet_1();
@@ -239,7 +193,7 @@ void isr_fit() {
     }
     bullet_delay_1 = 0;
   }
-  if(bullet_delay_2> BULLET_DELAY_2){
+  if(bullet_delay_2 > BULLET_DELAY_2){
     if(globals_get_alien_bullet_fired_2() != SHOTS_FIRED){
       image_render_alien_fire_bullet_2();
       image_render_fire_alien_bullet_2();
@@ -252,7 +206,7 @@ void isr_fit() {
   bullet_delay_2++;
 
 
-  if(saucer_counter>SAUCER_DELAY){
+  if(saucer_counter > 1){ //SAUCER_DELAY
     /* saucer flight handling in the main */
     if(globals_get_saucer_status() == SAUCER_SHOT) { // if the saucer is currently dead
       uint32_t saucer_count = globals_get_saucer_shot_count();
@@ -272,7 +226,7 @@ void isr_fit() {
   }
   saucer_counter++;
 
-  if (tanks_bullet_delay>TANK_BULLET_DELAY){
+  if (tanks_bullet_delay > TANK_BULLET_DELAY){
     /* This controls the firing of the bullets and their movement */
     if(globals_get_tank_bullet_fired() == SHOTS_FIRED) {
       image_render_move_tank_bullet();
@@ -281,7 +235,7 @@ void isr_fit() {
   }
   tanks_bullet_delay++;
 
-  if (counter_delay>COUNTER_DELAY){
+  if (counter_delay > 2) { // COUNTER_DELAY
     if(globals_get_alien_bullet_fired_0() == SHOTS_FIRED){
       image_render_move_alien_bullet_0();
     }
@@ -297,7 +251,7 @@ void isr_fit() {
 
 
   alien_counter++; // increments the alien counter
-  if(alien_counter > 50) { // a little bit of a delay for the alien movement
+  if(alien_counter > 8) { // a little bit of a delay for the alien movement
     image_render_move_alien_block();
     alien_counter = 0;
   }

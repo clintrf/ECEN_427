@@ -119,3 +119,11 @@ uint16_t globals_get_alien_overrun_flag();
 
 // asserts the overrun flag if the bottom column of aliens reaches the top of the bunker line
 void globals_assert_alien_overrun_flag();
+
+// sets the location of the most recently killed alien
+// loc : location of the most recently killed alien
+void globals_set_dead_alien_loc(uint32_t loc);
+
+// fetches the location of the most recently killed alien
+// returns the locaiton of the most recently killed alien
+uint32_t globals_get_dead_alien_loc();

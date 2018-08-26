@@ -57,6 +57,7 @@ static uint32_t saucer_shot_count = 0;
 static uint16_t total_alien_count = STARTING_ALIEN_AMOUNT;
 static uint32_t current_lives = START_LIVES;
 static uint16_t alien_overrun_flag = 0;
+static uint32_t dead_alien_loc = 0;
 
 uint32_t global_green[GLOBAL_BYTES_PER_PIXEL] = {0x00,0x80,0x00};
 uint32_t global_black[GLOBAL_BYTES_PER_PIXEL] = {0x00,0x00,0x00};
@@ -286,6 +287,18 @@ uint16_t globals_get_alien_overrun_flag() {
 // asserts the overrun flag if the bottom column of aliens reaches the top of the bunker line
 void globals_assert_alien_overrun_flag() {
   alien_overrun_flag = 1;
+}
+
+// sets the location of the most recently killed alien
+// loc : location of the most recently killed alien
+void globals_set_dead_alien_loc(uint32_t loc) {
+  dead_alien_loc = loc;
+}
+
+// fetches the location of the most recently killed alien
+// returns the locaiton of the most recently killed alien
+uint32_t globals_get_dead_alien_loc() {
+  return dead_alien_loc;
 }
 
 // prints lives to screen

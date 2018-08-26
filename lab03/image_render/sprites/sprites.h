@@ -313,6 +313,15 @@ static const uint32_t bunker_upper_right_damage0_6x6[] = {
 	1,1,0,1,0,0
 };
 
+static const uint32_t bunker_lower_middle_right_damage0_6x6[] = {
+	1,1,1,1,1,1,
+	1,0,1,0,1,1,
+	0,0,0,0,0,1,
+	0,0,0,0,1,1,
+	0,0,0,0,0,1,
+	0,0,0,0,0,0
+};
+
 static const uint32_t bunker_lower_middle_right_gone_6x6[] = {
 	1,1,1,1,1,1,
 	1,1,1,1,1,1,
@@ -320,6 +329,15 @@ static const uint32_t bunker_lower_middle_right_gone_6x6[] = {
 	0,0,0,1,1,1,
 	0,0,0,0,1,1,
 	0,0,0,0,0,1
+};
+
+static const uint32_t bunker_lower_middle_left_damage0_6x6[] = {
+	1,1,1,1,1,1,
+	1,1,0,1,0,1,
+	1,0,0,0,0,0,
+	1,1,0,0,0,0,
+	1,0,0,0,0,0,
+	0,0,0,0,0,0
 };
 
 static const uint32_t bunker_lower_middle_left_gone_6x6[] = {
