@@ -338,6 +338,48 @@ void image_render_fire_tank_bullet() {
   sprites_render_buffer(tankbullet_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,TANK_BULLET_START_POS,ALIEN_SIZE,white);
 }
 
+// checks to see if the location of the saucer and the tank bullet match
+// current_pos : the current position of the tank bullet
+void image_render_check_for_saucer(uint32_t current_pos) {
+  uint32_t saucer_pos = globals_get_saucer_pos();
+  for(int sh = 0; sh < SPRITES_SAUCER_HEIGHT*ALIEN_SIZE; sh++) { // checks along the saucer height
+    for(int sw = 0; sw < SPRITES_SAUCER_WIDTH*ALIEN_SIZE; sw++) { // checks along the saucer width
+      if(current_pos == saucer_pos+(sw*IMAGE_RENDER_BYTES_PER_PIXEL)+(sh*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH)) { // if the tank bullet position is the same as the saucer position, kill the saucer
+        sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        sprites_render_buffer(saucer_18x9,SPRITES_SAUCER_WIDTH,SPRITES_SAUCER_HEIGHT,saucer_pos,ALIEN_SIZE,black);
+        globals_set_saucer_pos(GLOBALS_SAUCER_ROW_START_LOCATION);
+        globals_set_saucer_status(SAUCER_SHOT);
+        globals_tank_bullet_stopped();
+        globals_add_to_current_score(SAUCER_POINTS);
+        printf("Total score: %zu\n",globals_get_current_score());
+      }
+    }
+  }
+}
+
+// checks to see if the locaiton of an alien and the tank bullet match
+// current_pos : the current position of the tank bullet
+void image_render_check_for_aliens(uint32_t current_pos) {
+  for(int i = 0; i < ALIEN_BLOCK_SIZE; i++) { // iterates through every single alien in the block
+    uint32_t alien_pos = alien_block[i].current_location;
+    for(int ah = 0; ah < SPRITES_ALIEN_HEIGHT*ALIEN_SIZE; ah++) {
+      for(int aw = 0; aw < SPRITES_ALIEN_WIDTH*ALIEN_SIZE; aw++) {
+        if(current_pos == alien_pos+(aw*IMAGE_RENDER_BYTES_PER_PIXEL)+(ah*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH) && alien_block[i].alive == 1) {
+          sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_explosion_14x12,SPRITES_ALIEN_WIDTH,SPRITES_ALIEN_HEIGHT,alien_pos,ALIEN_SIZE,pink);
+          alien_block[i].alive = 0;
+          globals_tank_bullet_stopped();
+          globals_add_to_current_score(alien_block[i].points);
+          printf("Total score: %zu\n",globals_get_current_score());
+          uint32_t counter = 0;
+          while(counter < 2000000) { counter++; }
+          sprites_render_buffer(alien_explosion_14x12,SPRITES_ALIEN_WIDTH,SPRITES_ALIEN_HEIGHT,alien_pos,ALIEN_SIZE,black);
+        }
+      }
+    }
+  }
+}
+
 // moves the tank bullet up the screen
 void image_render_move_tank_bullet() {
   uint32_t current_pos = globals_get_tank_bullet_position(); // fetches current bullet position
@@ -350,21 +392,8 @@ void image_render_move_tank_bullet() {
   else { // if the bullet hasn't hit anything or reached the top of the screen, move it up
     sprites_render_buffer(tankbullet_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
     /* check for saucer location */
-    uint32_t saucer_pos = globals_get_saucer_pos();
-    for(int sh = 0; sh < SPRITES_SAUCER_HEIGHT*ALIEN_SIZE; sh++) { // checks along the saucer height
-      for(int sw = 0; sw < SPRITES_SAUCER_WIDTH*ALIEN_SIZE; sw++) { // checks along the saucer width
-        if(current_pos == saucer_pos+(sw*IMAGE_RENDER_BYTES_PER_PIXEL)+(sh*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH)) { // if the tank bullet position is the same as the saucer position, kill the saucer
-          sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-          sprites_render_buffer(saucer_18x9,SPRITES_SAUCER_WIDTH,SPRITES_SAUCER_HEIGHT,saucer_pos,ALIEN_SIZE,black);
-          globals_set_saucer_pos(GLOBALS_SAUCER_ROW_START_LOCATION);
-          globals_set_saucer_status(SAUCER_SHOT);
-          globals_tank_bullet_stopped();
-          globals_add_to_current_score(SAUCER_POINTS);
-          printf("Total score: %zu\n",globals_get_current_score());
-        }
-      }
-    }
-
+    image_render_check_for_saucer(current_pos);
+    image_render_check_for_aliens(current_pos);
   }
 }
 
@@ -388,21 +417,32 @@ void image_render_move_alien_block() {
   if(dir == IMAGE_RENDER_RIGHT_MOVEMENT) { // if the alien block is moving right
     if(alien_block_right_bound >= maximum_bound_right_alien) { // if it has reached the right bound
       for(uint32_t i = 0; i < ALIEN_BLOCK_SIZE; i++){ // if it has reached the right bound, the block should move down & continue left
-        Alien alien_temp = alien_block[i];
         if(current_alien_position == ALIEN_OUT) { // if the alien is in the "out" position, write it in the "in" position, move down a few pixels
-          for(int d = 0; d < ALIEN_PIXEL_MOVEMENT; d++) { // repeat this for how many pixels you want to move down
+          if(alien_block[i].alive == 1) {
+            for(int d = 0; d < ALIEN_PIXEL_MOVEMENT; d++) { // repeat this for how many pixels you want to move down
+              alien_block[i].current_location = alien_block[i].current_location+FULL_ALIEN_MOVEMENT;
+              sprites_render_buffer(alien_block[i].image_in,alien_block[i].width,alien_block[i].height,alien_block[i].current_location,ALIEN_SIZE,pink);
+              alien_block[i].current_location = alien_block[i].current_location+FULL_ALIEN_MOVEMENT;
+              sprites_render_buffer(alien_block[i].image_out,alien_block[i].width,alien_block[i].height,alien_block[i].current_location,ALIEN_SIZE,pink);
+            }
+          }
+          else { // this means the alien is dead and needs to move down anyway
             alien_block[i].current_location = alien_block[i].current_location+FULL_ALIEN_MOVEMENT;
-            sprites_render_buffer(alien_temp.image_in,alien_block[i].width,alien_block[i].height,alien_block[i].current_location,ALIEN_SIZE,pink);
             alien_block[i].current_location = alien_block[i].current_location+FULL_ALIEN_MOVEMENT;
-            sprites_render_buffer(alien_block[i].image_out,alien_block[i].width,alien_block[i].height,alien_block[i].current_location,ALIEN_SIZE,pink);
           }
         }
         else { // if the alien is in the "in" position, write it in the "out" position, move down a few pixels
-          for(int d = 0; d < ALIEN_PIXEL_MOVEMENT; d++) { // repeat this for how many pixels you want to move down
+          if(alien_block[i].alive == 1) {
+            for(int d = 0; d < ALIEN_PIXEL_MOVEMENT; d++) { // repeat this for how many pixels you want to move down
+              alien_block[i].current_location = alien_block[i].current_location+FULL_ALIEN_MOVEMENT;
+              sprites_render_buffer(alien_block[i].image_out,alien_block[i].width,alien_block[i].height,alien_block[i].current_location,ALIEN_SIZE,pink);
+              alien_block[i].current_location = alien_block[i].current_location+FULL_ALIEN_MOVEMENT;
+              sprites_render_buffer(alien_block[i].image_in,alien_block[i].width,alien_block[i].height,alien_block[i].current_location,ALIEN_SIZE,pink);
+            }
+          }
+          else { // this means the alien is dead and needs to move down anyway
             alien_block[i].current_location = alien_block[i].current_location+FULL_ALIEN_MOVEMENT;
-            sprites_render_buffer(alien_block[i].image_out,alien_block[i].width,alien_block[i].height,alien_block[i].current_location,ALIEN_SIZE,pink);
             alien_block[i].current_location = alien_block[i].current_location+FULL_ALIEN_MOVEMENT;
-            sprites_render_buffer(alien_block[i].image_in,alien_block[i].width,alien_block[i].height,alien_block[i].current_location,ALIEN_SIZE,pink);
           }
         }
       }
@@ -412,13 +452,16 @@ void image_render_move_alien_block() {
       alien_block_right_bound = alien_block_right_bound+ALIEN_PIXEL_MOVEMENT*IMAGE_RENDER_BYTES_PER_PIXEL;
       alien_block_left_bound = alien_block_left_bound+ALIEN_PIXEL_MOVEMENT*IMAGE_RENDER_BYTES_PER_PIXEL;
       for(uint16_t i = 0; i < ALIEN_BLOCK_SIZE; i++) { // we will shift every alien over 2 pixels to the right
-        Alien alien_temp0 = alien_block[i];
-        alien_block[i].current_location = alien_temp0.current_location+ALIEN_PIXEL_MOVEMENT*IMAGE_RENDER_BYTES_PER_PIXEL;
+        alien_block[i].current_location = alien_block[i].current_location+ALIEN_PIXEL_MOVEMENT*IMAGE_RENDER_BYTES_PER_PIXEL;
         if(current_alien_position == ALIEN_OUT) { // if the alien is "out", rewrite it "in"
-          sprites_render_buffer(alien_temp0.image_in,alien_temp0.width,alien_temp0.height,alien_temp0.current_location,ALIEN_SIZE,pink);
+          if(alien_block[i].alive == 1) { // only write this alien if its alive
+            sprites_render_buffer(alien_block[i].image_in,alien_block[i].width,alien_block[i].height,alien_block[i].current_location,ALIEN_SIZE,pink);
+          }
         }
         else { // if the alien is "in", rewrite it "out"
-          sprites_render_buffer(alien_temp0.image_out,alien_temp0.width,alien_temp0.height,alien_temp0.current_location,ALIEN_SIZE,pink);
+          if(alien_block[i].alive == 1) {
+              sprites_render_buffer(alien_block[i].image_out,alien_block[i].width,alien_block[i].height,alien_block[i].current_location,ALIEN_SIZE,pink);
+          }
         }
       }
       current_alien_position = ~current_alien_position; // change the global alien position (not direction)
@@ -427,21 +470,32 @@ void image_render_move_alien_block() {
   else { // if the alien block is moving left
     if(alien_block_left_bound <= maximum_bound_left_alien) { // if it has reached the left bound
       for(uint32_t i = 0; i < ALIEN_BLOCK_SIZE; i++){ // if it has reached the left bound, the block should move down & continue right
-        Alien alien_temp = alien_block[i];
         if(current_alien_position == ALIEN_OUT) { // if the alien is in the "out" position, write it in the "in" position, move down a few pixels
-          for(int d = 0; d < ALIEN_PIXEL_MOVEMENT; d++) { // repeat this for how many pixels you want to move down
+          if(alien_block[i].alive == 1) {
+            for(int d = 0; d < ALIEN_PIXEL_MOVEMENT; d++) { // repeat this for how many pixels you want to move down
+              alien_block[i].current_location = alien_block[i].current_location+FULL_ALIEN_MOVEMENT;
+              sprites_render_buffer(alien_block[i].image_in,alien_block[i].width,alien_block[i].height,alien_block[i].current_location,ALIEN_SIZE,pink);
+              alien_block[i].current_location = alien_block[i].current_location+FULL_ALIEN_MOVEMENT;
+              sprites_render_buffer(alien_block[i].image_out,alien_block[i].width,alien_block[i].height,alien_block[i].current_location,ALIEN_SIZE,pink);
+            }
+          }
+          else { // this means the alien is dead and needs to move down anyway
             alien_block[i].current_location = alien_block[i].current_location+FULL_ALIEN_MOVEMENT;
-            sprites_render_buffer(alien_temp.image_in,alien_block[i].width,alien_block[i].height,alien_block[i].current_location,ALIEN_SIZE,pink);
             alien_block[i].current_location = alien_block[i].current_location+FULL_ALIEN_MOVEMENT;
-            sprites_render_buffer(alien_block[i].image_out,alien_block[i].width,alien_block[i].height,alien_block[i].current_location,ALIEN_SIZE,pink);
           }
         }
         else { // if the alien is in the "in" position, write it in the "out" position, move down a few pixels
-          for(int d = 0; d < ALIEN_PIXEL_MOVEMENT; d++) { // repeat this for how many pixels you want to move down
+          if(alien_block[i].alive == 1) {
+            for(int d = 0; d < ALIEN_PIXEL_MOVEMENT; d++) { // repeat this for how many pixels you want to move down
+              alien_block[i].current_location = alien_block[i].current_location+FULL_ALIEN_MOVEMENT;
+              sprites_render_buffer(alien_block[i].image_out,alien_block[i].width,alien_block[i].height,alien_block[i].current_location,ALIEN_SIZE,pink);
+              alien_block[i].current_location = alien_block[i].current_location+FULL_ALIEN_MOVEMENT;
+              sprites_render_buffer(alien_block[i].image_in,alien_block[i].width,alien_block[i].height,alien_block[i].current_location,ALIEN_SIZE,pink);
+            }
+          }
+          else { // this means the alien is dead and needs to move down anyway
             alien_block[i].current_location = alien_block[i].current_location+FULL_ALIEN_MOVEMENT;
-            sprites_render_buffer(alien_block[i].image_out,alien_block[i].width,alien_block[i].height,alien_block[i].current_location,ALIEN_SIZE,pink);
             alien_block[i].current_location = alien_block[i].current_location+FULL_ALIEN_MOVEMENT;
-            sprites_render_buffer(alien_block[i].image_in,alien_block[i].width,alien_block[i].height,alien_block[i].current_location,ALIEN_SIZE,pink);
           }
         }
       }
@@ -451,13 +505,16 @@ void image_render_move_alien_block() {
       alien_block_right_bound = alien_block_right_bound-ALIEN_PIXEL_MOVEMENT*IMAGE_RENDER_BYTES_PER_PIXEL;
       alien_block_left_bound = alien_block_left_bound-ALIEN_PIXEL_MOVEMENT*IMAGE_RENDER_BYTES_PER_PIXEL;
       for(uint16_t i = 0; i < ALIEN_BLOCK_SIZE; i++) { // we will shift every alien in the block over to the left 2 pixels
-        Alien alien_temp0 = alien_block[i];
-        alien_block[i].current_location = alien_temp0.current_location-ALIEN_PIXEL_MOVEMENT*IMAGE_RENDER_BYTES_PER_PIXEL;
+        alien_block[i].current_location = alien_block[i].current_location-ALIEN_PIXEL_MOVEMENT*IMAGE_RENDER_BYTES_PER_PIXEL;
         if(current_alien_position == ALIEN_OUT) { // if the alien is "out", rewrite it "in"
-          sprites_render_buffer(alien_temp0.image_in,alien_temp0.width,alien_temp0.height,alien_temp0.current_location,ALIEN_SIZE,pink);
+          if(alien_block[i].alive == 1) { // only write this alien if its alive
+            sprites_render_buffer(alien_block[i].image_in,alien_block[i].width,alien_block[i].height,alien_block[i].current_location,ALIEN_SIZE,pink);
+          }
         }
         else { // if the alien is "in", rewrite it "out"
-          sprites_render_buffer(alien_temp0.image_out,alien_temp0.width,alien_temp0.height,alien_temp0.current_location,ALIEN_SIZE,pink);
+          if(alien_block[i].alive == 1) {
+              sprites_render_buffer(alien_block[i].image_out,alien_block[i].width,alien_block[i].height,alien_block[i].current_location,ALIEN_SIZE,pink);
+          }
         }
       }
       current_alien_position = ~current_alien_position; // change the global alien position (not direction)
