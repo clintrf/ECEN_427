@@ -11,9 +11,9 @@
 
 /*********************************** macros ***********************************/
 #define MOVE_ONE_SPACE 2
-#define BOUNCE 1000000 /* value of the ticks to seconds */
-#define BTN_0_MASK 0x1 /* mask for button 0 */
-#define BTN_1_MASK 0x2 /* mask for button 1 */
+#define BOUNCE 1000000 
+#define BTN_0_MASK 0x1
+#define BTN_1_MASK 0x2
 #define BTN_2_MASK 0x4
 #define BUFFER_SPACE 10
 #define LETTER_A 11

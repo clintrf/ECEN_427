@@ -1,8 +1,6 @@
 #include "globals.h"
 
 /********************************** macros ***********************************/
-#define RIGHT 0
-#define LEFT 1
 #define STARTING_LEFT_COLUMN 0
 #define STARTING_RIGHT_COLUMN 10
 #define STARTING_ALIEN_AMOUNT 55
@@ -13,16 +11,13 @@
 #define SAUCER_SHOT 0
 
 /********************************** globals **********************************/
-static uint16_t aliens_alive[STARTING_ALIEN_AMOUNT] = {ALIEN_ALIVE};
-static uint16_t aliens_movement = RIGHT;
-static uint16_t alien_block_far_left = STARTING_LEFT_COLUMN;
-static uint16_t alien_block_far_right = STARTING_RIGHT_COLUMN;
 static uint16_t tank_bullet_fired = NOT_FIRED;
 static uint32_t tank_bullet_position;
 static uint32_t current_score = 0;
 static uint32_t saucer_pos = GLOBALS_SAUCER_ROW_START_LOCATION;
 static uint16_t saucer_status = SAUCER_ALIVE;
 static uint32_t saucer_shot_count = 0;
+static uint16_t total_alien_count = STARTING_ALIEN_AMOUNT;
 
 /********************************* functions *********************************/
 // fetch whether the tank bullet has been fired or not
@@ -104,4 +99,20 @@ void globals_inc_saucer_shot_count() {
 // resets the saucer shot count
 void globals_reset_saucer_shot_count() {
   saucer_shot_count = 0;
+}
+
+// fetches the total alien count
+// returns : the total alien count
+uint16_t globals_get_total_alien_count() {
+  return total_alien_count;
+}
+
+// decreases the total alien count by one when an alien gets shot
+void globals_decrement_total_alien_count() {
+  total_alien_count--;
+}
+
+// resets the total alien amount
+void globals_reset_total_alien_count() {
+  total_alien_count = STARTING_ALIEN_AMOUNT;
 }

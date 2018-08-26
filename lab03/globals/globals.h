@@ -58,3 +58,13 @@ void globals_inc_saucer_shot_count();
 
 // resets the saucer shot count
 void globals_reset_saucer_shot_count();
+
+// fetches the total alien count
+// returns : the total alien count
+uint16_t globals_get_total_alien_count();
+
+// decreases the total alien count by one when an alien gets shot
+void globals_decrement_total_alien_count();
+
+// resets the total alien amount
+void globals_reset_total_alien_count();
