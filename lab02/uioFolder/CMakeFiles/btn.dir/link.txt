@@ -1,0 +1,2 @@
+/usr/bin/ar qc libbtn.a  CMakeFiles/btn.dir/button_uio.c.o
+/usr/bin/ranlib libbtn.a

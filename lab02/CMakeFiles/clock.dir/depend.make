@@ -3,5 +3,6 @@
 
 CMakeFiles/clock.dir/main.c.o: intcFolder/intc.h
 CMakeFiles/clock.dir/main.c.o: main.c
-CMakeFiles/clock.dir/main.c.o: uioFolder/generic_uio.h
+CMakeFiles/clock.dir/main.c.o: uioFolder/button_uio.h
+CMakeFiles/clock.dir/main.c.o: uioFolder/switch_uio.h
 

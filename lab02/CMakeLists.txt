@@ -7,5 +7,6 @@ include_directories(/home/xilinx/ECEN_427/lab02/intcFolder)
 include_directories(/home/xilinx/ECEN_427/lab02/uioFolder)
 
 add_executable(clock main.c)
-target_link_libraries(clock uio)
+target_link_libraries(clock btn)
+target_link_libraries(clock swtch)
 target_link_libraries(clock intc)

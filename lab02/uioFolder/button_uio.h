@@ -1,5 +1,5 @@
 /*
-* generic_uio.h
+* button_uio.h
 *
 * ECEn 427
 * Clint Frandsen, Dax Eckles
@@ -17,15 +17,16 @@
 
 /**************************** function prototypes *****************************/
 // initializes the uio driver
-int32_t generic_init(char devDevice[]);
+int32_t button_init(char devDevice[]);
 
 // write to a register of the UIO device
-void generic_write(uint32_t offset, uint32_t value);
+void button_write(uint32_t offset, uint32_t value);
+
+// acknowledge interrupt within the GPIO itself
+void button_acknowledge(uint32_t value);
 
 // read from a register of the UIO device
-uint32_t generic_read(uint32_t offset);
+uint32_t button_read(uint32_t offset);
 
 // close the UIO device
-void generic_exit();
-
-
+void button_exit();

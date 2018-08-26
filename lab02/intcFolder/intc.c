@@ -39,7 +39,7 @@ static int32_t int_buffer = 0; /* buffer for the interrupt */
 int32_t intc_init(char devDevice[]){
 	/* open the device */
 	fd = open(devDevice, O_RDWR);
-	
+
 	if(fd == INTC_ERROR) {
 		return INTC_ERROR;
 	}
@@ -49,7 +49,6 @@ int32_t intc_init(char devDevice[]){
 		return INTC_ERROR;
 	}
 
-	intc_enable_uio_interrupts(); /* enables Linux interrupts */
 	intc_irq_enable(GPIO_BITS); /* enables all the GPIO interrupts */
 	/* turns on Master IRQ enable & Hardware interrupt enable */
 	*((volatile uint32_t *)(va + MER_REG_OFFSET)) = MER_BITS;

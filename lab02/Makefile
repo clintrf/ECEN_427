@@ -137,17 +137,30 @@ intc/fast:
 .PHONY : intc/fast
 
 #=============================================================================
-# Target rules for targets named uio
+# Target rules for targets named swtch
 
 # Build rule for target.
-uio: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 uio
-.PHONY : uio
+swtch: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 swtch
+.PHONY : swtch
 
 # fast build rule for target.
-uio/fast:
-	$(MAKE) -f uioFolder/CMakeFiles/uio.dir/build.make uioFolder/CMakeFiles/uio.dir/build
-.PHONY : uio/fast
+swtch/fast:
+	$(MAKE) -f uioFolder/CMakeFiles/swtch.dir/build.make uioFolder/CMakeFiles/swtch.dir/build
+.PHONY : swtch/fast
+
+#=============================================================================
+# Target rules for targets named btn
+
+# Build rule for target.
+btn: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 btn
+.PHONY : btn
+
+# fast build rule for target.
+btn/fast:
+	$(MAKE) -f uioFolder/CMakeFiles/btn.dir/build.make uioFolder/CMakeFiles/btn.dir/build
+.PHONY : btn/fast
 
 main.o: main.c.o
 
@@ -186,7 +199,8 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... clock"
 	@echo "... intc"
-	@echo "... uio"
+	@echo "... swtch"
+	@echo "... btn"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

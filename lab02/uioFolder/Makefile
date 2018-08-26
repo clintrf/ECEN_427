@@ -111,46 +111,88 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
-uioFolder/CMakeFiles/uio.dir/rule:
-	cd /home/xilinx/ECEN_427/lab02 && $(MAKE) -f CMakeFiles/Makefile2 uioFolder/CMakeFiles/uio.dir/rule
-.PHONY : uioFolder/CMakeFiles/uio.dir/rule
+uioFolder/CMakeFiles/swtch.dir/rule:
+	cd /home/xilinx/ECEN_427/lab02 && $(MAKE) -f CMakeFiles/Makefile2 uioFolder/CMakeFiles/swtch.dir/rule
+.PHONY : uioFolder/CMakeFiles/swtch.dir/rule
 
 # Convenience name for target.
-uio: uioFolder/CMakeFiles/uio.dir/rule
+swtch: uioFolder/CMakeFiles/swtch.dir/rule
 
-.PHONY : uio
+.PHONY : swtch
 
 # fast build rule for target.
-uio/fast:
-	cd /home/xilinx/ECEN_427/lab02 && $(MAKE) -f uioFolder/CMakeFiles/uio.dir/build.make uioFolder/CMakeFiles/uio.dir/build
-.PHONY : uio/fast
+swtch/fast:
+	cd /home/xilinx/ECEN_427/lab02 && $(MAKE) -f uioFolder/CMakeFiles/swtch.dir/build.make uioFolder/CMakeFiles/swtch.dir/build
+.PHONY : swtch/fast
 
-generic_uio.o: generic_uio.c.o
+# Convenience name for target.
+uioFolder/CMakeFiles/btn.dir/rule:
+	cd /home/xilinx/ECEN_427/lab02 && $(MAKE) -f CMakeFiles/Makefile2 uioFolder/CMakeFiles/btn.dir/rule
+.PHONY : uioFolder/CMakeFiles/btn.dir/rule
 
-.PHONY : generic_uio.o
+# Convenience name for target.
+btn: uioFolder/CMakeFiles/btn.dir/rule
+
+.PHONY : btn
+
+# fast build rule for target.
+btn/fast:
+	cd /home/xilinx/ECEN_427/lab02 && $(MAKE) -f uioFolder/CMakeFiles/btn.dir/build.make uioFolder/CMakeFiles/btn.dir/build
+.PHONY : btn/fast
+
+button_uio.o: button_uio.c.o
+
+.PHONY : button_uio.o
 
 # target to build an object file
-generic_uio.c.o:
-	cd /home/xilinx/ECEN_427/lab02 && $(MAKE) -f uioFolder/CMakeFiles/uio.dir/build.make uioFolder/CMakeFiles/uio.dir/generic_uio.c.o
-.PHONY : generic_uio.c.o
+button_uio.c.o:
+	cd /home/xilinx/ECEN_427/lab02 && $(MAKE) -f uioFolder/CMakeFiles/btn.dir/build.make uioFolder/CMakeFiles/btn.dir/button_uio.c.o
+.PHONY : button_uio.c.o
 
-generic_uio.i: generic_uio.c.i
+button_uio.i: button_uio.c.i
 
-.PHONY : generic_uio.i
+.PHONY : button_uio.i
 
 # target to preprocess a source file
-generic_uio.c.i:
-	cd /home/xilinx/ECEN_427/lab02 && $(MAKE) -f uioFolder/CMakeFiles/uio.dir/build.make uioFolder/CMakeFiles/uio.dir/generic_uio.c.i
-.PHONY : generic_uio.c.i
+button_uio.c.i:
+	cd /home/xilinx/ECEN_427/lab02 && $(MAKE) -f uioFolder/CMakeFiles/btn.dir/build.make uioFolder/CMakeFiles/btn.dir/button_uio.c.i
+.PHONY : button_uio.c.i
 
-generic_uio.s: generic_uio.c.s
+button_uio.s: button_uio.c.s
 
-.PHONY : generic_uio.s
+.PHONY : button_uio.s
 
 # target to generate assembly for a file
-generic_uio.c.s:
-	cd /home/xilinx/ECEN_427/lab02 && $(MAKE) -f uioFolder/CMakeFiles/uio.dir/build.make uioFolder/CMakeFiles/uio.dir/generic_uio.c.s
-.PHONY : generic_uio.c.s
+button_uio.c.s:
+	cd /home/xilinx/ECEN_427/lab02 && $(MAKE) -f uioFolder/CMakeFiles/btn.dir/build.make uioFolder/CMakeFiles/btn.dir/button_uio.c.s
+.PHONY : button_uio.c.s
+
+switch_uio.o: switch_uio.c.o
+
+.PHONY : switch_uio.o
+
+# target to build an object file
+switch_uio.c.o:
+	cd /home/xilinx/ECEN_427/lab02 && $(MAKE) -f uioFolder/CMakeFiles/swtch.dir/build.make uioFolder/CMakeFiles/swtch.dir/switch_uio.c.o
+.PHONY : switch_uio.c.o
+
+switch_uio.i: switch_uio.c.i
+
+.PHONY : switch_uio.i
+
+# target to preprocess a source file
+switch_uio.c.i:
+	cd /home/xilinx/ECEN_427/lab02 && $(MAKE) -f uioFolder/CMakeFiles/swtch.dir/build.make uioFolder/CMakeFiles/swtch.dir/switch_uio.c.i
+.PHONY : switch_uio.c.i
+
+switch_uio.s: switch_uio.c.s
+
+.PHONY : switch_uio.s
+
+# target to generate assembly for a file
+switch_uio.c.s:
+	cd /home/xilinx/ECEN_427/lab02 && $(MAKE) -f uioFolder/CMakeFiles/swtch.dir/build.make uioFolder/CMakeFiles/swtch.dir/switch_uio.c.s
+.PHONY : switch_uio.c.s
 
 # Help Target
 help:
@@ -160,10 +202,14 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... uio"
-	@echo "... generic_uio.o"
-	@echo "... generic_uio.i"
-	@echo "... generic_uio.s"
+	@echo "... swtch"
+	@echo "... btn"
+	@echo "... button_uio.o"
+	@echo "... button_uio.i"
+	@echo "... button_uio.s"
+	@echo "... switch_uio.o"
+	@echo "... switch_uio.i"
+	@echo "... switch_uio.s"
 .PHONY : help
 
 
