@@ -105,6 +105,7 @@
 #define ALIEN_PIXEL_MOVEMENT 2
 #define FULL_ALIEN_MOVEMENT (IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH*ALIEN_PIXEL_MOVEMENT)
 #define SAUCER_END_POSITION 580
+#define BUNKER_HEIGHTS 360*IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL
 #define BUNKER_ONE (360*(IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL)+(72*3))
 #define BUNKER_TWO (360*(IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL)+(3*72*3))
 #define BUNKER_THREE (360*(IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL)+(5*72*3))
@@ -262,8 +263,12 @@ Bunker image_render_create_bunker(uint32_t pos) {
 AlienBullet image_render_create_alien_bullet(uint32_t pos, const uint32_t image_in[], const uint32_t image_out[]) {
   AlienBullet alien_bullet;
   alien_bullet.position = pos;
-  alien_bullet.image_in = image_in;
-  alien_bullet.image_out = image_out;
+  for (int i = 0; i < IMAGE_RENDER_ALIEN_BULLET_TOTAL_PIXELS; i++) { // sets the alien image
+    alien_bullet.image_in[i] = image_in[i];
+  }
+  for (int i = 0; i < IMAGE_RENDER_ALIEN_BULLET_TOTAL_PIXELS; i++) { // sets the alien image
+    alien_bullet.image_out[i] = image_out[i];
+  }
   alien_bullet.fired = 0;
 }
 
@@ -979,8 +984,20 @@ void image_render_saucer(){
   sprites_render_buffer(saucer_18x9,SPRITES_SAUCER_WIDTH,SPRITES_SAUCER_HEIGHT,saucer_pos,ALIEN_SIZE,red);
 }
 
+void check_for_overrun() {
+  for(int i = 0; i < ALIEN_BLOCK_SIZE; i++) {
+    if(alien_block[i].alive == ALIEN_ALIVE) {
+      uint32_t pos = alien_block[i].current_location;
+      if(pos+IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*SPRITES_ALIEN_HEIGHT*ALIEN_SIZE > BUNKER_HEIGHTS) {
+        globals_assert_alien_overrun_flag();
+      }
+    }
+  }
+}
+
 // moves the alien block around the screen
 void image_render_move_alien_block() {
+  check_for_overrun();
   /* If we run out of aliens in the block, create a new alien block */
   if(globals_get_total_alien_count() == 0) {
     image_render_create_alien_block();

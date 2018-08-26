@@ -15,7 +15,7 @@
 #define FOUR_HIT_POINTS 4
 #define ONE_HIT_POINT 1
 #define NO_HIT_POINTS 0
-#define IMAGE_RENDER_ALIEN_BULLET_TOTAL_PIXELS SPRITES_BULLET_HEIGHT*SPRITES_ALIEN_BULLET_WIDTH
+#define IMAGE_RENDER_ALIEN_BULLET_TOTAL_PIXELS 7*3
 
 
 // a struct containing the data for an individual alien
@@ -46,7 +46,7 @@ struct AlienBullet {
   uint32_t image_in[IMAGE_RENDER_ALIEN_BULLET_TOTAL_PIXELS];
   uint32_t image_out[IMAGE_RENDER_ALIEN_BULLET_TOTAL_PIXELS];
   uint16_t fired;
-}
+};
 
 // initializes a few of our necessary variables and starts the screen black
 void image_render_init();

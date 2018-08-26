@@ -173,6 +173,14 @@ void move_tank(uint32_t buttonPressed) {
 void isr_fit() {
   intc_ack_interrupt(INTC_FIT_MASK); // acknowledges the received FIT interrupt
 
+  if(globals_get_alien_overrun_flag() == 1) { // if the aliens get too low on the screen, game over!
+    globals_decrement_current_lives();
+    globals_decrement_current_lives();
+    globals_decrement_current_lives();
+    globals_decrement_current_lives();
+    globals_decrement_current_lives();
+  }
+
   if(globals_get_current_score() > TEN_THOUSAND_POINTS) {
     alien_movement_delay = FASTEST_MOVEMENT;
   }
@@ -227,7 +235,7 @@ void isr_fit() {
     image_render_move_alien_bullet();
   }
   alien_counter++; // increments the alien counter
-  if(alien_counter > alien_movement_delay) { // a little bit of a delay for the alien movement
+  if(alien_counter > 2) { // a little bit of a delay for the alien movement
     image_render_move_alien_block();
     alien_counter = 0;
   }

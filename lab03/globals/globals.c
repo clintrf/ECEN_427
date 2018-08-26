@@ -53,6 +53,7 @@ static uint16_t saucer_status = SAUCER_ALIVE;
 static uint32_t saucer_shot_count = 0;
 static uint16_t total_alien_count = STARTING_ALIEN_AMOUNT;
 static uint32_t current_lives = START_LIVES;
+static uint16_t alien_overrun_flag = 0;
 
 uint32_t global_green[GLOBAL_BYTES_PER_PIXEL] = {0x00,0x80,0x00};
 uint32_t global_black[GLOBAL_BYTES_PER_PIXEL] = {0x00,0x00,0x00};
@@ -243,6 +244,17 @@ void globals_decrement_current_lives() {
   }
 }
 
+// fetches the flag that indicates that aliens have overrun our bunker
+// returns the overrun flag
+uint16_t globals_get_alien_overrun_flag() {
+  return alien_overrun_flag;
+}
+
+// asserts the overrun flag if the bottom column of aliens reaches the top of the bunker line
+void globals_assert_alien_overrun_flag() {
+  alien_overrun_flag = 1;
+}
+
 // prints lives to screen
 void globals_print_current_lives(){
   if(current_lives == ONE_LIFE){
@@ -280,4 +292,5 @@ void globals_print_current_lives(){
     sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FOURTH_LIFE_LOCATION,TANK_SIZING,global_green);
     sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FIFTH_LIFE_LOCATION,TANK_SIZING,global_green);
   }
+
 }

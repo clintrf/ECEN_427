@@ -111,3 +111,10 @@ void globals_decrement_current_lives();
 
 // prints lives to screen
 void globals_print_current_lives();
+
+// fetches the flag that indicates that aliens have overrun our bunker
+// returns the overrun flag
+uint16_t globals_get_alien_overrun_flag();
+
+// asserts the overrun flag if the bottom column of aliens reaches the top of the bunker line
+void globals_assert_alien_overrun_flag();
