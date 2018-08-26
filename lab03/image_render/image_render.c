@@ -13,8 +13,6 @@
 #define IMAGE_RENDER_SCREEN_HEIGHT 480
 #define IMAGE_RENDER_BYTES_PER_PIXEL 3
 #define IMAGE_RENDER_WHOLE_SCREEN IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_SCREEN_HEIGHT*IMAGE_RENDER_BYTES_PER_PIXEL
-#define NUMBER_OF_CHARS_FOR_NAME 3
-#define NUMBER_OF_BITS_PER_CHAR 25
 #define LETTER_A 11
 #define ALIEN_DEAD 0
 #define ALIEN_DEPTH ALIEN_SIZE*SPRITES_ALIEN_HEIGHT
@@ -37,11 +35,9 @@
 #define ALIEN_TOP_POINTS 40
 #define ALIEN_MIDDLE_POINTS 20
 #define ALIEN_BOTTOM_POINTS 10
-#define ROW_0_TOP 0
 #define ROW_1 11
 #define ROW_2 22
 #define ROW_3 33
-#define ROW_4_BOTTOM 44
 #define ROW_ONE 0
 #define ROW_TWO 1
 #define ROW_THREE 2
@@ -151,7 +147,13 @@
 #define ALIEN_BULLET_2 10
 #define ALIEN_BULLET_3 12
 #define TANK_BULLET 11
-#define MAX_NUM_ALIEN_BULLETS 5
+#define ONE_PIXEL 3
+#define TWO_PIXELS 6
+#define THREE_PIXELS 9
+#define FOUR_PIXELS 12
+#define FIVE_PIXELS 15
+#define TRUE 1
+#define FALSE 0
 
 /********************************** globals **********************************/
 /* global arrays */
@@ -209,14 +211,12 @@ void image_render_init() {
   odd_1 = ALIEN_OUT;
   odd_2 = ALIEN_OUT;
   odd_3 = ALIEN_OUT;
-
   // initializes a buffer that contains all zeroes to print black to the entire screen
   for(uint32_t i = 0; i < IMAGE_RENDER_WHOLE_SCREEN; i++) {
     full_screen_black[i++] = 0x00; // if all bits are set to 0x00, the pixel will be black
     full_screen_black[i++] = 0x00;
     full_screen_black[i] = 0x00;
   }
-
   image_render_print_black_screen(); // call the print screen function
   image_render_create_alien_block(); // creates the original alien block
 }
@@ -233,6 +233,7 @@ void image_render_print_black_screen() {
 // starting_location : starting location of the alien
 // points : how many points the alien is worth
 // placement : where the alien is inside the block
+// returns : a newly created alien struct
 Alien image_render_create_alien(const uint32_t image_in[], const uint32_t image_out[], uint32_t starting_location, uint32_t points, uint32_t placement) {
   Alien alien;
   for (int i = 0; i < IMAGE_RENDER_ALIEN_PIXEL_TOTAL; i++) { // sets the alien image
@@ -253,18 +254,19 @@ Alien image_render_create_alien(const uint32_t image_in[], const uint32_t image_
 
 // creates the data for a single bunker object
 // pos : the position of the bunker on the screen
+// returns : a newly created Bunker struct
 Bunker image_render_create_bunker(uint32_t pos) {
   Bunker bunker;
   bunker.position = pos;
-  for(int i = 0; i < IMAGE_RENDER_NUM_BUNKER_BLOCKS; i++) {
-    if(i == BUNKER_BLOCK_5 || i == BUNKER_BLOCK_6) {
+  for(int i = 0; i < IMAGE_RENDER_NUM_BUNKER_BLOCKS; i++) { // runs through the amount of blocks in each bunker
+    if(i == BUNKER_BLOCK_5 || i == BUNKER_BLOCK_6) { // if it is one of the lower middle diagonal blocks, go here
       bunker.block_hit_points[i] = TWO_HIT_POINTS;
     }
-    else if(i == BUNKER_BLOCK_9 || i == BUNKER_BLOCK_10) {
+    else if(i == BUNKER_BLOCK_9 || i == BUNKER_BLOCK_10) { // if it is one of the empty bunker blocks, go here
       bunker.block_hit_points[i] = NO_HIT_POINTS;
     }
     else {
-      bunker.block_hit_points[i] = FOUR_HIT_POINTS;
+      bunker.block_hit_points[i] = FOUR_HIT_POINTS; // all other bunker blocks have 4 hp points
     }
   }
   return bunker;
@@ -287,7 +289,7 @@ void image_render_create_alien_block() {
     }
     r = r+ROW_1;
   }
-
+  /* sets all initial parameters, or resets them when we recreate a new alien_block */
   alien_block_right_bound = COLUMN_TEN_RIGHT_BOUND;
   alien_block_left_bound = COLUMN_ZERO_LEFT_BOUND;
   current_left_column = COLUMN_0_LEFT;
@@ -421,7 +423,7 @@ void image_render_fire_tank_bullet() {
   sprites_render_buffer(tankbullet_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,TANK_BULLET_START_POS,ALIEN_SIZE,white);
 }
 
-// fires a bullet from the tank position
+// fires a bullet from the first of the alien bullets from a random position
 void image_render_fire_alien_bullet_0() {
   globals_fire_alien_bullet_0(); // says that the bullet has been fired
   globals_set_alien_bullet_position_0(current_shooter_0);
@@ -432,6 +434,8 @@ void image_render_fire_alien_bullet_0() {
     sprites_render_buffer(alienbullet2_down_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_shooter_0,ALIEN_SIZE,white);
   }
 }
+
+// fires a bullet from the second of the alien bullets from a random position
 void image_render_fire_alien_bullet_1() {
   globals_fire_alien_bullet_1(); // says that the bullet has been fired
   globals_set_alien_bullet_position_1(current_shooter_1);
@@ -442,6 +446,8 @@ void image_render_fire_alien_bullet_1() {
     sprites_render_buffer(alienbullet2_down_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_shooter_1,ALIEN_SIZE,green);
   }
 }
+
+// fires a bullet from the third of the alien bullets from a random position
 void image_render_fire_alien_bullet_2() {
   globals_fire_alien_bullet_2(); // says that the bullet has been fired
   globals_set_alien_bullet_position_2(current_shooter_2);
@@ -452,6 +458,8 @@ void image_render_fire_alien_bullet_2() {
     sprites_render_buffer(alienbullet2_down_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_shooter_2,ALIEN_SIZE,pink);
   }
 }
+
+// fires a bullet from the fourth of the alien bullets from a random position
 void image_render_fire_alien_bullet_3() {
   globals_fire_alien_bullet_3(); // says that the bullet has been fired
   globals_set_alien_bullet_position_3(current_shooter_3);
@@ -484,6 +492,7 @@ void image_render_check_for_saucer(uint32_t current_pos) {
 
 // goes through each column to check the bound
 // column : the column to check
+// bound : the current bound on the block
 void image_render_check_column(uint16_t column, uint16_t bound) {
   uint16_t column_count = 0;
     for(int i = 0; i < FIVE_ROWS; i++) { // go through the entire column
@@ -504,122 +513,14 @@ void image_render_check_column(uint16_t column, uint16_t bound) {
 
 // checks each of the columns on the left hand side to see if we need to move the boundaries over
 void image_render_set_left_bound() {
-  uint16_t j;
-  /* check for each column */
-  if(current_left_column == COLUMN_0_LEFT) {
-    j = COLUMN_0_LEFT;
-    image_render_check_column(j,LEFT);
-  }
-  /* check for each column */
-  if(current_left_column == COLUMN_1) {
-    j = COLUMN_1;
-    image_render_check_column(j,LEFT);
-  }
-  /* check for each column */
-  if(current_left_column == COLUMN_2) {
-    j = COLUMN_2;
-    image_render_check_column(j,LEFT);
-  }
-  /* check for each column */
-  if(current_left_column == COLUMN_3) {
-    j = COLUMN_3;
-    image_render_check_column(j,LEFT);
-  }
-  /* check for each column */
-  if(current_left_column == COLUMN_4) {
-    j = COLUMN_4;
-    image_render_check_column(j,LEFT);
-  }
-  /* check for each column */
-  if(current_left_column == COLUMN_5) {
-    j = COLUMN_5;
-    image_render_check_column(j,LEFT);
-  }
-  /* check for each column */
-  if(current_left_column == COLUMN_6) {
-    j = COLUMN_6;
-    image_render_check_column(j,LEFT);
-  }
-  /* check for each column */
-  if(current_left_column == COLUMN_7) {
-    j = COLUMN_7;
-    image_render_check_column(j,LEFT);
-  }
-  /* check for each column */
-  if(current_left_column == COLUMN_8) {
-    j = COLUMN_8;
-    image_render_check_column(j,LEFT);
-  }
-  /* check for each column */
-  if(current_left_column == COLUMN_9) {
-    j = COLUMN_9;
-    image_render_check_column(j,LEFT);
-  }
-  /* check for each column */
-  if(current_left_column == COLUMN_10_RIGHT) {
-    j = COLUMN_10_RIGHT;
-    image_render_check_column(j,LEFT);
-  }
+  uint16_t j = current_left_column;
+  image_render_check_column(j,LEFT);
 }
 
 // checks each of the columns on the right hand side to see if we need to move the boundaries over
 void image_render_set_right_bound() {
-  uint16_t j;
-  /* check for each column */
-  if(current_right_column == COLUMN_10_RIGHT) {
-    j = COLUMN_10_RIGHT;
-    image_render_check_column(j,RIGHT);
-  }
-  /* check for each column */
-  if(current_right_column == COLUMN_9) {
-    j = COLUMN_9;
-    image_render_check_column(j,RIGHT);
-  }
-  /* check for each column */
-  if(current_right_column == COLUMN_8) {
-    j = COLUMN_8;
-    image_render_check_column(j,RIGHT);
-  }
-  /* check for each column */
-  if(current_right_column == COLUMN_7) {
-    j = COLUMN_7;
-    image_render_check_column(j,RIGHT);
-  }
-  /* check for each column */
-  if(current_right_column == COLUMN_6) {
-    j = COLUMN_6;
-    image_render_check_column(j,RIGHT);
-  }
-  /* check for each column */
-  if(current_right_column == COLUMN_5) {
-    j = COLUMN_5;
-    image_render_check_column(j,RIGHT);
-  }
-  /* check for each column */
-  if(current_right_column == COLUMN_4) {
-    j = COLUMN_4;
-    image_render_check_column(j,RIGHT);
-  }
-  /* check for each column */
-  if(current_right_column == COLUMN_3) {
-    j = COLUMN_3;
-    image_render_check_column(j,RIGHT);
-  }
-  /* check for each column */
-  if(current_right_column == COLUMN_2) {
-    j = COLUMN_2;
-    image_render_check_column(j,RIGHT);
-  }
-  /* check for each column */
-  if(current_right_column == COLUMN_1) {
-    j = COLUMN_1;
-    image_render_check_column(j,RIGHT);
-  }
-  /* check for each column */
-  if(current_right_column == COLUMN_0_LEFT) {
-    j = COLUMN_0_LEFT;
-    image_render_check_column(j,RIGHT);
-  }
+  uint16_t j = current_right_column;
+  image_render_check_column(j,RIGHT);
 }
 
 // checks to see if the location of an alien and the tank bullet match
@@ -638,9 +539,7 @@ void image_render_check_for_aliens(uint32_t current_pos) {
           globals_tank_bullet_stopped(); // stops the tank bullet
           globals_add_to_current_score(alien_block[i].points); // adds the alien's points to the score
           globals_decrement_total_alien_count(); // decreases total alien count
-          image_render_set_left_bound(); // sets the left boundary
-          image_render_set_right_bound(); // sets the right boundary
-          alien_killed = 1;
+          alien_killed = TRUE;
           globals_set_dead_alien_loc(alien_block[i].current_location);
           uint32_t counter = 0;
           while(counter < ALIEN_EXPLOSION_TIMER) { counter++; } // timer to display the explosion
@@ -651,26 +550,24 @@ void image_render_check_for_aliens(uint32_t current_pos) {
 }
 
 // blows the tank up
-// current_pos : current position of the alien bullet
-void image_render_blow_tank_up(uint32_t current_pos, uint16_t bullet_id) {
-  if(bullet_id == ALIEN_BULLET_0) {
+// bullet_id : tracks which bullet shot the tank
+void image_render_blow_tank_up(uint16_t bullet_id) {
+  if(bullet_id == ALIEN_BULLET_0) { // need to determine which bullet shot the tank
     globals_alien_bullet_stopped_0();
     sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,globals_get_alien_bullet_position_0(),ALIEN_SIZE,black);
   }
-  else if(bullet_id == ALIEN_BULLET_1) {
+  else if(bullet_id == ALIEN_BULLET_1) { // need to determine which bullet shot the tank
     globals_alien_bullet_stopped_1();
     sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,globals_get_alien_bullet_position_1(),ALIEN_SIZE,black);
   }
-  else if(bullet_id == ALIEN_BULLET_2) {
+  else if(bullet_id == ALIEN_BULLET_2) { // need to determine which bullet shot the tank
     globals_alien_bullet_stopped_2();
     sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,globals_get_alien_bullet_position_2(),ALIEN_SIZE,black);
   }
-  else {
+  else { // need to determine which bullet shot the tank
     globals_alien_bullet_stopped_3();
     sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,globals_get_alien_bullet_position_3(),ALIEN_SIZE,black);
   }
-
-
   sprites_render_buffer(tank_explosion2_17x10,SPRITES_TANK_WIDTH,SPRITES_TANK_HEIGHT,(IMAGE_RENDER_SCREEN_WIDTH*TANK_FIND_DEPTH+tank_pos)*IMAGE_RENDER_BYTES_PER_PIXEL,ALIEN_SIZE,green);
   globals_decrement_current_lives();
   uint32_t counter = 0;
@@ -680,32 +577,33 @@ void image_render_blow_tank_up(uint32_t current_pos, uint16_t bullet_id) {
 
 // checks for the position of the tank
 // current_pos : current position of the alien bullet
+// bullet_id : used to trank which bullet shot the tank
 void image_render_check_for_tank(uint32_t current_pos, uint16_t bullet_id) {
   current_pos = (current_pos / IMAGE_RENDER_BYTES_PER_PIXEL);
   for(int i = 0; i < ALIEN_SIZE; i++){
     for(int j = 0; j < SPRITES_TANK_WIDTH*ALIEN_SIZE; j++){
       if(current_pos == IMAGE_RENDER_SCREEN_WIDTH*TANK_START_DEPTH+tank_pos+j+i*IMAGE_RENDER_SCREEN_WIDTH) { // if the tank bullet position is the same as the saucer position, kill the saucer
-        image_render_blow_tank_up(current_pos*IMAGE_RENDER_BYTES_PER_PIXEL, bullet_id);
+        image_render_blow_tank_up(bullet_id);
         break;
       }
       else if(current_pos+IMAGE_RENDER_BYTES_PER_PIXEL == IMAGE_RENDER_SCREEN_WIDTH*TANK_START_DEPTH+tank_pos+j+i*IMAGE_RENDER_SCREEN_WIDTH) { // if the tank bullet position is the same as the saucer position, kill the saucer
-        image_render_blow_tank_up(current_pos*IMAGE_RENDER_BYTES_PER_PIXEL, bullet_id);
+        image_render_blow_tank_up(bullet_id);
         break;
       }
       else if(current_pos-IMAGE_RENDER_BYTES_PER_PIXEL == IMAGE_RENDER_SCREEN_WIDTH*TANK_START_DEPTH+tank_pos+j+i*IMAGE_RENDER_SCREEN_WIDTH) { // if the tank bullet position is the same as the saucer position, kill the saucer
-        image_render_blow_tank_up(current_pos*IMAGE_RENDER_BYTES_PER_PIXEL, bullet_id);
+        image_render_blow_tank_up(bullet_id);
         break;
       }
       else if(current_pos+IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE == IMAGE_RENDER_SCREEN_WIDTH*TANK_START_DEPTH+tank_pos+j+i*IMAGE_RENDER_SCREEN_WIDTH) { // if the tank bullet position is the same as the saucer position, kill the saucer
-        image_render_blow_tank_up(current_pos*IMAGE_RENDER_BYTES_PER_PIXEL, bullet_id);
+        image_render_blow_tank_up(bullet_id);
         break;
       }
       else if(current_pos-IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE == IMAGE_RENDER_SCREEN_WIDTH*TANK_START_DEPTH+tank_pos+j+i*IMAGE_RENDER_SCREEN_WIDTH) { // if the tank bullet position is the same as the saucer position, kill the saucer
-        image_render_blow_tank_up(current_pos, bullet_id);
+        image_render_blow_tank_up(bullet_id);
         break;
       }
-      else if(current_pos+9 == IMAGE_RENDER_SCREEN_WIDTH*TANK_START_DEPTH+tank_pos+j+i*IMAGE_RENDER_SCREEN_WIDTH) { // if the tank bullet position is the same as the saucer position, kill the saucer
-        image_render_blow_tank_up(current_pos, bullet_id);
+      else if(current_pos+THREE_PIXELS == IMAGE_RENDER_SCREEN_WIDTH*TANK_START_DEPTH+tank_pos+j+i*IMAGE_RENDER_SCREEN_WIDTH) { // if the tank bullet position is the same as the saucer position, kill the saucer
+        image_render_blow_tank_up(bullet_id);
         break;
       }
     }
@@ -721,22 +619,22 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
   if(block_num == BUNKER_BLOCK_0) { // top left corner case
     if(hp == FOUR_HIT_POINTS) { // if the block hasn't been hit yet
       sprites_render_buffer(bunker_upper_left_damage2_6x6,SPRITES_BUNKER_DAMAGE_WIDTH,SPRITES_BUNKER_DAMAGE_HEIGHT,bunker_set[bunker_num].position,ALIEN_SIZE,green);
-      if(bullet_id == TANK_BULLET) {
+      if(bullet_id == TANK_BULLET) { // if the tank bullet shot the bunker
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
       }
-      else {
+      else { // if one of the alien bullets shot the bunker
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        if(bullet_id == ALIEN_BULLET_0){
+        if(bullet_id == ALIEN_BULLET_0){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_0();
         }
-        if(bullet_id == ALIEN_BULLET_1){
+        if(bullet_id == ALIEN_BULLET_1){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_1();
         }
-        if(bullet_id == ALIEN_BULLET_2){
+        if(bullet_id == ALIEN_BULLET_2){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_2();
         }
-        if(bullet_id == ALIEN_BULLET_3){
+        if(bullet_id == ALIEN_BULLET_3){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_3();
         }
       }
@@ -745,22 +643,22 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
     }
     else if(hp == THREE_HIT_POINTS) { // if the block has been hit once already
       sprites_render_buffer(bunker_upper_left_damage1_6x6,SPRITES_BUNKER_DAMAGE_WIDTH,SPRITES_BUNKER_DAMAGE_HEIGHT,bunker_set[bunker_num].position,ALIEN_SIZE,green);
-      if(bullet_id == TANK_BULLET) {
+      if(bullet_id == TANK_BULLET) { // if the tank bullet shot the bunker
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
       }
-      else {
+      else { // if the bunker was hit with an alien bullet
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        if(bullet_id == ALIEN_BULLET_0){
+        if(bullet_id == ALIEN_BULLET_0){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_0();
         }
-        if(bullet_id == ALIEN_BULLET_1){
+        if(bullet_id == ALIEN_BULLET_1){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_1();
         }
-        if(bullet_id == ALIEN_BULLET_2){
+        if(bullet_id == ALIEN_BULLET_2){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_2();
         }
-        if(bullet_id == ALIEN_BULLET_3){
+        if(bullet_id == ALIEN_BULLET_3){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_3();
         }
       }
@@ -768,22 +666,22 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
     }
     else if(hp == TWO_HIT_POINTS) { // if the block has been hit twice already
       sprites_render_buffer(bunker_upper_left_damage0_6x6,SPRITES_BUNKER_DAMAGE_WIDTH,SPRITES_BUNKER_DAMAGE_HEIGHT,bunker_set[bunker_num].position,ALIEN_SIZE,green);
-      if(bullet_id == TANK_BULLET) {
+      if(bullet_id == TANK_BULLET) { // if the tank bullet shot the bunker
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
       }
-      else {
+      else { // if the bunker was hit with an alien bullet
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        if(bullet_id == ALIEN_BULLET_0){
+        if(bullet_id == ALIEN_BULLET_0){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_0();
         }
-        if(bullet_id == ALIEN_BULLET_1){
+        if(bullet_id == ALIEN_BULLET_1){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_1();
         }
-        if(bullet_id == ALIEN_BULLET_2){
+        if(bullet_id == ALIEN_BULLET_2){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_2();
         }
-        if(bullet_id == ALIEN_BULLET_3){
+        if(bullet_id == ALIEN_BULLET_3){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_3();
         }
       }
@@ -791,22 +689,22 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
     }
     else if(hp == ONE_HIT_POINT) { // if the block has been hit thrice already
       sprites_render_buffer(bunker_upper_left_gone_6x6,SPRITES_BUNKER_DAMAGE_WIDTH,SPRITES_BUNKER_DAMAGE_HEIGHT,bunker_set[bunker_num].position,ALIEN_SIZE,black);
-      if(bullet_id == TANK_BULLET) {
+      if(bullet_id == TANK_BULLET) { // if the tank bullet shot the bunker
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
       }
-      else {
+      else { // if the bunker was hit with an alien bullet
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        if(bullet_id == ALIEN_BULLET_0){
+        if(bullet_id == ALIEN_BULLET_0){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_0();
         }
-        if(bullet_id == ALIEN_BULLET_1){
+        if(bullet_id == ALIEN_BULLET_1){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_1();
         }
-        if(bullet_id == ALIEN_BULLET_2){
+        if(bullet_id == ALIEN_BULLET_2){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_2();
         }
-        if(bullet_id == ALIEN_BULLET_3){
+        if(bullet_id == ALIEN_BULLET_3){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_3();
         }
       }
@@ -816,22 +714,22 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
   else if(block_num == BUNKER_BLOCK_3) { // the right corner case
     if(hp == FOUR_HIT_POINTS) { // if the block hasn't been hit yet
       sprites_render_buffer(bunker_upper_right_damage2_6x6,SPRITES_BUNKER_DAMAGE_WIDTH,SPRITES_BUNKER_DAMAGE_HEIGHT,bunker_set[bunker_num].position+BLOCK_THREE_OFFSET,ALIEN_SIZE,green);
-      if(bullet_id == TANK_BULLET) {
+      if(bullet_id == TANK_BULLET) { // if the tank bullet shot the bunker
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
       }
-      else {
+      else { // if the bunker was hit with an alien bullet
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        if(bullet_id == ALIEN_BULLET_0){
+        if(bullet_id == ALIEN_BULLET_0){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_0();
         }
-        if(bullet_id == ALIEN_BULLET_1){
+        if(bullet_id == ALIEN_BULLET_1){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_1();
         }
-        if(bullet_id == ALIEN_BULLET_2){
+        if(bullet_id == ALIEN_BULLET_2){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_2();
         }
-        if(bullet_id == ALIEN_BULLET_3){
+        if(bullet_id == ALIEN_BULLET_3){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_3();
         }
       }
@@ -839,22 +737,22 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
     }
     else if(hp == THREE_HIT_POINTS) { // if the block has been hit once already
       sprites_render_buffer(bunker_upper_right_damage1_6x6,SPRITES_BUNKER_DAMAGE_WIDTH,SPRITES_BUNKER_DAMAGE_HEIGHT,bunker_set[bunker_num].position+BLOCK_THREE_OFFSET,ALIEN_SIZE,green);
-      if(bullet_id == TANK_BULLET) {
+      if(bullet_id == TANK_BULLET) { // if the tank bullet shot the bunker
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
       }
-      else {
+      else { // if the bunker was hit with an alien bullet
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        if(bullet_id == ALIEN_BULLET_0){
+        if(bullet_id == ALIEN_BULLET_0){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_0();
         }
-        if(bullet_id == ALIEN_BULLET_1){
+        if(bullet_id == ALIEN_BULLET_1){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_1();
         }
-        if(bullet_id == ALIEN_BULLET_2){
+        if(bullet_id == ALIEN_BULLET_2){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_2();
         }
-        if(bullet_id == ALIEN_BULLET_3){
+        if(bullet_id == ALIEN_BULLET_3){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_3();
         }
       }
@@ -862,22 +760,22 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
     }
     else if(hp == TWO_HIT_POINTS) { // if the block has been hit twice already
       sprites_render_buffer(bunker_upper_right_damage0_6x6,SPRITES_BUNKER_DAMAGE_WIDTH,SPRITES_BUNKER_DAMAGE_HEIGHT,bunker_set[bunker_num].position+BLOCK_THREE_OFFSET,ALIEN_SIZE,green);
-      if(bullet_id == TANK_BULLET) {
+      if(bullet_id == TANK_BULLET) { // if the tank bullet shot the bunker
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
       }
-      else {
+      else { // if the bunker was hit with an alien bullet
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        if(bullet_id == ALIEN_BULLET_0){
+        if(bullet_id == ALIEN_BULLET_0){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_0();
         }
-        if(bullet_id == ALIEN_BULLET_1){
+        if(bullet_id == ALIEN_BULLET_1){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_1();
         }
-        if(bullet_id == ALIEN_BULLET_2){
+        if(bullet_id == ALIEN_BULLET_2){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_2();
         }
-        if(bullet_id == ALIEN_BULLET_3){
+        if(bullet_id == ALIEN_BULLET_3){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_3();
         }
       }
@@ -885,22 +783,22 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
     }
     else if(hp == ONE_HIT_POINT) { // if the block has been hit thrice already
       sprites_render_buffer(bunker_upper_right_gone_6x6,SPRITES_BUNKER_DAMAGE_WIDTH,SPRITES_BUNKER_DAMAGE_HEIGHT,bunker_set[bunker_num].position+BLOCK_THREE_OFFSET,ALIEN_SIZE,black);
-      if(bullet_id == TANK_BULLET) {
+      if(bullet_id == TANK_BULLET) { // if the tank bullet shot the bunker
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
       }
-      else {
+      else { // if the bunker was hit with an alien bullet
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        if(bullet_id == ALIEN_BULLET_0){
+        if(bullet_id == ALIEN_BULLET_0){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_0();
         }
-        if(bullet_id == ALIEN_BULLET_1){
+        if(bullet_id == ALIEN_BULLET_1){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_1();
         }
-        if(bullet_id == ALIEN_BULLET_2){
+        if(bullet_id == ALIEN_BULLET_2){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_2();
         }
-        if(bullet_id == ALIEN_BULLET_3){
+        if(bullet_id == ALIEN_BULLET_3){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_3();
         }
       }
@@ -910,22 +808,22 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
   else if(block_num == BUNKER_BLOCK_5) { // lower middle left case
     if(hp == TWO_HIT_POINTS) { // if the block hasn't been hit yet
       sprites_render_buffer(bunker_lower_middle_left_damage0_6x6,SPRITES_BUNKER_DAMAGE_WIDTH,SPRITES_BUNKER_DAMAGE_HEIGHT,bunker_set[bunker_num].position+BLOCK_FIVE_OFFSET,ALIEN_SIZE,green);
-      if(bullet_id == TANK_BULLET) {
+      if(bullet_id == TANK_BULLET) { // if the tank bullet shot the bunker
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
       }
-      else {
+      else { // if the bunker was hit with an alien bullet
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        if(bullet_id == ALIEN_BULLET_0){
+        if(bullet_id == ALIEN_BULLET_0){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_0();
         }
-        if(bullet_id == ALIEN_BULLET_1){
+        if(bullet_id == ALIEN_BULLET_1){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_1();
         }
-        if(bullet_id == ALIEN_BULLET_2){
+        if(bullet_id == ALIEN_BULLET_2){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_2();
         }
-        if(bullet_id == ALIEN_BULLET_3){
+        if(bullet_id == ALIEN_BULLET_3){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_3();
         }
       }
@@ -933,22 +831,22 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
     }
     else if(hp == ONE_HIT_POINT) { // if the block hasn't been hit yet
       sprites_render_buffer(bunker_lower_middle_left_gone_6x6,SPRITES_BUNKER_DAMAGE_WIDTH,SPRITES_BUNKER_DAMAGE_HEIGHT,bunker_set[bunker_num].position+BLOCK_FIVE_OFFSET,ALIEN_SIZE,black);
-      if(bullet_id == TANK_BULLET) {
+      if(bullet_id == TANK_BULLET) { // if the tank bullet shot the bunker
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
       }
-      else {
+      else { // if the bunker was hit with an alien bullet
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        if(bullet_id == ALIEN_BULLET_0){
+        if(bullet_id == ALIEN_BULLET_0){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_0();
         }
-        if(bullet_id == ALIEN_BULLET_1){
+        if(bullet_id == ALIEN_BULLET_1){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_1();
         }
-        if(bullet_id == ALIEN_BULLET_2){
+        if(bullet_id == ALIEN_BULLET_2){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_2();
         }
-        if(bullet_id == ALIEN_BULLET_3){
+        if(bullet_id == ALIEN_BULLET_3){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_3();
         }
       }
@@ -958,22 +856,22 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
   else if(block_num == BUNKER_BLOCK_6) { // lower middle right case
     if(hp == TWO_HIT_POINTS) { // if the block hasn't been hit yet
       sprites_render_buffer(bunker_lower_middle_right_damage0_6x6,SPRITES_BUNKER_DAMAGE_WIDTH,SPRITES_BUNKER_DAMAGE_HEIGHT,bunker_set[bunker_num].position+BLOCK_SIX_OFFSET,ALIEN_SIZE,green);
-      if(bullet_id == TANK_BULLET) {
+      if(bullet_id == TANK_BULLET) { // if the tank bullet shot the bunker
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
       }
-      else {
+      else { // if the bunker was hit with an alien bullet
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        if(bullet_id == ALIEN_BULLET_0){
+        if(bullet_id == ALIEN_BULLET_0){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_0();
         }
-        if(bullet_id == ALIEN_BULLET_1){
+        if(bullet_id == ALIEN_BULLET_1){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_1();
         }
-        if(bullet_id == ALIEN_BULLET_2){
+        if(bullet_id == ALIEN_BULLET_2){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_2();
         }
-        if(bullet_id == ALIEN_BULLET_3){
+        if(bullet_id == ALIEN_BULLET_3){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_3();
         }
       }
@@ -981,22 +879,22 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
     }
     else if(hp == ONE_HIT_POINT) { // if the block hasn't been hit yet
       sprites_render_buffer(bunker_lower_middle_right_gone_6x6,SPRITES_BUNKER_DAMAGE_WIDTH,SPRITES_BUNKER_DAMAGE_HEIGHT,bunker_set[bunker_num].position+BLOCK_SIX_OFFSET,ALIEN_SIZE,black);
-      if(bullet_id == TANK_BULLET) {
+      if(bullet_id == TANK_BULLET) { // if the tank bullet shot the bunker
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
       }
-      else {
+      else { // if the bunker was hit with an alien bullet
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        if(bullet_id == ALIEN_BULLET_0){
+        if(bullet_id == ALIEN_BULLET_0){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_0();
         }
-        if(bullet_id == ALIEN_BULLET_1){
+        if(bullet_id == ALIEN_BULLET_1){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_1();
         }
-        if(bullet_id == ALIEN_BULLET_2){
+        if(bullet_id == ALIEN_BULLET_2){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_2();
         }
-        if(bullet_id == ALIEN_BULLET_3){
+        if(bullet_id == ALIEN_BULLET_3){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_3();
         }
       }
@@ -1007,22 +905,22 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
   else { // all other blocks (normal)
     if(hp == FOUR_HIT_POINTS) { // if the block hasn't been hit yet
       sprites_render_buffer(bunkerDamage2_6x6,SPRITES_BUNKER_DAMAGE_WIDTH,SPRITES_BUNKER_DAMAGE_HEIGHT,bunker_set[bunker_num].position+((SPRITES_BUNKER_DAMAGE_WIDTH*ALIEN_SIZE*IMAGE_RENDER_BYTES_PER_PIXEL*column)+SPRITES_BUNKER_DAMAGE_HEIGHT*IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE*row),ALIEN_SIZE,green);
-      if(bullet_id == TANK_BULLET) {
+      if(bullet_id == TANK_BULLET) { // if the tank bullet shot the bunker
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
       }
-      else {
+      else { // if the bunker was hit with an alien bullet
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        if(bullet_id == ALIEN_BULLET_0){
+        if(bullet_id == ALIEN_BULLET_0){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_0();
         }
-        if(bullet_id == ALIEN_BULLET_1){
+        if(bullet_id == ALIEN_BULLET_1){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_1();
         }
-        if(bullet_id == ALIEN_BULLET_2){
+        if(bullet_id == ALIEN_BULLET_2){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_2();
         }
-        if(bullet_id == ALIEN_BULLET_3){
+        if(bullet_id == ALIEN_BULLET_3){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_3();
         }
       }
@@ -1030,22 +928,22 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
     }
     else if(hp == THREE_HIT_POINTS) { // if the block has been hit once already
       sprites_render_buffer(bunkerDamage1_6x6,SPRITES_BUNKER_DAMAGE_WIDTH,SPRITES_BUNKER_DAMAGE_HEIGHT,bunker_set[bunker_num].position+((SPRITES_BUNKER_DAMAGE_WIDTH*ALIEN_SIZE*IMAGE_RENDER_BYTES_PER_PIXEL*column)+SPRITES_BUNKER_DAMAGE_HEIGHT*IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE*row),ALIEN_SIZE,green);
-      if(bullet_id == TANK_BULLET) {
+      if(bullet_id == TANK_BULLET) { // if the tank bullet shot the bunker
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
       }
-      else {
+      else { // if the bunker was hit with an alien bullet
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        if(bullet_id == ALIEN_BULLET_0){
+        if(bullet_id == ALIEN_BULLET_0){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_0();
         }
-        if(bullet_id == ALIEN_BULLET_1){
+        if(bullet_id == ALIEN_BULLET_1){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_1();
         }
-        if(bullet_id == ALIEN_BULLET_2){
+        if(bullet_id == ALIEN_BULLET_2){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_2();
         }
-        if(bullet_id == ALIEN_BULLET_3){
+        if(bullet_id == ALIEN_BULLET_3){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_3();
         }
       }
@@ -1053,22 +951,22 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
     }
     else if(hp == TWO_HIT_POINTS) { // if the block has been hit twice already
       sprites_render_buffer(bunkerDamage0_6x6,SPRITES_BUNKER_DAMAGE_WIDTH,SPRITES_BUNKER_DAMAGE_HEIGHT,bunker_set[bunker_num].position+((SPRITES_BUNKER_DAMAGE_WIDTH*ALIEN_SIZE*IMAGE_RENDER_BYTES_PER_PIXEL*column)+SPRITES_BUNKER_DAMAGE_HEIGHT*IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE*row),ALIEN_SIZE,green);
-      if(bullet_id == TANK_BULLET) {
+      if(bullet_id == TANK_BULLET) { // if the tank bullet shot the bunker
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
       }
-      else {
+      else { // if the bunker was hit with an alien bullet
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        if(bullet_id == ALIEN_BULLET_0){
+        if(bullet_id == ALIEN_BULLET_0){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_0();
         }
-        if(bullet_id == ALIEN_BULLET_1){
+        if(bullet_id == ALIEN_BULLET_1){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_1();
         }
-        if(bullet_id == ALIEN_BULLET_2){
+        if(bullet_id == ALIEN_BULLET_2){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_2();
         }
-        if(bullet_id == ALIEN_BULLET_3){
+        if(bullet_id == ALIEN_BULLET_3){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_3();
         }
       }
@@ -1076,22 +974,22 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
     }
     else if(hp == ONE_HIT_POINT) { // if the block has been hit thrice already
       sprites_render_buffer(bunkerDamage3_6x6,SPRITES_BUNKER_DAMAGE_WIDTH,SPRITES_BUNKER_DAMAGE_HEIGHT,bunker_set[bunker_num].position+((SPRITES_BUNKER_DAMAGE_WIDTH*ALIEN_SIZE*IMAGE_RENDER_BYTES_PER_PIXEL*column)+SPRITES_BUNKER_DAMAGE_HEIGHT*IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE*row),ALIEN_SIZE,black);
-      if(bullet_id == TANK_BULLET) {
+      if(bullet_id == TANK_BULLET) { // if the tank bullet shot the bunker
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
       }
-      else {
+      else { // if the bunker was hit with an alien bullet
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        if(bullet_id == ALIEN_BULLET_0){
+        if(bullet_id == ALIEN_BULLET_0){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_0();
         }
-        if(bullet_id == ALIEN_BULLET_1){
+        if(bullet_id == ALIEN_BULLET_1){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_1();
         }
-        if(bullet_id == ALIEN_BULLET_2){
+        if(bullet_id == ALIEN_BULLET_2){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_2();
         }
-        if(bullet_id == ALIEN_BULLET_3){
+        if(bullet_id == ALIEN_BULLET_3){ // determine which bullet shot the bunker
           globals_alien_bullet_stopped_3();
         }
       }
@@ -1104,7 +1002,7 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
 // current_pos : position of the bullet
 // bullet_id : identifies alien bullet or tank bullet
 void image_render_check_for_bunker(uint32_t current_pos, uint32_t bullet_id) {
-  if(bullet_id == TANK_BULLET) {
+  if(bullet_id == TANK_BULLET) { // if the bullet that was shot was the tank bullet
     for(int b = 0; b < NUM_BUNKERS; b++) { // checks each of the four bunkers
       uint32_t bunker_pos = bunker_set[b].position;
       for(int i = 0; i < BLOCK_ROWS_PER_BUNKER; i++) { // iterates through each block row in the bunker
@@ -1122,7 +1020,7 @@ void image_render_check_for_bunker(uint32_t current_pos, uint32_t bullet_id) {
       }
     }
   }
-  else {
+  else { // if the bullet that was shot was one of the alien bullets
     current_pos = current_pos+SPRITES_BULLET_HEIGHT*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH*ALIEN_SIZE;
     for(int b = 0; b < NUM_BUNKERS; b++) { // checks each of the four bunkers
       uint32_t bunker_pos = bunker_set[b].position;
@@ -1133,45 +1031,55 @@ void image_render_check_for_bunker(uint32_t current_pos, uint32_t bullet_id) {
             for(int bw = 0; bw < SPRITES_BUNKER_DAMAGE_WIDTH*ALIEN_SIZE; bw++) { // iterate through each pixel width
               /* if the bullet position matches one of the bunker block's positions */
               bunker_pos = bunker_set[b].position+SPRITES_BUNKER_DAMAGE_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE*j+IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE*IMAGE_RENDER_SCREEN_WIDTH*SPRITES_BUNKER_DAMAGE_HEIGHT*i;
-              if(bunker_hit == 0) {
+              // this says that the bunker hasn't been hit yet with this bullet
+              // this is necessary because the alien bullets have a three pixel width
+              if(bunker_hit == FALSE) {
+                // check the position of the point
                 if(current_pos == bunker_pos+(bw*IMAGE_RENDER_BYTES_PER_PIXEL)+(bh*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH) && bunker_set[b].block_hit_points[(i*BLOCKS_PER_ROW)+j] != 0) {
                   image_render_check_bunker_block(b,(i*BLOCKS_PER_ROW)+j,i,j,current_pos-SPRITES_BULLET_HEIGHT*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH*ALIEN_SIZE,bullet_id);
-                  bunker_hit = 1;
+                  bunker_hit = TRUE;
                   break;
                 }
-                else if(current_pos+3 == bunker_pos+(bw*IMAGE_RENDER_BYTES_PER_PIXEL)+(bh*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH) && bunker_set[b].block_hit_points[(i*BLOCKS_PER_ROW)+j] != 0) {
+                // check the position of the point
+                else if(current_pos+ONE_PIXEL == bunker_pos+(bw*IMAGE_RENDER_BYTES_PER_PIXEL)+(bh*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH) && bunker_set[b].block_hit_points[(i*BLOCKS_PER_ROW)+j] != 0) {
                   image_render_check_bunker_block(b,(i*BLOCKS_PER_ROW)+j,i,j,current_pos-SPRITES_BULLET_HEIGHT*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH*ALIEN_SIZE,bullet_id);
-                  bunker_hit = 1;
+                  bunker_hit = TRUE;
                   break;
                 }
-                else if(current_pos-3 == bunker_pos+(bw*IMAGE_RENDER_BYTES_PER_PIXEL)+(bh*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH) && bunker_set[b].block_hit_points[(i*BLOCKS_PER_ROW)+j] != 0) {
+                // check the position of the pixel to the left of the point
+                else if(current_pos-ONE_PIXEL == bunker_pos+(bw*IMAGE_RENDER_BYTES_PER_PIXEL)+(bh*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH) && bunker_set[b].block_hit_points[(i*BLOCKS_PER_ROW)+j] != 0) {
                   image_render_check_bunker_block(b,(i*BLOCKS_PER_ROW)+j,i,j,current_pos-SPRITES_BULLET_HEIGHT*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH*ALIEN_SIZE,bullet_id);
-                  bunker_hit = 1;
+                  bunker_hit = TRUE;
                   break;
                 }
-                else if(current_pos+6 == bunker_pos+(bw*IMAGE_RENDER_BYTES_PER_PIXEL)+(bh*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH) && bunker_set[b].block_hit_points[(i*BLOCKS_PER_ROW)+j] != 0) {
+                // check the pixel to the right of the point
+                else if(current_pos+TWO_PIXELS == bunker_pos+(bw*IMAGE_RENDER_BYTES_PER_PIXEL)+(bh*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH) && bunker_set[b].block_hit_points[(i*BLOCKS_PER_ROW)+j] != 0) {
                   image_render_check_bunker_block(b,(i*BLOCKS_PER_ROW)+j,i,j,current_pos-SPRITES_BULLET_HEIGHT*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH*ALIEN_SIZE,bullet_id);
-                  bunker_hit = 1;
+                  bunker_hit = TRUE;
                   break;
                 }
-                else if(current_pos-6 == bunker_pos+(bw*IMAGE_RENDER_BYTES_PER_PIXEL)+(bh*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH) && bunker_set[b].block_hit_points[(i*BLOCKS_PER_ROW)+j] != 0) {
+                // check the position of the pixel to the left of the point
+                else if(current_pos-TWO_PIXELS == bunker_pos+(bw*IMAGE_RENDER_BYTES_PER_PIXEL)+(bh*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH) && bunker_set[b].block_hit_points[(i*BLOCKS_PER_ROW)+j] != 0) {
                   image_render_check_bunker_block(b,(i*BLOCKS_PER_ROW)+j,i,j,current_pos-SPRITES_BULLET_HEIGHT*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH*ALIEN_SIZE,bullet_id);
-                  bunker_hit = 1;
+                  bunker_hit = TRUE;
                   break;
                 }
-                else if(current_pos+9 == bunker_pos+(bw*IMAGE_RENDER_BYTES_PER_PIXEL)+(bh*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH) && bunker_set[b].block_hit_points[(i*BLOCKS_PER_ROW)+j] != 0) {
+                // check the pixel to the right of the point
+                else if(current_pos+THREE_PIXELS == bunker_pos+(bw*IMAGE_RENDER_BYTES_PER_PIXEL)+(bh*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH) && bunker_set[b].block_hit_points[(i*BLOCKS_PER_ROW)+j] != 0) {
                   image_render_check_bunker_block(b,(i*BLOCKS_PER_ROW)+j,i,j,current_pos-SPRITES_BULLET_HEIGHT*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH*ALIEN_SIZE,bullet_id);
-                  bunker_hit = 1;
+                  bunker_hit = TRUE;
                   break;
                 }
-                else if(current_pos+12 == bunker_pos+(bw*IMAGE_RENDER_BYTES_PER_PIXEL)+(bh*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH) && bunker_set[b].block_hit_points[(i*BLOCKS_PER_ROW)+j] != 0) {
+                // check the pixel to the right of the point
+                else if(current_pos+FOUR_PIXELS == bunker_pos+(bw*IMAGE_RENDER_BYTES_PER_PIXEL)+(bh*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH) && bunker_set[b].block_hit_points[(i*BLOCKS_PER_ROW)+j] != 0) {
                   image_render_check_bunker_block(b,(i*BLOCKS_PER_ROW)+j,i,j,current_pos-SPRITES_BULLET_HEIGHT*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH*ALIEN_SIZE,bullet_id);
-                  bunker_hit = 1;
+                  bunker_hit = TRUE;
                   break;
                 }
-                else if(current_pos+15 == bunker_pos+(bw*IMAGE_RENDER_BYTES_PER_PIXEL)+(bh*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH) && bunker_set[b].block_hit_points[(i*BLOCKS_PER_ROW)+j] != 0) {
+                // check the pixel to the right of the point
+                else if(current_pos+FIVE_PIXELS == bunker_pos+(bw*IMAGE_RENDER_BYTES_PER_PIXEL)+(bh*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH) && bunker_set[b].block_hit_points[(i*BLOCKS_PER_ROW)+j] != 0) {
                   image_render_check_bunker_block(b,(i*BLOCKS_PER_ROW)+j,i,j,current_pos-SPRITES_BULLET_HEIGHT*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH*ALIEN_SIZE,bullet_id);
-                  bunker_hit = 1;
+                  bunker_hit = TRUE;
                   break;
                 }
               }
@@ -1205,7 +1113,7 @@ void image_render_move_tank_bullet() {
     image_render_check_for_bunker(current_pos, TANK_BULLET);
   }
 }
-
+// moves the alien bullet down the screen
 void image_render_move_alien_bullet_0(){
   uint32_t current_pos_0 = globals_get_alien_bullet_position_0(); // fetches current bullet position
   globals_set_alien_bullet_position_0(current_pos_0+(BULLET_MOVEMENT_ONE_PIXELS)); // sets the new bullet position moving up the screen
@@ -1233,6 +1141,7 @@ void image_render_move_alien_bullet_0(){
   odd_0 = ~odd_0;
 }
 
+// moves the alien bullet down the screen
 void image_render_move_alien_bullet_1(){
   uint32_t current_pos_1 = globals_get_alien_bullet_position_1(); // fetches current bullet position
   globals_set_alien_bullet_position_1(current_pos_1+(BULLET_MOVEMENT_ONE_PIXELS)); // sets the new bullet position moving up the screen
@@ -1260,7 +1169,7 @@ void image_render_move_alien_bullet_1(){
   odd_1 = ~odd_1;
 }
 
-// moves the tank bullet up the screen
+// moves the alien bullet down the screen
 void image_render_move_alien_bullet_2(){
   uint32_t current_pos_2 = globals_get_alien_bullet_position_2(); // fetches current bullet position
   globals_set_alien_bullet_position_2(current_pos_2+(BULLET_MOVEMENT_ONE_PIXELS)); // sets the new bullet position moving up the screen
@@ -1288,7 +1197,7 @@ void image_render_move_alien_bullet_2(){
   odd_2 = ~odd_2;
 }
 
-// moves the tank bullet up the screen
+// moves the alien bullet down the screen
 void image_render_move_alien_bullet_3(){
   uint32_t current_pos_3 = globals_get_alien_bullet_position_3(); // fetches current bullet position
   globals_set_alien_bullet_position_3(current_pos_3+(BULLET_MOVEMENT_ONE_PIXELS)); // sets the new bullet position moving up the screen
@@ -1319,6 +1228,7 @@ void image_render_move_alien_bullet_3(){
 // moves the saucer around the screen
 void image_render_saucer(){
   uint32_t saucer_pos = globals_get_saucer_pos();
+  // if the saucer hasn't reached the end of the screen
   if(saucer_pos > (GLOBALS_SAUCER_ROW_START_LOCATION+SAUCER_END_POSITION*IMAGE_RENDER_BYTES_PER_PIXEL)){
     sprites_render_buffer(saucer_18x9,SPRITES_SAUCER_WIDTH,SPRITES_SAUCER_HEIGHT,saucer_pos,ALIEN_SIZE,black);
     // only for milestone 2
@@ -1330,10 +1240,12 @@ void image_render_saucer(){
   sprites_render_buffer(saucer_18x9,SPRITES_SAUCER_WIDTH,SPRITES_SAUCER_HEIGHT,saucer_pos,ALIEN_SIZE,red);
 }
 
+// checks to see if the bottom of the alien block has reached the top of the bunker line
 void check_for_overrun() {
-  for(int i = 0; i < ALIEN_BLOCK_SIZE; i++) {
-    if(alien_block[i].alive == ALIEN_ALIVE) {
-      uint32_t pos = alien_block[i].current_location;
+  for(int i = 0; i < ALIEN_BLOCK_SIZE; i++) { // iterates through each alien
+    if(alien_block[i].alive == ALIEN_ALIVE) { // checks to see if the alien is alive
+      uint32_t pos = alien_block[i].current_location; // grabs its current location
+      // if the alien is alive and its current location reaches the top of the bunker line, set a flag that will indicate game over
       if(pos+IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*SPRITES_ALIEN_HEIGHT*ALIEN_SIZE > BUNKER_HEIGHTS) {
         globals_assert_alien_overrun_flag();
       }
@@ -1343,14 +1255,15 @@ void check_for_overrun() {
 
 // moves the alien block around the screen
 void image_render_move_alien_block() {
-  check_for_overrun();
-
+  check_for_overrun(); // checks to see if the bottom row has reached the bunkers
+  image_render_set_left_bound(); // sets the left boundary
+  image_render_set_right_bound(); // sets the right boundary
+  // if an alien has been killed, then write a blank over it
   if(alien_killed) {
     uint32_t loc = globals_get_dead_alien_loc();
     sprites_render_buffer(alien_top_in_14x10,SPRITES_ALIEN_WIDTH,SPRITES_ALIEN_HEIGHT,loc,ALIEN_SIZE,black);
     alien_killed = 0;
   }
-
   /* If we run out of aliens in the block, create a new alien block */
   if(globals_get_total_alien_count() == 0) {
     image_render_create_alien_block();
@@ -1368,7 +1281,7 @@ void image_render_move_alien_block() {
     if(alien_block_right_bound >= maximum_bound_right_alien) { // if it has reached the right bound
       for(uint32_t i = 0; i < ALIEN_BLOCK_SIZE; i++){ // if it has reached the right bound, the block should move down & continue left
         if(current_alien_position == ALIEN_OUT) { // if the alien is in the "out" position, write it in the "in" position, move down a few pixels
-          if(alien_block[i].alive == ALIEN_ALIVE) {
+          if(alien_block[i].alive == ALIEN_ALIVE) { // if the alien is alive, print it
             for(int d = 0; d < ALIEN_PIXEL_MOVEMENT; d++) { // repeat this for how many pixels you want to move down
               alien_block[i].current_location = alien_block[i].current_location+FULL_ALIEN_MOVEMENT;
               sprites_render_buffer(alien_block[i].image_in,alien_block[i].width,alien_block[i].height,alien_block[i].current_location,ALIEN_SIZE,pink);
@@ -1382,7 +1295,7 @@ void image_render_move_alien_block() {
           }
         }
         else { // if the alien is in the "in" position, write it in the "out" position, move down a few pixels
-          if(alien_block[i].alive == ALIEN_ALIVE) {
+          if(alien_block[i].alive == ALIEN_ALIVE) { // if the alien is alive, print it
             for(int d = 0; d < ALIEN_PIXEL_MOVEMENT; d++) { // repeat this for how many pixels you want to move down
               alien_block[i].current_location = alien_block[i].current_location+FULL_ALIEN_MOVEMENT;
               sprites_render_buffer(alien_block[i].image_out,alien_block[i].width,alien_block[i].height,alien_block[i].current_location,ALIEN_SIZE,pink);
@@ -1409,7 +1322,7 @@ void image_render_move_alien_block() {
           }
         }
         else { // if the alien is "in", rewrite it "out"
-          if(alien_block[i].alive == ALIEN_ALIVE) {
+          if(alien_block[i].alive == ALIEN_ALIVE) { // if the alien is alive, print it
               sprites_render_buffer(alien_block[i].image_out,alien_block[i].width,alien_block[i].height,alien_block[i].current_location,ALIEN_SIZE,pink);
           }
         }
@@ -1421,7 +1334,7 @@ void image_render_move_alien_block() {
     if(alien_block_left_bound <= maximum_bound_left_alien) { // if it has reached the left bound
       for(uint32_t i = 0; i < ALIEN_BLOCK_SIZE; i++){ // if it has reached the left bound, the block should move down & continue right
         if(current_alien_position == ALIEN_OUT) { // if the alien is in the "out" position, write it in the "in" position, move down a few pixels
-          if(alien_block[i].alive == ALIEN_ALIVE) {
+          if(alien_block[i].alive == ALIEN_ALIVE) { // if the alien is alive, print it
             for(int d = 0; d < ALIEN_PIXEL_MOVEMENT; d++) { // repeat this for how many pixels you want to move down
               alien_block[i].current_location = alien_block[i].current_location+FULL_ALIEN_MOVEMENT;
               sprites_render_buffer(alien_block[i].image_in,alien_block[i].width,alien_block[i].height,alien_block[i].current_location,ALIEN_SIZE,pink);
@@ -1435,7 +1348,7 @@ void image_render_move_alien_block() {
           }
         }
         else { // if the alien is in the "in" position, write it in the "out" position, move down a few pixels
-          if(alien_block[i].alive == ALIEN_ALIVE) {
+          if(alien_block[i].alive == ALIEN_ALIVE) { // if the alien is alive, print it
             for(int d = 0; d < ALIEN_PIXEL_MOVEMENT; d++) { // repeat this for how many pixels you want to move down
               alien_block[i].current_location = alien_block[i].current_location+FULL_ALIEN_MOVEMENT;
               sprites_render_buffer(alien_block[i].image_out,alien_block[i].width,alien_block[i].height,alien_block[i].current_location,ALIEN_SIZE,pink);
@@ -1462,7 +1375,7 @@ void image_render_move_alien_block() {
           }
         }
         else { // if the alien is "in", rewrite it "out"
-          if(alien_block[i].alive == ALIEN_ALIVE) {
+          if(alien_block[i].alive == ALIEN_ALIVE) { // if the alien is alive, print it
               sprites_render_buffer(alien_block[i].image_out,alien_block[i].width,alien_block[i].height,alien_block[i].current_location,ALIEN_SIZE,pink);
           }
         }
@@ -1477,50 +1390,46 @@ void image_render_alien_fire_bullet_0(){
   total_shooters_0 = 0;
   /* Intializes random number generator */
   srand(time(0));
-  for(int32_t k = 0; k < ELEVEN_COLUMNS; k++){
-    for(int32_t i = 0; i < FIVE_ROWS; i++){
-      if(alien_block[(k+((ROW_COUNTER-i)*ELEVEN_COLUMNS))].alive){
+  for(int32_t k = 0; k < ELEVEN_COLUMNS; k++){ // iterate through each column
+    for(int32_t i = 0; i < FIVE_ROWS; i++){ // iterate through each row
+      if(alien_block[(k+((ROW_COUNTER-i)*ELEVEN_COLUMNS))].alive){ // if the alien is alive, set it to the shooter
         alien_block[(k+((ROW_COUNTER-i)*ELEVEN_COLUMNS))].shooter = ALIEN_SHOOTING;
         total_shooters_0++;
         i = FIVE_ROWS;
       }
     }
   }
-  //printf("%d \r\n" ,total_shooters);
   /* Print 1 random numbers from 0 to 10 */
   uint32_t temp_0 = rand() % total_shooters_0;
-  //printf("shooter row %d \r\n" ,temp);
-  for(uint32_t j = 0; j < (ALIEN_BLOCK_SIZE); j++){
-    if(alien_block[j].shooter){
-      if (temp_0 == 0){
-        current_shooter_0 = alien_block[j].current_location + IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE*SPRITES_CHARACTER_WIDTH+640*3*SPRITES_CHARACTER_HEIGHT*ALIEN_SIZE*ALIEN_SIZE; //+ SPRITES_CHARACTER_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE + IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*RANDOM_SHOOTER;
-
+  for(uint32_t j = 0; j < ALIEN_BLOCK_SIZE; j++){ // iterate through the whole block
+    if(alien_block[j].shooter){ // if the alien is a shooter
+      if (temp_0 == 0){ // set it as a current shooter
+        current_shooter_0 = alien_block[j].current_location+IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE*SPRITES_CHARACTER_WIDTH+640*3*SPRITES_CHARACTER_HEIGHT*ALIEN_SIZE*ALIEN_SIZE;
       }
       temp_0--;
     }
   }
 }
+
 // aliens fire bullets
 void image_render_alien_fire_bullet_1(){
   total_shooters_1 = 0;
   /* Intializes random number generator */
   srand(time(0)+1);
-  for(int32_t k = 0; k < ELEVEN_COLUMNS; k++){
-    for(int32_t i = 0; i < FIVE_ROWS; i++){
-      if(alien_block[(k+((ROW_COUNTER-i)*ELEVEN_COLUMNS))].alive){
+  for(int32_t k = 0; k < ELEVEN_COLUMNS; k++){ // iterate through each column
+    for(int32_t i = 0; i < FIVE_ROWS; i++){ // iterate through each row
+      if(alien_block[(k+((ROW_COUNTER-i)*ELEVEN_COLUMNS))].alive){ // if the alien is alive, set it to the shooter
         alien_block[(k+((ROW_COUNTER-i)*ELEVEN_COLUMNS))].shooter = ALIEN_SHOOTING;
         total_shooters_1++;
         i = FIVE_ROWS;
       }
     }
   }
-  //printf("%d \r\n" ,total_shooters);
   /* Print 1 random numbers from 0 to 10 */
   uint32_t temp_1 = rand() % total_shooters_1;
-  //printf("shooter row %d \r\n" ,temp);
-  for(uint32_t j = 0; j < (ALIEN_BLOCK_SIZE); j++){
-    if(alien_block[j].shooter){
-      if (temp_1 == 0){
+  for(uint32_t j = 0; j < (ALIEN_BLOCK_SIZE); j++){ // iterate through the whole block
+    if(alien_block[j].shooter){ // if the alien is a shooter
+      if (temp_1 == 0){ // set it as a current shooter
         current_shooter_1 = alien_block[j].current_location + IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE*SPRITES_CHARACTER_WIDTH+640*3*SPRITES_CHARACTER_HEIGHT*ALIEN_SIZE*ALIEN_SIZE; //+ SPRITES_CHARACTER_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE + IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*RANDOM_SHOOTER;
 
       }
@@ -1528,54 +1437,52 @@ void image_render_alien_fire_bullet_1(){
     }
   }
 }
+
 // aliens fire bullets
 void image_render_alien_fire_bullet_2(){
   total_shooters_2 = 0;
   /* Intializes random number generator */
   srand(time(0)+2);
-  for(int32_t k = 0; k < ELEVEN_COLUMNS; k++){
-    for(int32_t i = 0; i < FIVE_ROWS; i++){
-      if(alien_block[(k+((ROW_COUNTER-i)*ELEVEN_COLUMNS))].alive){
+  for(int32_t k = 0; k < ELEVEN_COLUMNS; k++){  // iterate through each column
+    for(int32_t i = 0; i < FIVE_ROWS; i++){ // iterate through each row
+      if(alien_block[(k+((ROW_COUNTER-i)*ELEVEN_COLUMNS))].alive){ // if the alien is alive, set it to the shooter
         alien_block[(k+((ROW_COUNTER-i)*ELEVEN_COLUMNS))].shooter = ALIEN_SHOOTING;
         total_shooters_2++;
         i = FIVE_ROWS;
       }
     }
   }
-  //printf("%d \r\n" ,total_shooters);
   /* Print 1 random numbers from 0 to 10 */
   uint32_t temp_2 = rand() % total_shooters_2;
-  //printf("shooter row %d \r\n" ,temp);
-  for(uint32_t j = 0; j < (ALIEN_BLOCK_SIZE); j++){
-    if(alien_block[j].shooter){
-      if (temp_2 == 0){
+  for(uint32_t j = 0; j < (ALIEN_BLOCK_SIZE); j++){ // iterate through the whole block
+    if(alien_block[j].shooter){ // if the alien is a shooter
+      if (temp_2 == 0){ // set it as a current shooter
         current_shooter_2 = alien_block[j].current_location + IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE*SPRITES_CHARACTER_WIDTH+640*3*SPRITES_CHARACTER_HEIGHT*ALIEN_SIZE*ALIEN_SIZE; //+ SPRITES_CHARACTER_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE + IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*RANDOM_SHOOTER;
       }
       temp_2--;
     }
   }
 }
+
 // aliens fire bullets
 void image_render_alien_fire_bullet_3() {
   total_shooters_3 = 0;
   /* Intializes random number generator */
   srand(time(0)+3);
-  for(int32_t k = 0; k < ELEVEN_COLUMNS; k++){
-    for(int32_t i = 0; i < FIVE_ROWS; i++){
-      if(alien_block[(k+((ROW_COUNTER-i)*ELEVEN_COLUMNS))].alive){
+  for(int32_t k = 0; k < ELEVEN_COLUMNS; k++){  // iterate through each column
+    for(int32_t i = 0; i < FIVE_ROWS; i++){ // iterate through each row
+      if(alien_block[(k+((ROW_COUNTER-i)*ELEVEN_COLUMNS))].alive){ // if the alien is alive, set it to the shooter
         alien_block[(k+((ROW_COUNTER-i)*ELEVEN_COLUMNS))].shooter = ALIEN_SHOOTING;
         total_shooters_3++;
         i = FIVE_ROWS;
       }
     }
   }
-  //printf("%d \r\n" ,total_shooters);
   /* Print 1 random numbers from 0 to 10 */
   uint32_t temp_3 = rand() % total_shooters_3;
-  //printf("shooter row %d \r\n" ,temp);
-  for(uint32_t j = 0; j < (ALIEN_BLOCK_SIZE); j++){
-    if(alien_block[j].shooter){
-      if (temp_3 == 0){
+  for(uint32_t j = 0; j < (ALIEN_BLOCK_SIZE); j++){ // iterate through the whole block
+    if(alien_block[j].shooter){ // if the alien is a shooter
+      if (temp_3 == 0){ // set it as a current shooter
         current_shooter_3 = alien_block[j].current_location + IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE*SPRITES_CHARACTER_WIDTH+640*3*SPRITES_CHARACTER_HEIGHT*ALIEN_SIZE*ALIEN_SIZE; //+ SPRITES_CHARACTER_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE + IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*RANDOM_SHOOTER;
       }
       temp_3--;

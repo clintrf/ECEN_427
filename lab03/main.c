@@ -1,11 +1,9 @@
 #include <stdio.h>
 #include <stdint.h>
-
 #include "globals/globals.h"
 #include "image_render.h"
 #include "image_render/sprites/sprites.h"
 #include "image_render/score_board/score_board.h"
-
 #include "intcFolder/intc.h"
 #include "uioFolder/button_uio.h"
 
@@ -23,9 +21,6 @@
 #define POSITION_TWO 1
 #define POSITION_THREE 2
 #define MAX_COUNTER 3
-#define TANK_STATE 0
-#define SAUCER_STATE 1
-#define SPRITES_STATE 2
 #define ALIEN_MOVEMENT_DELAY 8
 #define SHOTS_FIRED 1
 #define MAX_ALIEN_SHOTS 1
@@ -36,12 +31,10 @@
 #define BULLET_DELAY_1 120
 #define BULLET_DELAY_2 150
 #define BULLET_DELAY_3 180
-#define TANK_BULLET_DELAY 2
 #define COUNTER_DELAY 4
-#define SAUCER_DELAY 2
 #define OVERRUN_DETECTED 1
 
-/*********************************** globals ***********************************/
+/********************************** globals **********************************/
 int32_t white_t[BYTES_PER_PIXEL] = {0xFF, 0xFF, 0xFF};
 uint32_t button_counter = 0;
 uint32_t button_pressed_counter = 0;
@@ -63,7 +56,7 @@ uint16_t alien_movement_delay = ALIEN_MOVEMENT_DELAY;
 uint16_t max_alien_shots = MAX_ALIEN_SHOTS;
 uint16_t current_alien_shots = 0;
 
-/*********************************** functions ***********************************/
+/********************************* functions *********************************/
 // moves the cursor around so the player can type in their name after the game is done
 // buttonPressed : the button that was pressed on the board
 void move_cursor(uint32_t buttonPressed) {
@@ -171,41 +164,41 @@ void move_tank(uint32_t buttonPressed) {
 // handles the FIT interrupts, moves the saucer, alien block, and bullets
 void isr_fit() {
   intc_ack_interrupt(INTC_FIT_MASK); // acknowledges the received FIT interrupt
-
+  /* checks to see if the aliens have overrun the bunker location, if they have, then end the game */
   if(globals_get_alien_overrun_flag() == OVERRUN_DETECTED) { // if the aliens get too low on the screen, game over!
-    globals_decrement_current_lives();
+    globals_decrement_current_lives(); // decerement all possible lives
     globals_decrement_current_lives();
     globals_decrement_current_lives();
     globals_decrement_current_lives();
     globals_decrement_current_lives();
   }
-
-  if(bullet_delay_0 > BULLET_DELAY_0){
-    if(globals_get_alien_bullet_fired_0() != SHOTS_FIRED){
+  /* bullet handling for the alien's bullets */
+  if(bullet_delay_0 > BULLET_DELAY_0){ // delay for the bullets
+    if(globals_get_alien_bullet_fired_0() != SHOTS_FIRED) { // if the bullet has not been fired
       image_render_alien_fire_bullet_0();
       image_render_fire_alien_bullet_0();
       bullet_delay_0 = 0;
     }
     bullet_delay_0 = 0;
   }
-  if(bullet_delay_1 > BULLET_DELAY_1){
-    if(globals_get_alien_bullet_fired_1() != SHOTS_FIRED){
+  if(bullet_delay_1 > BULLET_DELAY_1){ // delay for the bullets
+    if(globals_get_alien_bullet_fired_1() != SHOTS_FIRED) { // if the bullet has not been fired
       image_render_alien_fire_bullet_1();
       image_render_fire_alien_bullet_1();
       bullet_delay_1 = 0;
     }
     bullet_delay_1 = 0;
   }
-  if(bullet_delay_2 > BULLET_DELAY_2){
-    if(globals_get_alien_bullet_fired_2() != SHOTS_FIRED){
+  if(bullet_delay_2 > BULLET_DELAY_2){ // delay for the bullets
+    if(globals_get_alien_bullet_fired_2() != SHOTS_FIRED) { // if the bullet has not been fired
       image_render_alien_fire_bullet_2();
       image_render_fire_alien_bullet_2();
       bullet_delay_2 = 0;
     }
     bullet_delay_2 = 0;
   }
-  if(bullet_delay_3 > BULLET_DELAY_3){
-    if(globals_get_alien_bullet_fired_3() != SHOTS_FIRED){
+  if(bullet_delay_3 > BULLET_DELAY_3){ // delay for the bullets
+    if(globals_get_alien_bullet_fired_3() != SHOTS_FIRED) { // if the bullet has not been fired
       image_render_alien_fire_bullet_3();
       image_render_fire_alien_bullet_3();
       bullet_delay_3 = 0;
@@ -216,7 +209,51 @@ void isr_fit() {
   bullet_delay_1++;
   bullet_delay_2++;
   bullet_delay_3++;
-
+  /* Also handles the alien bullets, this section moves them if they have already been fired
+  *  We move the bullets 3 times per FIT tick to speed them up, making the game harder
+  *  We need to include the if statement over each individual one to check to see if we hit
+  *  something after every movement
+  */
+  if (counter_delay > COUNTER_DELAY) { // COUNTER_DELAY
+    if(globals_get_alien_bullet_fired_0() == SHOTS_FIRED) { // if the shots have been fired
+      image_render_move_alien_bullet_0();
+    }
+    if(globals_get_alien_bullet_fired_0() == SHOTS_FIRED) { // if the shots have been fired
+      image_render_move_alien_bullet_0();
+    }
+    if(globals_get_alien_bullet_fired_0() == SHOTS_FIRED) { // if the shots have been fired
+      image_render_move_alien_bullet_0();
+    }
+    if(globals_get_alien_bullet_fired_1() == SHOTS_FIRED) { // if the shots have been fired
+      image_render_move_alien_bullet_1();
+    }
+    if(globals_get_alien_bullet_fired_1() == SHOTS_FIRED) { // if the shots have been fired
+      image_render_move_alien_bullet_1();
+    }
+    if(globals_get_alien_bullet_fired_1() == SHOTS_FIRED) { // if the shots have been fired
+      image_render_move_alien_bullet_1();
+    }
+    if(globals_get_alien_bullet_fired_2() == SHOTS_FIRED) { // if the shots have been fired
+      image_render_move_alien_bullet_2();
+    }
+    if(globals_get_alien_bullet_fired_2() == SHOTS_FIRED) { // if the shots have been fired
+      image_render_move_alien_bullet_2();
+    }
+    if(globals_get_alien_bullet_fired_2() == SHOTS_FIRED) { // if the shots have been fired
+      image_render_move_alien_bullet_2();
+    }
+    if(globals_get_alien_bullet_fired_3() == SHOTS_FIRED) { // if the shots have been fired
+      image_render_move_alien_bullet_3();
+    }
+    if(globals_get_alien_bullet_fired_3() == SHOTS_FIRED) { // if the shots have been fired
+      image_render_move_alien_bullet_3();
+    }
+    if(globals_get_alien_bullet_fired_3() == SHOTS_FIRED) { // if the shots have been fired
+      image_render_move_alien_bullet_3();
+    }
+    counter_delay = 0;
+  }
+  counter_delay++;
   /* saucer flight handling in the main */
   if(globals_get_saucer_status() == SAUCER_SHOT) { // if the saucer is currently dead
     uint32_t saucer_count = globals_get_saucer_shot_count();
@@ -232,57 +269,16 @@ void isr_fit() {
   else { // if the saucer is currently alive
     image_render_saucer();
   }
-
-  /* This controls the firing of the bullets and their movement */
-  if(globals_get_tank_bullet_fired() == SHOTS_FIRED) {
+  /* This controls the firing of the bullets and their movement
+  *  We will move the tank bullet twice per FIT interrupt, making it move faster
+  */
+  if(globals_get_tank_bullet_fired() == SHOTS_FIRED) { // if the bullet has been fired
     image_render_move_tank_bullet();
   }
-  if(globals_get_tank_bullet_fired() == SHOTS_FIRED) {
+  if(globals_get_tank_bullet_fired() == SHOTS_FIRED) { // if the bullet has been fired
     image_render_move_tank_bullet();
   }
-
-  if (counter_delay > COUNTER_DELAY) { // COUNTER_DELAY
-    if(globals_get_alien_bullet_fired_0() == SHOTS_FIRED){
-      image_render_move_alien_bullet_0();
-    }
-    if(globals_get_alien_bullet_fired_0() == SHOTS_FIRED){
-      image_render_move_alien_bullet_0();
-    }
-    if(globals_get_alien_bullet_fired_0() == SHOTS_FIRED){
-      image_render_move_alien_bullet_0();
-    }
-    if(globals_get_alien_bullet_fired_1() == SHOTS_FIRED){
-      image_render_move_alien_bullet_1();
-    }
-    if(globals_get_alien_bullet_fired_1() == SHOTS_FIRED){
-      image_render_move_alien_bullet_1();
-    }
-    if(globals_get_alien_bullet_fired_1() == SHOTS_FIRED){
-      image_render_move_alien_bullet_1();
-    }
-    if(globals_get_alien_bullet_fired_2() == SHOTS_FIRED){
-      image_render_move_alien_bullet_2();
-    }
-    if(globals_get_alien_bullet_fired_2() == SHOTS_FIRED){
-      image_render_move_alien_bullet_2();
-    }
-    if(globals_get_alien_bullet_fired_2() == SHOTS_FIRED){
-      image_render_move_alien_bullet_2();
-    }
-    if(globals_get_alien_bullet_fired_3() == SHOTS_FIRED){
-      image_render_move_alien_bullet_3();
-    }
-    if(globals_get_alien_bullet_fired_3() == SHOTS_FIRED){
-      image_render_move_alien_bullet_3();
-    }
-    if(globals_get_alien_bullet_fired_3() == SHOTS_FIRED){
-      image_render_move_alien_bullet_3();
-    }
-    counter_delay = 0;
-  }
-  counter_delay++;
-
-
+  /* this part oversees the movement of the alien block */
   alien_counter++; // increments the alien counter
   if(alien_counter > alien_movement_delay) { // a little bit of a delay for the alien movement
     image_render_move_alien_block();
@@ -290,7 +286,6 @@ void isr_fit() {
   }
   globals_print_current_score();
   globals_print_current_lives();
-
 }
 
 
@@ -302,25 +297,23 @@ void isr_buttons() {
       button_counter++;
   }
   button_counter = 0;
-
   button_uio_acknowledge(BUTTON_UIO_CHANNEL_ONE_MASK); /* acknowledges an interrupt from the GPIO */
   intc_ack_interrupt(INTC_BTNS_MASK); /* acknowledges an interrupt from the interrupt controller */
 }
 
 
-// main function that contains the main basic state machine
+/*********************************** main ***********************************/
 int main() {
   intc_init(INTC_GPIO_FILE_PATH); // intializes interrupts
   button_uio_init(BUTTON_UIO_GPIO_FILE_PATH); // initializes buttons
   image_render_init(); // initializes image making abilities
   image_render_print_start_screen();
-  // bulk of state machine programming
+  // bulk of running program. keep running the program until we run out of lives
   while(globals_get_current_lives() > 0) {
     /* need to run this each time that we block, because this function will unblock */
     intc_enable_uio_interrupts(); /* enables Linux interrupts */
     // Call interrupt controller function to wait for interrupt
     uint32_t interrupts = intc_wait_for_interrupt();
-
     // Check which interrupt lines are high and call the appropriate ISR functions
     if(interrupts & INTC_FIT_MASK) { // FIT Interrupt
       isr_fit();
@@ -331,10 +324,9 @@ int main() {
     if ((buttonPressed == button_uio_read(BUTTON_UIO_GPIO_DATA_OFFSET) && buttonPressed != 0) ) { // manages the movement of the tank
       move_tank(buttonPressed);
     }
-
   }
   run_game_over(); // runs the game over screen
-  image_render_close(); // closes the image file
+  image_render_close(); // closes the image file, which shuts connection to the HDMI
   button_uio_exit(); // exits from the button driver
   intc_exit(); // exits interrupt driver
 }
