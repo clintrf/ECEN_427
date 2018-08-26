@@ -4,10 +4,9 @@
 #include "sprites.h"
 
 /********************************** macros ***********************************/
-#define IMAGE_RENDER_SCREEN_WIDTH 640 /* number of pixels across the screen */
-#define IMAGE_RENDER_SCREEN_HEIGHT 480 /* number of pixels down the screen */
-#define IMAGE_RENDER_BYTES_PER_PIXEL 3 /* number of bytes for every pixel */
-/* number of bytes for the whole screen */
+#define IMAGE_RENDER_SCREEN_WIDTH 640
+#define IMAGE_RENDER_SCREEN_HEIGHT 480
+#define IMAGE_RENDER_BYTES_PER_PIXEL 3
 #define IMAGE_RENDER_WHOLE_SCREEN IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_SCREEN_HEIGHT*IMAGE_RENDER_BYTES_PER_PIXEL
 #define NUMBER_OF_CHARS_FOR_NAME 3
 #define NUMBER_OF_BITS_PER_CHAR 25
@@ -97,18 +96,25 @@
 #define COLUMN_TEN_RIGHT_BOUND COLUMN_NINE_RIGHT_BOUND+ALIEN_OFFSET
 #define TANK_START_POSITION 200
 #define ALIEN_OUT 0
+#define ALIEN_PIXEL_MOVEMENT 2
+#define FULL_ALIEN_MOVEMENT (IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH*ALIEN_PIXEL_MOVEMENT)
+#define SAUCER_END_POSITION 580
+#define BUNKER_ONE (400*(IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL)+(72*3))
+#define BUNKER_TWO (400*(IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL)+(3*72*3))
+#define BUNKER_THREE (400*(IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL)+(5*72*3))
+#define BUNKER_FOUR (400*(IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL)+(7*72*3))
 
 /********************************** globals **********************************/
+/* global arrays */
 char full_screen_black[IMAGE_RENDER_WHOLE_SCREEN];
+Alien alien_block[ALIEN_BLOCK_SIZE];
+/* colors!! */
 uint32_t black[3] = {0x00, 0x00, 0x00};
 uint32_t pink[3] = {0xFF, 0x69, 0xB4};
 uint32_t white[3] = {0xFF, 0xFF, 0xFF};
 uint32_t green[3] = {0x00,0x80,0x00};
 uint32_t red[3] = {0xFF,0x00,0x00};
-Alien alien_block[ALIEN_BLOCK_SIZE];
-
-char green_char[3] = {0x00,0x80,0x00};
-
+/* global variables */
 uint32_t tank_start_pos;
 uint32_t saucer_start_pos;
 uint32_t alien_block_right_bound;
@@ -120,12 +126,13 @@ uint16_t current_alien_position;
 
 /**************************** function prototypes ****************************/
 void image_render_print_black_screen();
-void image_render_create_alien_block(uint16_t in_out);
+void image_render_create_alien_block();
 
 /********************************* functions *********************************/
 // initializes a few of our necessary variables and starts the screen black
 void image_render_init() {
   hdmi_init(HDMI_FILE_PATH); /* opens a path to the HDMI driver (enables/read write) */
+  /* Set all the global variable start values */
   tank_start_pos = TANK_START_POSITION;
   saucer_start_pos = SAUCER_ROW_START_LOCATION;
   alien_block_right_bound = COLUMN_TEN_RIGHT_BOUND;
@@ -134,14 +141,16 @@ void image_render_init() {
   maximum_bound_right_alien = ALIEN_BLOCK_ROW_0+IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL-30;
   maximum_bound_left_alien = ALIEN_BLOCK_ROW_0;
   current_alien_position = ALIEN_OUT;
+
   // initializes a buffer that contains all zeroes to print black to the entire screen
   for(uint32_t i = 0; i < IMAGE_RENDER_WHOLE_SCREEN; i++) {
     full_screen_black[i++] = 0x00; // if all bits are set to 0x00, the pixel will be black
     full_screen_black[i++] = 0x00;
     full_screen_black[i] = 0x00;
   }
+
   image_render_print_black_screen(); // call the print screen function
-  image_render_create_alien_block(0); // creates the original alien block
+  image_render_create_alien_block(); // creates the original alien block
 }
 
 // prints the screen black and resets the cursor to the top left corner of the screen
@@ -182,18 +191,18 @@ void image_render_modify_alien(Alien alien, uint16_t modifier) {
 }
 
 // creates the entire alien block
-void image_render_create_alien_block(uint16_t in_out) {
+void image_render_create_alien_block() {
   int r = 0;
-  for(int i=0; i<FIVE_ROWS; i++){
-    for(int c=0; c<ELEVEN_COLUMNS; c++){
-      if(i==ROW_ONE){
-        alien_block[r+c] = image_render_create_alien(alien_top_in_14x10,alien_top_out_14x10,ALIEN_BLOCK_ROW_0+i*((IMAGE_RENDER_SCREEN_WIDTH*3)*(ALIEN_DEPTH+15))+ALIEN_OFFSET*c,ALIEN_TOP_POINTS,r+c);
+  for(int i=0; i<FIVE_ROWS; i++){ // interates through every row of aliens
+    for(int c=0; c<ELEVEN_COLUMNS; c++){ // iterates through each column within each row
+      if(i==ROW_ONE){ // if we are on the top row of aliens
+        alien_block[r+c] = image_render_create_alien(alien_top_in_14x10,alien_top_out_14x10,ALIEN_BLOCK_ROW_0+i*((IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL)*(ALIEN_DEPTH+ALIEN_BUFFER_AREA))+ALIEN_OFFSET*c,ALIEN_TOP_POINTS,r+c);
       }
-      if(i==ROW_TWO || i==ROW_THREE){
-        alien_block[r+c] = image_render_create_alien(alien_middle_in_14x10,alien_middle_out_14x10,ALIEN_BLOCK_ROW_0+i*((IMAGE_RENDER_SCREEN_WIDTH*3)*(ALIEN_DEPTH+15))+ALIEN_OFFSET*c,ALIEN_MIDDLE_POINTS,r+c);
+      if(i==ROW_TWO || i==ROW_THREE){ // if we are in the middle rows of the block
+        alien_block[r+c] = image_render_create_alien(alien_middle_in_14x10,alien_middle_out_14x10,ALIEN_BLOCK_ROW_0+i*((IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL)*(ALIEN_DEPTH+ALIEN_BUFFER_AREA))+ALIEN_OFFSET*c,ALIEN_MIDDLE_POINTS,r+c);
       }
-      if(i==ROW_FOUR || i==ROW_FIVE){
-        alien_block[r+c] = image_render_create_alien(alien_bottom_in_14x10,alien_bottom_out_14x10,ALIEN_BLOCK_ROW_0+i*((IMAGE_RENDER_SCREEN_WIDTH*3)*(ALIEN_DEPTH+15))+ALIEN_OFFSET*c,ALIEN_BOTTOM_POINTS,r+c);
+      if(i==ROW_FOUR || i==ROW_FIVE){ // if we are in the bottom two rows of the block
+        alien_block[r+c] = image_render_create_alien(alien_bottom_in_14x10,alien_bottom_out_14x10,ALIEN_BLOCK_ROW_0+i*((IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL)*(ALIEN_DEPTH+ALIEN_BUFFER_AREA))+ALIEN_OFFSET*c,ALIEN_BOTTOM_POINTS,r+c);
       }
     }
     r = r+ROW_1;
@@ -288,25 +297,25 @@ void image_render_print_start_screen() {
   sprites_render_buffer(tank_15x8,15,8,THIRD_LIFE_START_LOCATION,ALIEN_SIZE,green);
   sprites_render_buffer(tank_15x8,15,8,FOURTH_LIFE_START_LOCATION,ALIEN_SIZE,green);
   sprites_render_buffer(tank_15x8,15,8,FIFTH_LIFE_START_LOCATION,ALIEN_SIZE,green);
-
   /* Prints bunkers */
-  sprites_render_buffer(bunker_24x18,SPRITES_BUNKER_WIDTH,SPRITES_BUNKER_HEIGHT,(400*(IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL)+(72*3)),ALIEN_SIZE,green);
-  sprites_render_buffer(bunker_24x18,SPRITES_BUNKER_WIDTH,SPRITES_BUNKER_HEIGHT,(400*(IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL)+(3*72*3)),ALIEN_SIZE,green);
-    sprites_render_buffer(bunker_24x18,SPRITES_BUNKER_WIDTH,SPRITES_BUNKER_HEIGHT,(400*(IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL)+(5*72*3)),ALIEN_SIZE,green);
-      sprites_render_buffer(bunker_24x18,SPRITES_BUNKER_WIDTH,SPRITES_BUNKER_HEIGHT,(400*(IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL)+(7*72*3)),ALIEN_SIZE,green);
+  sprites_render_buffer(bunker_24x18,SPRITES_BUNKER_WIDTH,SPRITES_BUNKER_HEIGHT,BUNKER_ONE,ALIEN_SIZE,green);
+  sprites_render_buffer(bunker_24x18,SPRITES_BUNKER_WIDTH,SPRITES_BUNKER_HEIGHT,BUNKER_TWO,ALIEN_SIZE,green);
+  sprites_render_buffer(bunker_24x18,SPRITES_BUNKER_WIDTH,SPRITES_BUNKER_HEIGHT,BUNKER_THREE,ALIEN_SIZE,green);
+  sprites_render_buffer(bunker_24x18,SPRITES_BUNKER_WIDTH,SPRITES_BUNKER_HEIGHT,BUNKER_FOUR,ALIEN_SIZE,green);
   /* Prints the saucer as a starter */
   sprites_render_buffer(saucer_18x9,SPRITES_SAUCER_WIDTH,SPRITES_SAUCER_HEIGHT,SAUCER_ROW_START_LOCATION,ALIEN_SIZE,red);
-
   /* Prints starting tank*/
   sprites_render_buffer(tank_17x10,SPRITES_TANK_WIDTH,SPRITES_TANK_HEIGHT,BOTTOM_LEFT_CORNER_OF_SCREEN+(tank_start_pos*IMAGE_RENDER_BYTES_PER_PIXEL),ALIEN_SIZE,green);
-
   /* Prints the alien block completely */
   for(int i = 0; i < ALIEN_BLOCK_SIZE; i++) {
     Alien alien_temp = alien_block[i];
-    sprites_render_buffer(alien_temp.image_out,alien_temp.width,alien_temp.height,alien_temp.current_location,ALIEN_SIZE,white);
+    sprites_render_buffer(alien_temp.image_out,alien_temp.width,alien_temp.height,alien_temp.current_location,ALIEN_SIZE,pink);
   }
 }
 
+// moves the tank around the screen
+// move : how many pixels to move the tank
+// dir : the direction to move the tank
 void image_render_tank(uint32_t move, uint16_t dir){
   if(dir == IMAGE_RENDER_RIGHT_MOVEMENT && tank_start_pos <= RIGHT_BOUND_TANK) {
     tank_start_pos = tank_start_pos+move;
@@ -318,15 +327,15 @@ void image_render_tank(uint32_t move, uint16_t dir){
   }
 }
 
+// moves the saucer around the screen
 void image_render_saucer(){
-  if(saucer_start_pos > (SAUCER_ROW_START_LOCATION + 580*IMAGE_RENDER_BYTES_PER_PIXEL)){
+  if(saucer_start_pos > (SAUCER_ROW_START_LOCATION + SAUCER_END_POSITION*IMAGE_RENDER_BYTES_PER_PIXEL)){
     sprites_render_buffer(saucer_18x9,SPRITES_SAUCER_WIDTH,SPRITES_SAUCER_HEIGHT,(saucer_start_pos),ALIEN_SIZE,black);
     // only for milestone 2
     saucer_start_pos = SAUCER_ROW_START_LOCATION - IMAGE_RENDER_BYTES_PER_PIXEL;
   }
   saucer_start_pos= saucer_start_pos + IMAGE_RENDER_BYTES_PER_PIXEL;
   sprites_render_buffer(saucer_18x9,SPRITES_SAUCER_WIDTH,SPRITES_SAUCER_HEIGHT,(saucer_start_pos),ALIEN_SIZE,red);
-
 }
 
 // moves the alien block around the screen
@@ -334,135 +343,80 @@ void image_render_move_alien_block() {
   uint16_t dir = current_alien_direction;
   if(dir == IMAGE_RENDER_RIGHT_MOVEMENT) { // if the alien block is moving right
     if(alien_block_right_bound >= maximum_bound_right_alien) { // if it has reached the right bound
-      for(uint32_t d = 0; d<55; d++){
-        Alien alien_temp = alien_block[d];
-        alien_block[d].current_location = alien_temp.current_location+IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH*2;
+      for(uint32_t i = 0; i < ALIEN_BLOCK_SIZE; i++){ // if it has reached the right bound, the block should move down & continue left
+        Alien alien_temp = alien_block[i];
+        if(current_alien_position == ALIEN_OUT) { // if the alien is in the "out" position, write it in the "in" position, move down a few pixels
+          for(int d = 0; d < ALIEN_PIXEL_MOVEMENT; d++) { // repeat this for how many pixels you want to move down
+            alien_block[i].current_location = alien_block[i].current_location+FULL_ALIEN_MOVEMENT;
+            sprites_render_buffer(alien_temp.image_in,alien_block[i].width,alien_block[i].height,alien_block[i].current_location,ALIEN_SIZE,pink);
+            alien_block[i].current_location = alien_block[i].current_location+FULL_ALIEN_MOVEMENT;
+            sprites_render_buffer(alien_block[i].image_out,alien_block[i].width,alien_block[i].height,alien_block[i].current_location,ALIEN_SIZE,pink);
+          }
+        }
+        else { // if the alien is in the "in" position, write it in the "out" position, move down a few pixels
+          for(int d = 0; d < ALIEN_PIXEL_MOVEMENT; d++) { // repeat this for how many pixels you want to move down
+            alien_block[i].current_location = alien_block[i].current_location+FULL_ALIEN_MOVEMENT;
+            sprites_render_buffer(alien_block[i].image_out,alien_block[i].width,alien_block[i].height,alien_block[i].current_location,ALIEN_SIZE,pink);
+            alien_block[i].current_location = alien_block[i].current_location+FULL_ALIEN_MOVEMENT;
+            sprites_render_buffer(alien_block[i].image_in,alien_block[i].width,alien_block[i].height,alien_block[i].current_location,ALIEN_SIZE,pink);
+          }
+        }
       }
-      current_alien_direction = ~current_alien_direction;
+      current_alien_direction = ~current_alien_direction; // change the direction of the block
     }
     else { // if it hasn't reached the right bound and is moving right
-      alien_block_right_bound = alien_block_right_bound+2*IMAGE_RENDER_BYTES_PER_PIXEL;
-      alien_block_left_bound = alien_block_left_bound+2*IMAGE_RENDER_BYTES_PER_PIXEL;
-      uint16_t j = 0;
-      for(uint16_t i = 0; i < 5; i++) {
-        Alien alien_temp0 = alien_block[j];
-        alien_block[j++].current_location = alien_temp0.current_location+2*IMAGE_RENDER_BYTES_PER_PIXEL;
-        Alien alien_temp1 = alien_block[j];
-        alien_block[j++].current_location = alien_temp1.current_location+2*IMAGE_RENDER_BYTES_PER_PIXEL;
-        Alien alien_temp2 = alien_block[j];
-        alien_block[j++].current_location = alien_temp2.current_location+2*IMAGE_RENDER_BYTES_PER_PIXEL;
-        Alien alien_temp3 = alien_block[j];
-        alien_block[j++].current_location = alien_temp3.current_location+2*IMAGE_RENDER_BYTES_PER_PIXEL;
-        Alien alien_temp4 = alien_block[j];
-        alien_block[j++].current_location = alien_temp4.current_location+2*IMAGE_RENDER_BYTES_PER_PIXEL;
-        Alien alien_temp5 = alien_block[j];
-        alien_block[j++].current_location = alien_temp5.current_location+2*IMAGE_RENDER_BYTES_PER_PIXEL;
-        Alien alien_temp6 = alien_block[j];
-        alien_block[j++].current_location = alien_temp6.current_location+2*IMAGE_RENDER_BYTES_PER_PIXEL;
-        Alien alien_temp7 = alien_block[j];
-        alien_block[j++].current_location = alien_temp7.current_location+2*IMAGE_RENDER_BYTES_PER_PIXEL;
-        Alien alien_temp8 = alien_block[j];
-        alien_block[j++].current_location = alien_temp8.current_location+2*IMAGE_RENDER_BYTES_PER_PIXEL;
-        Alien alien_temp9 = alien_block[j];
-        alien_block[j++].current_location = alien_temp9.current_location+2*IMAGE_RENDER_BYTES_PER_PIXEL;
-        Alien alien_temp10 = alien_block[j];
-        alien_block[j++].current_location = alien_temp10.current_location+2*IMAGE_RENDER_BYTES_PER_PIXEL;
-
-        if(current_alien_position == ALIEN_OUT) {
-          sprites_render_buffer(alien_temp0.image_in,alien_temp0.width,alien_temp0.height,alien_temp0.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp1.image_in,alien_temp1.width,alien_temp1.height,alien_temp1.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp2.image_in,alien_temp2.width,alien_temp2.height,alien_temp2.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp3.image_in,alien_temp3.width,alien_temp3.height,alien_temp3.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp4.image_in,alien_temp4.width,alien_temp4.height,alien_temp4.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp5.image_in,alien_temp5.width,alien_temp5.height,alien_temp5.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp6.image_in,alien_temp6.width,alien_temp6.height,alien_temp6.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp7.image_in,alien_temp7.width,alien_temp7.height,alien_temp7.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp8.image_in,alien_temp8.width,alien_temp8.height,alien_temp8.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp9.image_in,alien_temp9.width,alien_temp9.height,alien_temp9.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp10.image_in,alien_temp10.width,alien_temp10.height,alien_temp10.current_location,ALIEN_SIZE,white);
+      alien_block_right_bound = alien_block_right_bound+ALIEN_PIXEL_MOVEMENT*IMAGE_RENDER_BYTES_PER_PIXEL;
+      alien_block_left_bound = alien_block_left_bound+ALIEN_PIXEL_MOVEMENT*IMAGE_RENDER_BYTES_PER_PIXEL;
+      for(uint16_t i = 0; i < ALIEN_BLOCK_SIZE; i++) { // we will shift every alien over 2 pixels to the right
+        Alien alien_temp0 = alien_block[i];
+        alien_block[i].current_location = alien_temp0.current_location+ALIEN_PIXEL_MOVEMENT*IMAGE_RENDER_BYTES_PER_PIXEL;
+        if(current_alien_position == ALIEN_OUT) { // if the alien is "out", rewrite it "in"
+          sprites_render_buffer(alien_temp0.image_in,alien_temp0.width,alien_temp0.height,alien_temp0.current_location,ALIEN_SIZE,pink);
         }
-        else {
-          sprites_render_buffer(alien_temp0.image_out,alien_temp0.width,alien_temp0.height,alien_temp0.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp1.image_out,alien_temp1.width,alien_temp1.height,alien_temp1.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp2.image_out,alien_temp2.width,alien_temp2.height,alien_temp2.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp3.image_out,alien_temp3.width,alien_temp3.height,alien_temp3.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp4.image_out,alien_temp4.width,alien_temp4.height,alien_temp4.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp5.image_out,alien_temp5.width,alien_temp5.height,alien_temp5.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp6.image_out,alien_temp6.width,alien_temp6.height,alien_temp6.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp7.image_out,alien_temp7.width,alien_temp7.height,alien_temp7.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp8.image_out,alien_temp8.width,alien_temp8.height,alien_temp8.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp9.image_out,alien_temp9.width,alien_temp9.height,alien_temp9.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp10.image_out,alien_temp10.width,alien_temp10.height,alien_temp10.current_location,ALIEN_SIZE,white);
+        else { // if the alien is "in", rewrite it "out"
+          sprites_render_buffer(alien_temp0.image_out,alien_temp0.width,alien_temp0.height,alien_temp0.current_location,ALIEN_SIZE,pink);
         }
       }
-      current_alien_position = ~current_alien_position;
+      current_alien_position = ~current_alien_position; // change the global alien position (not direction)
     }
   }
   else { // if the alien block is moving left
     if(alien_block_left_bound <= maximum_bound_left_alien) { // if it has reached the left bound
-      for(uint32_t d = 0; d<55; d++){
-        Alien alien_temp = alien_block[d];
-        alien_block[d].current_location = alien_temp.current_location+IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH*2;
+      for(uint32_t i = 0; i < ALIEN_BLOCK_SIZE; i++){ // if it has reached the left bound, the block should move down & continue right
+        Alien alien_temp = alien_block[i];
+        if(current_alien_position == ALIEN_OUT) { // if the alien is in the "out" position, write it in the "in" position, move down a few pixels
+          for(int d = 0; d < ALIEN_PIXEL_MOVEMENT; d++) { // repeat this for how many pixels you want to move down
+            alien_block[i].current_location = alien_block[i].current_location+FULL_ALIEN_MOVEMENT;
+            sprites_render_buffer(alien_temp.image_in,alien_block[i].width,alien_block[i].height,alien_block[i].current_location,ALIEN_SIZE,pink);
+            alien_block[i].current_location = alien_block[i].current_location+FULL_ALIEN_MOVEMENT;
+            sprites_render_buffer(alien_block[i].image_out,alien_block[i].width,alien_block[i].height,alien_block[i].current_location,ALIEN_SIZE,pink);
+          }
+        }
+        else { // if the alien is in the "in" position, write it in the "out" position, move down a few pixels
+          for(int d = 0; d < ALIEN_PIXEL_MOVEMENT; d++) { // repeat this for how many pixels you want to move down
+            alien_block[i].current_location = alien_block[i].current_location+FULL_ALIEN_MOVEMENT;
+            sprites_render_buffer(alien_block[i].image_out,alien_block[i].width,alien_block[i].height,alien_block[i].current_location,ALIEN_SIZE,pink);
+            alien_block[i].current_location = alien_block[i].current_location+FULL_ALIEN_MOVEMENT;
+            sprites_render_buffer(alien_block[i].image_in,alien_block[i].width,alien_block[i].height,alien_block[i].current_location,ALIEN_SIZE,pink);
+          }
+        }
       }
-      current_alien_direction = ~current_alien_direction;
+      current_alien_direction = ~current_alien_direction; // change the direction of the block
     }
     else { // if it hasn't reached the left bound
-      alien_block_right_bound = alien_block_right_bound-2*IMAGE_RENDER_BYTES_PER_PIXEL;
-      alien_block_left_bound = alien_block_left_bound-2*IMAGE_RENDER_BYTES_PER_PIXEL;
-      /* rendering all alien images */
-      uint16_t j = 0;
-      for(uint16_t i = 0; i < 5; i++) {
-        Alien alien_temp0 = alien_block[j];
-        alien_block[j++].current_location = alien_temp0.current_location-2*IMAGE_RENDER_BYTES_PER_PIXEL;
-        Alien alien_temp1 = alien_block[j];
-        alien_block[j++].current_location = alien_temp1.current_location-2*IMAGE_RENDER_BYTES_PER_PIXEL;
-        Alien alien_temp2 = alien_block[j];
-        alien_block[j++].current_location = alien_temp2.current_location-2*IMAGE_RENDER_BYTES_PER_PIXEL;
-        Alien alien_temp3 = alien_block[j];
-        alien_block[j++].current_location = alien_temp3.current_location-2*IMAGE_RENDER_BYTES_PER_PIXEL;
-        Alien alien_temp4 = alien_block[j];
-        alien_block[j++].current_location = alien_temp4.current_location-2*IMAGE_RENDER_BYTES_PER_PIXEL;
-        Alien alien_temp5 = alien_block[j];
-        alien_block[j++].current_location = alien_temp5.current_location-2*IMAGE_RENDER_BYTES_PER_PIXEL;
-        Alien alien_temp6 = alien_block[j];
-        alien_block[j++].current_location = alien_temp6.current_location-2*IMAGE_RENDER_BYTES_PER_PIXEL;
-        Alien alien_temp7 = alien_block[j];
-        alien_block[j++].current_location = alien_temp7.current_location-2*IMAGE_RENDER_BYTES_PER_PIXEL;
-        Alien alien_temp8 = alien_block[j];
-        alien_block[j++].current_location = alien_temp8.current_location-2*IMAGE_RENDER_BYTES_PER_PIXEL;
-        Alien alien_temp9 = alien_block[j];
-        alien_block[j++].current_location = alien_temp9.current_location-2*IMAGE_RENDER_BYTES_PER_PIXEL;
-        Alien alien_temp10 = alien_block[j];
-        alien_block[j++].current_location = alien_temp10.current_location-2*IMAGE_RENDER_BYTES_PER_PIXEL;
-
-        if(current_alien_position == ALIEN_OUT) {
-          sprites_render_buffer(alien_temp0.image_in,alien_temp0.width,alien_temp0.height,alien_temp0.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp1.image_in,alien_temp1.width,alien_temp1.height,alien_temp1.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp2.image_in,alien_temp2.width,alien_temp2.height,alien_temp2.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp3.image_in,alien_temp3.width,alien_temp3.height,alien_temp3.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp4.image_in,alien_temp4.width,alien_temp4.height,alien_temp4.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp5.image_in,alien_temp5.width,alien_temp5.height,alien_temp5.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp6.image_in,alien_temp6.width,alien_temp6.height,alien_temp6.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp7.image_in,alien_temp7.width,alien_temp7.height,alien_temp7.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp8.image_in,alien_temp8.width,alien_temp8.height,alien_temp8.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp9.image_in,alien_temp9.width,alien_temp9.height,alien_temp9.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp10.image_in,alien_temp10.width,alien_temp10.height,alien_temp10.current_location,ALIEN_SIZE,white);
+      alien_block_right_bound = alien_block_right_bound-ALIEN_PIXEL_MOVEMENT*IMAGE_RENDER_BYTES_PER_PIXEL;
+      alien_block_left_bound = alien_block_left_bound-ALIEN_PIXEL_MOVEMENT*IMAGE_RENDER_BYTES_PER_PIXEL;
+      for(uint16_t i = 0; i < ALIEN_BLOCK_SIZE; i++) { // we will shift every alien in the block over to the left 2 pixels
+        Alien alien_temp0 = alien_block[i];
+        alien_block[i].current_location = alien_temp0.current_location-ALIEN_PIXEL_MOVEMENT*IMAGE_RENDER_BYTES_PER_PIXEL;
+        if(current_alien_position == ALIEN_OUT) { // if the alien is "out", rewrite it "in"
+          sprites_render_buffer(alien_temp0.image_in,alien_temp0.width,alien_temp0.height,alien_temp0.current_location,ALIEN_SIZE,pink);
         }
-        else {
-          sprites_render_buffer(alien_temp0.image_out,alien_temp0.width,alien_temp0.height,alien_temp0.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp1.image_out,alien_temp1.width,alien_temp1.height,alien_temp1.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp2.image_out,alien_temp2.width,alien_temp2.height,alien_temp2.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp3.image_out,alien_temp3.width,alien_temp3.height,alien_temp3.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp4.image_out,alien_temp4.width,alien_temp4.height,alien_temp4.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp5.image_out,alien_temp5.width,alien_temp5.height,alien_temp5.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp6.image_out,alien_temp6.width,alien_temp6.height,alien_temp6.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp7.image_out,alien_temp7.width,alien_temp7.height,alien_temp7.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp8.image_out,alien_temp8.width,alien_temp8.height,alien_temp8.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp9.image_out,alien_temp9.width,alien_temp9.height,alien_temp9.current_location,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_temp10.image_out,alien_temp10.width,alien_temp10.height,alien_temp10.current_location,ALIEN_SIZE,white);
+        else { // if the alien is "in", rewrite it "out"
+          sprites_render_buffer(alien_temp0.image_out,alien_temp0.width,alien_temp0.height,alien_temp0.current_location,ALIEN_SIZE,pink);
         }
       }
-      current_alien_position = ~current_alien_position;
+      current_alien_position = ~current_alien_position; // change the global alien position (not direction)
     }
   }
 }

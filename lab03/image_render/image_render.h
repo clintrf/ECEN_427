@@ -46,9 +46,7 @@ Alien image_render_create_alien(const uint32_t image_in[], const uint32_t image_
 void image_render_modify_alien(Alien alien, uint16_t modifier);
 
 // creates the entire alien block
-// starting_position : where to start drawing the alien block
-// in_out : whether the aliens are in the in or out position
-void image_render_create_alien_block(uint16_t in_out);
+void image_render_create_alien_block();
 
 // prints the first part of the game over screen
 // this will display "GAME OVER" and "Enter your name" and a place to enter the player name
@@ -61,12 +59,13 @@ void image_render_print_game_over_screen_high_scores();
 // prints the start screen and everything on it
 void image_render_print_start_screen();
 
-// moves the tank around on the screen
-// move : direction of movement
+// moves the tank around the screen
+// move : how many pixels to move the tank
+// dir : the direction to move the tank
 void image_render_tank(uint32_t move, uint16_t dir);
 
+// moves the saucer around the screen
 void image_render_saucer();
-
 
 // moves the alien block around the screen
 void image_render_move_alien_block();
