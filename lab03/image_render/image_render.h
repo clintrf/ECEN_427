@@ -39,15 +39,6 @@ struct Bunker {
   uint16_t block_hit_points[IMAGE_RENDER_NUM_BUNKER_BLOCKS]; // status on each of the ten different positions
 };
 
-// a struct that contains the data for an individual alien bullet
-typedef struct AlienBullet AlienBullet;
-struct AlienBullet {
-  uint32_t position;
-  uint32_t image_in[IMAGE_RENDER_ALIEN_BULLET_TOTAL_PIXELS];
-  uint32_t image_out[IMAGE_RENDER_ALIEN_BULLET_TOTAL_PIXELS];
-  uint16_t fired;
-};
-
 // initializes a few of our necessary variables and starts the screen black
 void image_render_init();
 
@@ -65,13 +56,6 @@ Alien image_render_create_alien(const uint32_t image_in[], const uint32_t image_
 // creates the data for a single bunker object
 // pos : the position of the bunker on the screen
 Bunker image_render_create_bunker(uint32_t pos);
-
-// creates an individual alien bullet
-// pos : position of the bullet
-// image_in : inward image
-// image_out : outward image
-// returns created alien bullet structure
-AlienBullet image_render_create_alien_bullet(uint32_t pos, const uint32_t image_in[], const uint32_t image_out[]);
 
 // creates the entire alien block
 void image_render_create_alien_block();

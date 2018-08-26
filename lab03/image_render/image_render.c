@@ -119,7 +119,7 @@
 #define BULLET_MOVEMENT_TWO_PIXELS 640*3*2
 #define BULLET_MOVEMENT_ONE_PIXELS 640*3
 #define SAUCER_SHOT 0
-#define ALIEN_EXPLOSION_TIMER 2000000
+#define ALIEN_EXPLOSION_TIMER 1000000
 #define TANK_EXPLOSION_TIMER 50000000
 #define ALIEN_ALIVE 1
 #define LEFT 1
@@ -187,7 +187,6 @@ uint32_t current_shooter_1;
 uint32_t current_shooter_2;
 uint32_t current_shooter_3;
 Bunker bunker_set[NUM_BUNKERS];
-AlienBullet bullet_set[MAX_NUM_ALIEN_BULLETS];
 
 /**************************** function prototypes ****************************/
 void image_render_print_black_screen();
@@ -269,23 +268,6 @@ Bunker image_render_create_bunker(uint32_t pos) {
     }
   }
   return bunker;
-}
-
-// creates an individual alien bullet
-// pos : position of the bullet
-// image_in : inward image
-// image_out : outward image
-// returns created alien bullet structure
-AlienBullet image_render_create_alien_bullet(uint32_t pos, const uint32_t image_in[], const uint32_t image_out[]) {
-  AlienBullet alien_bullet;
-  alien_bullet.position = pos;
-  for (int i = 0; i < IMAGE_RENDER_ALIEN_BULLET_TOTAL_PIXELS; i++) { // sets the alien image
-    alien_bullet.image_in[i] = image_in[i];
-  }
-  for (int i = 0; i < IMAGE_RENDER_ALIEN_BULLET_TOTAL_PIXELS; i++) { // sets the alien image
-    alien_bullet.image_out[i] = image_out[i];
-  }
-  alien_bullet.fired = 0;
 }
 
 // creates the entire alien block
@@ -650,7 +632,7 @@ void image_render_check_for_aliens(uint32_t current_pos) {
         /* if the alien's position matches the tip of the bullet, then run this code */
         if(current_pos == alien_pos+(aw*IMAGE_RENDER_BYTES_PER_PIXEL)+(ah*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH) && alien_block[i].alive == 1) {
           sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-          sprites_render_buffer(alien_explosion_14x12,SPRITES_ALIEN_WIDTH,SPRITES_ALIEN_HEIGHT,alien_pos,ALIEN_SIZE,pink);
+          sprites_render_buffer(alien_explosion_14x12,SPRITES_ALIEN_WIDTH,SPRITES_ALIEN_HEIGHT,alien_pos,ALIEN_SIZE,red);
           alien_block[i].alive = 0;
           alien_block[i].shooter = 0;
           globals_tank_bullet_stopped(); // stops the tank bullet
@@ -660,9 +642,8 @@ void image_render_check_for_aliens(uint32_t current_pos) {
           image_render_set_right_bound(); // sets the right boundary
           alien_killed = 1;
           globals_set_dead_alien_loc(alien_block[i].current_location);
-          // uint32_t counter = 0;
-          // while(counter < ALIEN_EXPLOSION_TIMER) { counter++; } // timer to display the explosion
-          // sprites_render_buffer(alien_explosion_14x12,SPRITES_ALIEN_WIDTH,SPRITES_ALIEN_HEIGHT,alien_pos,ALIEN_SIZE,black);
+          uint32_t counter = 0;
+          while(counter < ALIEN_EXPLOSION_TIMER) { counter++; } // timer to display the explosion
         }
       }
     }
@@ -671,13 +652,25 @@ void image_render_check_for_aliens(uint32_t current_pos) {
 
 // blows the tank up
 // current_pos : current position of the alien bullet
-void image_render_blow_tank_up(uint32_t current_pos) {
-  //sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos-SPRITES_BULLET_HEIGHT*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH*ALIEN_SIZE,ALIEN_SIZE,white);
-  sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,globals_get_alien_bullet_position_0(),ALIEN_SIZE,green);
-  sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,globals_get_alien_bullet_position_1(),ALIEN_SIZE,green);
-  sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,globals_get_alien_bullet_position_2(),ALIEN_SIZE,green);
-  sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,globals_get_alien_bullet_position_3(),ALIEN_SIZE,green);
-  
+void image_render_blow_tank_up(uint32_t current_pos, uint16_t bullet_id) {
+  if(bullet_id == ALIEN_BULLET_0) {
+    globals_alien_bullet_stopped_0();
+    sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,globals_get_alien_bullet_position_0(),ALIEN_SIZE,black);
+  }
+  else if(bullet_id == ALIEN_BULLET_1) {
+    globals_alien_bullet_stopped_1();
+    sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,globals_get_alien_bullet_position_1(),ALIEN_SIZE,black);
+  }
+  else if(bullet_id == ALIEN_BULLET_2) {
+    globals_alien_bullet_stopped_2();
+    sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,globals_get_alien_bullet_position_2(),ALIEN_SIZE,black);
+  }
+  else {
+    globals_alien_bullet_stopped_3();
+    sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,globals_get_alien_bullet_position_3(),ALIEN_SIZE,black);
+  }
+
+
   sprites_render_buffer(tank_explosion2_17x10,SPRITES_TANK_WIDTH,SPRITES_TANK_HEIGHT,(IMAGE_RENDER_SCREEN_WIDTH*TANK_FIND_DEPTH+tank_pos)*IMAGE_RENDER_BYTES_PER_PIXEL,ALIEN_SIZE,green);
   globals_decrement_current_lives();
   uint32_t counter = 0;
@@ -687,32 +680,32 @@ void image_render_blow_tank_up(uint32_t current_pos) {
 
 // checks for the position of the tank
 // current_pos : current position of the alien bullet
-void image_render_check_for_tank(uint32_t current_pos) {
+void image_render_check_for_tank(uint32_t current_pos, uint16_t bullet_id) {
   current_pos = (current_pos / IMAGE_RENDER_BYTES_PER_PIXEL);
   for(int i = 0; i < ALIEN_SIZE; i++){
     for(int j = 0; j < SPRITES_TANK_WIDTH*ALIEN_SIZE; j++){
       if(current_pos == IMAGE_RENDER_SCREEN_WIDTH*TANK_START_DEPTH+tank_pos+j+i*IMAGE_RENDER_SCREEN_WIDTH) { // if the tank bullet position is the same as the saucer position, kill the saucer
-        image_render_blow_tank_up(current_pos);
+        image_render_blow_tank_up(current_pos*IMAGE_RENDER_BYTES_PER_PIXEL, bullet_id);
         break;
       }
       else if(current_pos+IMAGE_RENDER_BYTES_PER_PIXEL == IMAGE_RENDER_SCREEN_WIDTH*TANK_START_DEPTH+tank_pos+j+i*IMAGE_RENDER_SCREEN_WIDTH) { // if the tank bullet position is the same as the saucer position, kill the saucer
-        image_render_blow_tank_up(current_pos);
+        image_render_blow_tank_up(current_pos*IMAGE_RENDER_BYTES_PER_PIXEL, bullet_id);
         break;
       }
       else if(current_pos-IMAGE_RENDER_BYTES_PER_PIXEL == IMAGE_RENDER_SCREEN_WIDTH*TANK_START_DEPTH+tank_pos+j+i*IMAGE_RENDER_SCREEN_WIDTH) { // if the tank bullet position is the same as the saucer position, kill the saucer
-        image_render_blow_tank_up(current_pos);
+        image_render_blow_tank_up(current_pos*IMAGE_RENDER_BYTES_PER_PIXEL, bullet_id);
         break;
       }
       else if(current_pos+IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE == IMAGE_RENDER_SCREEN_WIDTH*TANK_START_DEPTH+tank_pos+j+i*IMAGE_RENDER_SCREEN_WIDTH) { // if the tank bullet position is the same as the saucer position, kill the saucer
-        image_render_blow_tank_up(current_pos);
+        image_render_blow_tank_up(current_pos*IMAGE_RENDER_BYTES_PER_PIXEL, bullet_id);
         break;
       }
       else if(current_pos-IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE == IMAGE_RENDER_SCREEN_WIDTH*TANK_START_DEPTH+tank_pos+j+i*IMAGE_RENDER_SCREEN_WIDTH) { // if the tank bullet position is the same as the saucer position, kill the saucer
-        image_render_blow_tank_up(current_pos);
+        image_render_blow_tank_up(current_pos, bullet_id);
         break;
       }
       else if(current_pos+9 == IMAGE_RENDER_SCREEN_WIDTH*TANK_START_DEPTH+tank_pos+j+i*IMAGE_RENDER_SCREEN_WIDTH) { // if the tank bullet position is the same as the saucer position, kill the saucer
-        image_render_blow_tank_up(current_pos);
+        image_render_blow_tank_up(current_pos, bullet_id);
         break;
       }
     }
@@ -732,21 +725,20 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
       }
-      if(bullet_id == ALIEN_BULLET_0){
+      else {
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_0();
-      }
-      if(bullet_id == ALIEN_BULLET_1){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_1();
-      }
-      if(bullet_id == ALIEN_BULLET_2){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_2();
-      }
-      if(bullet_id == ALIEN_BULLET_3){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_3();
+        if(bullet_id == ALIEN_BULLET_0){
+          globals_alien_bullet_stopped_0();
+        }
+        if(bullet_id == ALIEN_BULLET_1){
+          globals_alien_bullet_stopped_1();
+        }
+        if(bullet_id == ALIEN_BULLET_2){
+          globals_alien_bullet_stopped_2();
+        }
+        if(bullet_id == ALIEN_BULLET_3){
+          globals_alien_bullet_stopped_3();
+        }
       }
 
       bunker_set[bunker_num].block_hit_points[block_num]--;
@@ -757,21 +749,20 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
       }
-      if(bullet_id == ALIEN_BULLET_0){
+      else {
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_0();
-      }
-      if(bullet_id == ALIEN_BULLET_1){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_1();
-      }
-      if(bullet_id == ALIEN_BULLET_2){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_2();
-      }
-      if(bullet_id == ALIEN_BULLET_3){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_3();
+        if(bullet_id == ALIEN_BULLET_0){
+          globals_alien_bullet_stopped_0();
+        }
+        if(bullet_id == ALIEN_BULLET_1){
+          globals_alien_bullet_stopped_1();
+        }
+        if(bullet_id == ALIEN_BULLET_2){
+          globals_alien_bullet_stopped_2();
+        }
+        if(bullet_id == ALIEN_BULLET_3){
+          globals_alien_bullet_stopped_3();
+        }
       }
       bunker_set[bunker_num].block_hit_points[block_num]--;
     }
@@ -781,21 +772,20 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
       }
-      if(bullet_id == ALIEN_BULLET_0){
+      else {
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_0();
-      }
-      if(bullet_id == ALIEN_BULLET_1){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_1();
-      }
-      if(bullet_id == ALIEN_BULLET_2){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_2();
-      }
-      if(bullet_id == ALIEN_BULLET_3){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_3();
+        if(bullet_id == ALIEN_BULLET_0){
+          globals_alien_bullet_stopped_0();
+        }
+        if(bullet_id == ALIEN_BULLET_1){
+          globals_alien_bullet_stopped_1();
+        }
+        if(bullet_id == ALIEN_BULLET_2){
+          globals_alien_bullet_stopped_2();
+        }
+        if(bullet_id == ALIEN_BULLET_3){
+          globals_alien_bullet_stopped_3();
+        }
       }
       bunker_set[bunker_num].block_hit_points[block_num]--;
     }
@@ -805,21 +795,20 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
       }
-      if(bullet_id == ALIEN_BULLET_0){
+      else {
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_0();
-      }
-      if(bullet_id == ALIEN_BULLET_1){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_1();
-      }
-      if(bullet_id == ALIEN_BULLET_2){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_2();
-      }
-      if(bullet_id == ALIEN_BULLET_3){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_3();
+        if(bullet_id == ALIEN_BULLET_0){
+          globals_alien_bullet_stopped_0();
+        }
+        if(bullet_id == ALIEN_BULLET_1){
+          globals_alien_bullet_stopped_1();
+        }
+        if(bullet_id == ALIEN_BULLET_2){
+          globals_alien_bullet_stopped_2();
+        }
+        if(bullet_id == ALIEN_BULLET_3){
+          globals_alien_bullet_stopped_3();
+        }
       }
       bunker_set[bunker_num].block_hit_points[block_num]--;
     }
@@ -831,21 +820,20 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
       }
-      if(bullet_id == ALIEN_BULLET_0){
+      else {
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_0();
-      }
-      if(bullet_id == ALIEN_BULLET_1){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_1();
-      }
-      if(bullet_id == ALIEN_BULLET_2){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_2();
-      }
-      if(bullet_id == ALIEN_BULLET_3){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_3();
+        if(bullet_id == ALIEN_BULLET_0){
+          globals_alien_bullet_stopped_0();
+        }
+        if(bullet_id == ALIEN_BULLET_1){
+          globals_alien_bullet_stopped_1();
+        }
+        if(bullet_id == ALIEN_BULLET_2){
+          globals_alien_bullet_stopped_2();
+        }
+        if(bullet_id == ALIEN_BULLET_3){
+          globals_alien_bullet_stopped_3();
+        }
       }
       bunker_set[bunker_num].block_hit_points[block_num]--;
     }
@@ -855,21 +843,20 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
       }
-      if(bullet_id == ALIEN_BULLET_0){
+      else {
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_0();
-      }
-      if(bullet_id == ALIEN_BULLET_1){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_1();
-      }
-      if(bullet_id == ALIEN_BULLET_2){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_2();
-      }
-      if(bullet_id == ALIEN_BULLET_3){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_3();
+        if(bullet_id == ALIEN_BULLET_0){
+          globals_alien_bullet_stopped_0();
+        }
+        if(bullet_id == ALIEN_BULLET_1){
+          globals_alien_bullet_stopped_1();
+        }
+        if(bullet_id == ALIEN_BULLET_2){
+          globals_alien_bullet_stopped_2();
+        }
+        if(bullet_id == ALIEN_BULLET_3){
+          globals_alien_bullet_stopped_3();
+        }
       }
       bunker_set[bunker_num].block_hit_points[block_num]--;
     }
@@ -879,21 +866,20 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
       }
-      if(bullet_id == ALIEN_BULLET_0){
+      else {
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_0();
-      }
-      if(bullet_id == ALIEN_BULLET_1){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_1();
-      }
-      if(bullet_id == ALIEN_BULLET_2){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_2();
-      }
-      if(bullet_id == ALIEN_BULLET_3){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_3();
+        if(bullet_id == ALIEN_BULLET_0){
+          globals_alien_bullet_stopped_0();
+        }
+        if(bullet_id == ALIEN_BULLET_1){
+          globals_alien_bullet_stopped_1();
+        }
+        if(bullet_id == ALIEN_BULLET_2){
+          globals_alien_bullet_stopped_2();
+        }
+        if(bullet_id == ALIEN_BULLET_3){
+          globals_alien_bullet_stopped_3();
+        }
       }
       bunker_set[bunker_num].block_hit_points[block_num]--;
     }
@@ -903,21 +889,20 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
       }
-      if(bullet_id == ALIEN_BULLET_0){
+      else {
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_0();
-      }
-      if(bullet_id == ALIEN_BULLET_1){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_1();
-      }
-      if(bullet_id == ALIEN_BULLET_2){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_2();
-      }
-      if(bullet_id == ALIEN_BULLET_3){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_3();
+        if(bullet_id == ALIEN_BULLET_0){
+          globals_alien_bullet_stopped_0();
+        }
+        if(bullet_id == ALIEN_BULLET_1){
+          globals_alien_bullet_stopped_1();
+        }
+        if(bullet_id == ALIEN_BULLET_2){
+          globals_alien_bullet_stopped_2();
+        }
+        if(bullet_id == ALIEN_BULLET_3){
+          globals_alien_bullet_stopped_3();
+        }
       }
       bunker_set[bunker_num].block_hit_points[block_num]--;
     }
@@ -929,21 +914,20 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
       }
-      if(bullet_id == ALIEN_BULLET_0){
+      else {
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_0();
-      }
-      if(bullet_id == ALIEN_BULLET_1){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_1();
-      }
-      if(bullet_id == ALIEN_BULLET_2){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_2();
-      }
-      if(bullet_id == ALIEN_BULLET_3){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_3();
+        if(bullet_id == ALIEN_BULLET_0){
+          globals_alien_bullet_stopped_0();
+        }
+        if(bullet_id == ALIEN_BULLET_1){
+          globals_alien_bullet_stopped_1();
+        }
+        if(bullet_id == ALIEN_BULLET_2){
+          globals_alien_bullet_stopped_2();
+        }
+        if(bullet_id == ALIEN_BULLET_3){
+          globals_alien_bullet_stopped_3();
+        }
       }
       bunker_set[bunker_num].block_hit_points[block_num]--;
     }
@@ -953,21 +937,20 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
       }
-      if(bullet_id == ALIEN_BULLET_0){
+      else {
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_0();
-      }
-      if(bullet_id == ALIEN_BULLET_1){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_1();
-      }
-      if(bullet_id == ALIEN_BULLET_2){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_2();
-      }
-      if(bullet_id == ALIEN_BULLET_3){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_3();
+        if(bullet_id == ALIEN_BULLET_0){
+          globals_alien_bullet_stopped_0();
+        }
+        if(bullet_id == ALIEN_BULLET_1){
+          globals_alien_bullet_stopped_1();
+        }
+        if(bullet_id == ALIEN_BULLET_2){
+          globals_alien_bullet_stopped_2();
+        }
+        if(bullet_id == ALIEN_BULLET_3){
+          globals_alien_bullet_stopped_3();
+        }
       }
       bunker_set[bunker_num].block_hit_points[block_num]--;
     }
@@ -979,21 +962,20 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
       }
-      if(bullet_id == ALIEN_BULLET_0){
+      else {
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_0();
-      }
-      if(bullet_id == ALIEN_BULLET_1){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_1();
-      }
-      if(bullet_id == ALIEN_BULLET_2){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_2();
-      }
-      if(bullet_id == ALIEN_BULLET_3){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_3();
+        if(bullet_id == ALIEN_BULLET_0){
+          globals_alien_bullet_stopped_0();
+        }
+        if(bullet_id == ALIEN_BULLET_1){
+          globals_alien_bullet_stopped_1();
+        }
+        if(bullet_id == ALIEN_BULLET_2){
+          globals_alien_bullet_stopped_2();
+        }
+        if(bullet_id == ALIEN_BULLET_3){
+          globals_alien_bullet_stopped_3();
+        }
       }
       bunker_set[bunker_num].block_hit_points[block_num]--;
     }
@@ -1003,21 +985,20 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
       }
-      if(bullet_id == ALIEN_BULLET_0){
+      else {
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_0();
-      }
-      if(bullet_id == ALIEN_BULLET_1){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_1();
-      }
-      if(bullet_id == ALIEN_BULLET_2){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_2();
-      }
-      if(bullet_id == ALIEN_BULLET_3){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_3();
+        if(bullet_id == ALIEN_BULLET_0){
+          globals_alien_bullet_stopped_0();
+        }
+        if(bullet_id == ALIEN_BULLET_1){
+          globals_alien_bullet_stopped_1();
+        }
+        if(bullet_id == ALIEN_BULLET_2){
+          globals_alien_bullet_stopped_2();
+        }
+        if(bullet_id == ALIEN_BULLET_3){
+          globals_alien_bullet_stopped_3();
+        }
       }
       bunker_set[bunker_num].block_hit_points[block_num]--;
     }
@@ -1030,21 +1011,20 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
       }
-      if(bullet_id == ALIEN_BULLET_0){
+      else {
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_0();
-      }
-      if(bullet_id == ALIEN_BULLET_1){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_1();
-      }
-      if(bullet_id == ALIEN_BULLET_2){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_2();
-      }
-      if(bullet_id == ALIEN_BULLET_3){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_3();
+        if(bullet_id == ALIEN_BULLET_0){
+          globals_alien_bullet_stopped_0();
+        }
+        if(bullet_id == ALIEN_BULLET_1){
+          globals_alien_bullet_stopped_1();
+        }
+        if(bullet_id == ALIEN_BULLET_2){
+          globals_alien_bullet_stopped_2();
+        }
+        if(bullet_id == ALIEN_BULLET_3){
+          globals_alien_bullet_stopped_3();
+        }
       }
       bunker_set[bunker_num].block_hit_points[block_num]--;
     }
@@ -1054,21 +1034,20 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
       }
-      if(bullet_id == ALIEN_BULLET_0){
+      else {
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_0();
-      }
-      if(bullet_id == ALIEN_BULLET_1){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_1();
-      }
-      if(bullet_id == ALIEN_BULLET_2){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_2();
-      }
-      if(bullet_id == ALIEN_BULLET_3){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_3();
+        if(bullet_id == ALIEN_BULLET_0){
+          globals_alien_bullet_stopped_0();
+        }
+        if(bullet_id == ALIEN_BULLET_1){
+          globals_alien_bullet_stopped_1();
+        }
+        if(bullet_id == ALIEN_BULLET_2){
+          globals_alien_bullet_stopped_2();
+        }
+        if(bullet_id == ALIEN_BULLET_3){
+          globals_alien_bullet_stopped_3();
+        }
       }
       bunker_set[bunker_num].block_hit_points[block_num]--;
     }
@@ -1078,21 +1057,20 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
       }
-      if(bullet_id == ALIEN_BULLET_0){
+      else {
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_0();
-      }
-      if(bullet_id == ALIEN_BULLET_1){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_1();
-      }
-      if(bullet_id == ALIEN_BULLET_2){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_2();
-      }
-      if(bullet_id == ALIEN_BULLET_3){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_3();
+        if(bullet_id == ALIEN_BULLET_0){
+          globals_alien_bullet_stopped_0();
+        }
+        if(bullet_id == ALIEN_BULLET_1){
+          globals_alien_bullet_stopped_1();
+        }
+        if(bullet_id == ALIEN_BULLET_2){
+          globals_alien_bullet_stopped_2();
+        }
+        if(bullet_id == ALIEN_BULLET_3){
+          globals_alien_bullet_stopped_3();
+        }
       }
       bunker_set[bunker_num].block_hit_points[block_num]--;
     }
@@ -1102,21 +1080,20 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
       }
-      if(bullet_id == ALIEN_BULLET_0){
+      else {
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_0();
-      }
-      if(bullet_id == ALIEN_BULLET_1){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_1();
-      }
-      if(bullet_id == ALIEN_BULLET_2){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_2();
-      }
-      if(bullet_id == ALIEN_BULLET_3){
-        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped_3();
+        if(bullet_id == ALIEN_BULLET_0){
+          globals_alien_bullet_stopped_0();
+        }
+        if(bullet_id == ALIEN_BULLET_1){
+          globals_alien_bullet_stopped_1();
+        }
+        if(bullet_id == ALIEN_BULLET_2){
+          globals_alien_bullet_stopped_2();
+        }
+        if(bullet_id == ALIEN_BULLET_3){
+          globals_alien_bullet_stopped_3();
+        }
       }
       bunker_set[bunker_num].block_hit_points[block_num]--;
     }
@@ -1157,37 +1134,42 @@ void image_render_check_for_bunker(uint32_t current_pos, uint32_t bullet_id) {
               /* if the bullet position matches one of the bunker block's positions */
               bunker_pos = bunker_set[b].position+SPRITES_BUNKER_DAMAGE_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE*j+IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE*IMAGE_RENDER_SCREEN_WIDTH*SPRITES_BUNKER_DAMAGE_HEIGHT*i;
               if(bunker_hit == 0) {
-                if(current_pos == bunker_pos+(bw*IMAGE_RENDER_BYTES_PER_PIXEL)+(bh*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH)) {
+                if(current_pos == bunker_pos+(bw*IMAGE_RENDER_BYTES_PER_PIXEL)+(bh*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH) && bunker_set[b].block_hit_points[(i*BLOCKS_PER_ROW)+j] != 0) {
                   image_render_check_bunker_block(b,(i*BLOCKS_PER_ROW)+j,i,j,current_pos-SPRITES_BULLET_HEIGHT*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH*ALIEN_SIZE,bullet_id);
                   bunker_hit = 1;
                   break;
                 }
-                else if(current_pos+IMAGE_RENDER_BYTES_PER_PIXEL == bunker_pos+(bw*IMAGE_RENDER_BYTES_PER_PIXEL)+(bh*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH)) {
+                else if(current_pos+3 == bunker_pos+(bw*IMAGE_RENDER_BYTES_PER_PIXEL)+(bh*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH) && bunker_set[b].block_hit_points[(i*BLOCKS_PER_ROW)+j] != 0) {
                   image_render_check_bunker_block(b,(i*BLOCKS_PER_ROW)+j,i,j,current_pos-SPRITES_BULLET_HEIGHT*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH*ALIEN_SIZE,bullet_id);
                   bunker_hit = 1;
                   break;
                 }
-                else if(current_pos-IMAGE_RENDER_BYTES_PER_PIXEL == bunker_pos+(bw*IMAGE_RENDER_BYTES_PER_PIXEL)+(bh*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH)) {
+                else if(current_pos-3 == bunker_pos+(bw*IMAGE_RENDER_BYTES_PER_PIXEL)+(bh*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH) && bunker_set[b].block_hit_points[(i*BLOCKS_PER_ROW)+j] != 0) {
                   image_render_check_bunker_block(b,(i*BLOCKS_PER_ROW)+j,i,j,current_pos-SPRITES_BULLET_HEIGHT*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH*ALIEN_SIZE,bullet_id);
                   bunker_hit = 1;
                   break;
                 }
-                else if(current_pos+IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE == bunker_pos+(bw*IMAGE_RENDER_BYTES_PER_PIXEL)+(bh*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH)) {
+                else if(current_pos+6 == bunker_pos+(bw*IMAGE_RENDER_BYTES_PER_PIXEL)+(bh*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH) && bunker_set[b].block_hit_points[(i*BLOCKS_PER_ROW)+j] != 0) {
                   image_render_check_bunker_block(b,(i*BLOCKS_PER_ROW)+j,i,j,current_pos-SPRITES_BULLET_HEIGHT*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH*ALIEN_SIZE,bullet_id);
                   bunker_hit = 1;
                   break;
                 }
-                else if(current_pos-IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE == bunker_pos+(bw*IMAGE_RENDER_BYTES_PER_PIXEL)+(bh*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH)) {
+                else if(current_pos-6 == bunker_pos+(bw*IMAGE_RENDER_BYTES_PER_PIXEL)+(bh*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH) && bunker_set[b].block_hit_points[(i*BLOCKS_PER_ROW)+j] != 0) {
                   image_render_check_bunker_block(b,(i*BLOCKS_PER_ROW)+j,i,j,current_pos-SPRITES_BULLET_HEIGHT*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH*ALIEN_SIZE,bullet_id);
                   bunker_hit = 1;
                   break;
                 }
-                else if(current_pos-IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE == bunker_pos+(bw*IMAGE_RENDER_BYTES_PER_PIXEL)+(bh*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH)) {
+                else if(current_pos+9 == bunker_pos+(bw*IMAGE_RENDER_BYTES_PER_PIXEL)+(bh*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH) && bunker_set[b].block_hit_points[(i*BLOCKS_PER_ROW)+j] != 0) {
                   image_render_check_bunker_block(b,(i*BLOCKS_PER_ROW)+j,i,j,current_pos-SPRITES_BULLET_HEIGHT*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH*ALIEN_SIZE,bullet_id);
                   bunker_hit = 1;
                   break;
                 }
-                else if(current_pos+9 == bunker_pos+(bw*IMAGE_RENDER_BYTES_PER_PIXEL)+(bh*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH)) {
+                else if(current_pos+12 == bunker_pos+(bw*IMAGE_RENDER_BYTES_PER_PIXEL)+(bh*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH) && bunker_set[b].block_hit_points[(i*BLOCKS_PER_ROW)+j] != 0) {
+                  image_render_check_bunker_block(b,(i*BLOCKS_PER_ROW)+j,i,j,current_pos-SPRITES_BULLET_HEIGHT*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH*ALIEN_SIZE,bullet_id);
+                  bunker_hit = 1;
+                  break;
+                }
+                else if(current_pos+15 == bunker_pos+(bw*IMAGE_RENDER_BYTES_PER_PIXEL)+(bh*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH) && bunker_set[b].block_hit_points[(i*BLOCKS_PER_ROW)+j] != 0) {
                   image_render_check_bunker_block(b,(i*BLOCKS_PER_ROW)+j,i,j,current_pos-SPRITES_BULLET_HEIGHT*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH*ALIEN_SIZE,bullet_id);
                   bunker_hit = 1;
                   break;
@@ -1228,24 +1210,24 @@ void image_render_move_alien_bullet_0(){
   uint32_t current_pos_0 = globals_get_alien_bullet_position_0(); // fetches current bullet position
   globals_set_alien_bullet_position_0(current_pos_0+(BULLET_MOVEMENT_ONE_PIXELS)); // sets the new bullet position moving up the screen
   current_pos_0 = globals_get_alien_bullet_position_0(); // fetch the updated bullet position
-  sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_0,ALIEN_SIZE,white);
+  sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_0,ALIEN_SIZE,pink);
   if(current_pos_0 > (BOTTOM_LEFT_CORNER_OF_SCREEN)) { // if the bullet reaches the top of the screen, delete the bullet
     globals_set_alien_bullet_position_0(current_pos_0+(BULLET_MOVEMENT_ONE_PIXELS)); // sets the new bullet position moving up the screen
     current_pos_0 = globals_get_alien_bullet_position_0(); // fetch the updated bullet position
-    sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_0,ALIEN_SIZE,white);
+    sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_0,ALIEN_SIZE,pink);
     globals_alien_bullet_stopped_0();
   }
   else { // if the bullet hasn't hit anything or reached the top of the screen, move it up
     globals_set_alien_bullet_position_0(current_pos_0+(BULLET_MOVEMENT_ONE_PIXELS)); // sets the new bullet position moving up the screen
     current_pos_0 = globals_get_alien_bullet_position_0(); // fetch the updated bullet position
     if(odd_0){
-      sprites_render_buffer(alienbullet2_up_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_0,ALIEN_SIZE,white);
+      sprites_render_buffer(alienbullet2_up_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_0,ALIEN_SIZE,pink);
     }
     else{
-      sprites_render_buffer(alienbullet2_down_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_0,ALIEN_SIZE,white);
+      sprites_render_buffer(alienbullet2_down_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_0,ALIEN_SIZE,pink);
     }
     /* check for saucer location */
-    image_render_check_for_tank(current_pos_0);
+    image_render_check_for_tank(current_pos_0, ALIEN_BULLET_0);
     image_render_check_for_bunker(current_pos_0, ALIEN_BULLET_0);
   }
   odd_0 = ~odd_0;
@@ -1255,24 +1237,24 @@ void image_render_move_alien_bullet_1(){
   uint32_t current_pos_1 = globals_get_alien_bullet_position_1(); // fetches current bullet position
   globals_set_alien_bullet_position_1(current_pos_1+(BULLET_MOVEMENT_ONE_PIXELS)); // sets the new bullet position moving up the screen
   current_pos_1 = globals_get_alien_bullet_position_1(); // fetch the updated bullet position
-  sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_1,ALIEN_SIZE,green);
+  sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_1,ALIEN_SIZE,pink);
   if(current_pos_1 > (BOTTOM_LEFT_CORNER_OF_SCREEN)) { // if the bullet reaches the top of the screen, delete the bullet
     globals_set_alien_bullet_position_1(current_pos_1+(BULLET_MOVEMENT_ONE_PIXELS)); // sets the new bullet position moving up the screen
     current_pos_1 = globals_get_alien_bullet_position_1(); // fetch the updated bullet position
-    sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_1,ALIEN_SIZE,green);
+    sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_1,ALIEN_SIZE,pink);
     globals_alien_bullet_stopped_1();
   }
   else { // if the bullet hasn't hit anything or reached the top of the screen, move it up
     globals_set_alien_bullet_position_1(current_pos_1+(BULLET_MOVEMENT_ONE_PIXELS)); // sets the new bullet position moving up the screen
     current_pos_1 = globals_get_alien_bullet_position_1(); // fetch the updated bullet position
     if(odd_1){
-      sprites_render_buffer(alienbullet2_up_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_1,ALIEN_SIZE,green);
+      sprites_render_buffer(alienbullet1_up_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_1,ALIEN_SIZE,pink);
     }
     else{
-      sprites_render_buffer(alienbullet2_down_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_1,ALIEN_SIZE,green);
+      sprites_render_buffer(alienbullet1_down_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_1,ALIEN_SIZE,pink);
     }
     /* check for saucer location */
-    image_render_check_for_tank(current_pos_1);
+    image_render_check_for_tank(current_pos_1, ALIEN_BULLET_1);
     image_render_check_for_bunker(current_pos_1, ALIEN_BULLET_1);
   }
   odd_1 = ~odd_1;
@@ -1300,7 +1282,7 @@ void image_render_move_alien_bullet_2(){
       sprites_render_buffer(alienbullet2_down_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_2,ALIEN_SIZE,pink);
     }
     /* check for saucer location */
-    image_render_check_for_tank(current_pos_2);
+    image_render_check_for_tank(current_pos_2, ALIEN_BULLET_2);
     image_render_check_for_bunker(current_pos_2, ALIEN_BULLET_2);
   }
   odd_2 = ~odd_2;
@@ -1311,24 +1293,24 @@ void image_render_move_alien_bullet_3(){
   uint32_t current_pos_3 = globals_get_alien_bullet_position_3(); // fetches current bullet position
   globals_set_alien_bullet_position_3(current_pos_3+(BULLET_MOVEMENT_ONE_PIXELS)); // sets the new bullet position moving up the screen
   current_pos_3 = globals_get_alien_bullet_position_3(); // fetch the updated bullet position
-  sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_3,ALIEN_SIZE,red);
+  sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_3,ALIEN_SIZE,pink);
   if(current_pos_3 > (BOTTOM_LEFT_CORNER_OF_SCREEN)) { // if the bullet reaches the top of the screen, delete the bullet
     globals_set_alien_bullet_position_3(current_pos_3+(BULLET_MOVEMENT_ONE_PIXELS)); // sets the new bullet position moving up the screen
     current_pos_3 = globals_get_alien_bullet_position_3(); // fetch the updated bullet position
-    sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_3,ALIEN_SIZE,red);
+    sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_3,ALIEN_SIZE,pink);
     globals_alien_bullet_stopped_3();
   }
   else { // if the bullet hasn't hit anything or reached the top of the screen, move it up
     globals_set_alien_bullet_position_3(current_pos_3+(BULLET_MOVEMENT_ONE_PIXELS)); // sets the new bullet position moving up the screen
     current_pos_3 = globals_get_alien_bullet_position_3(); // fetch the updated bullet position
-    if(odd_3){
-      sprites_render_buffer(alienbullet2_up_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_3,ALIEN_SIZE,red);
+    if(odd_3) {
+      sprites_render_buffer(alienbullet1_up_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_3,ALIEN_SIZE,pink);
     }
-    else{
-      sprites_render_buffer(alienbullet2_down_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_3,ALIEN_SIZE,red);
+    else {
+      sprites_render_buffer(alienbullet1_down_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_3,ALIEN_SIZE,pink);
     }
     /* check for saucer location */
-    image_render_check_for_tank(current_pos_3);
+    image_render_check_for_tank(current_pos_3, ALIEN_BULLET_3);
     image_render_check_for_bunker(current_pos_3, ALIEN_BULLET_3);
   }
   odd_3 = ~odd_3;
@@ -1574,7 +1556,7 @@ void image_render_alien_fire_bullet_2(){
   }
 }
 // aliens fire bullets
-void image_render_alien_fire_bullet_3(){
+void image_render_alien_fire_bullet_3() {
   total_shooters_3 = 0;
   /* Intializes random number generator */
   srand(time(0)+3);

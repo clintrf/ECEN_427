@@ -37,8 +37,9 @@
 #define BULLET_DELAY_2 150
 #define BULLET_DELAY_3 180
 #define TANK_BULLET_DELAY 2
-#define COUNTER_DELAY 10
+#define COUNTER_DELAY 4
 #define SAUCER_DELAY 2
+#define OVERRUN_DETECTED 1
 
 /*********************************** globals ***********************************/
 int32_t white_t[BYTES_PER_PIXEL] = {0xFF, 0xFF, 0xFF};
@@ -171,7 +172,7 @@ void move_tank(uint32_t buttonPressed) {
 void isr_fit() {
   intc_ack_interrupt(INTC_FIT_MASK); // acknowledges the received FIT interrupt
 
-  if(globals_get_alien_overrun_flag() == 1) { // if the aliens get too low on the screen, game over!
+  if(globals_get_alien_overrun_flag() == OVERRUN_DETECTED) { // if the aliens get too low on the screen, game over!
     globals_decrement_current_lives();
     globals_decrement_current_lives();
     globals_decrement_current_lives();
@@ -216,45 +217,63 @@ void isr_fit() {
   bullet_delay_2++;
   bullet_delay_3++;
 
-
-  if(saucer_counter > 1){ //SAUCER_DELAY
-    /* saucer flight handling in the main */
-    if(globals_get_saucer_status() == SAUCER_SHOT) { // if the saucer is currently dead
-      uint32_t saucer_count = globals_get_saucer_shot_count();
-      if(saucer_count > SAUCER_SHOT_DELAY_TIME) { // we wait a certain amount of time before reprinting it
-        globals_set_saucer_status(SAUCER_ALIVE);
-        globals_reset_saucer_shot_count();
-        image_render_saucer();
-      }
-      else { // if the saucer hasn't reached the specified time, then we increment the counter
-        globals_inc_saucer_shot_count();
-      }
-    }
-    else { // if the saucer is currently alive
+  /* saucer flight handling in the main */
+  if(globals_get_saucer_status() == SAUCER_SHOT) { // if the saucer is currently dead
+    uint32_t saucer_count = globals_get_saucer_shot_count();
+    if(saucer_count > SAUCER_SHOT_DELAY_TIME) { // we wait a certain amount of time before reprinting it
+      globals_set_saucer_status(SAUCER_ALIVE);
+      globals_reset_saucer_shot_count();
       image_render_saucer();
     }
-    saucer_counter = 0;
-  }
-  saucer_counter++;
-
-  if (tanks_bullet_delay > TANK_BULLET_DELAY){
-    /* This controls the firing of the bullets and their movement */
-    if(globals_get_tank_bullet_fired() == SHOTS_FIRED) {
-      image_render_move_tank_bullet();
+    else { // if the saucer hasn't reached the specified time, then we increment the counter
+      globals_inc_saucer_shot_count();
     }
-    tanks_bullet_delay=0;
   }
-  tanks_bullet_delay++;
+  else { // if the saucer is currently alive
+    image_render_saucer();
+  }
 
-  if (counter_delay > 2) { // COUNTER_DELAY
+  /* This controls the firing of the bullets and their movement */
+  if(globals_get_tank_bullet_fired() == SHOTS_FIRED) {
+    image_render_move_tank_bullet();
+  }
+  if(globals_get_tank_bullet_fired() == SHOTS_FIRED) {
+    image_render_move_tank_bullet();
+  }
+
+  if (counter_delay > COUNTER_DELAY) { // COUNTER_DELAY
+    if(globals_get_alien_bullet_fired_0() == SHOTS_FIRED){
+      image_render_move_alien_bullet_0();
+    }
+    if(globals_get_alien_bullet_fired_0() == SHOTS_FIRED){
+      image_render_move_alien_bullet_0();
+    }
     if(globals_get_alien_bullet_fired_0() == SHOTS_FIRED){
       image_render_move_alien_bullet_0();
     }
     if(globals_get_alien_bullet_fired_1() == SHOTS_FIRED){
       image_render_move_alien_bullet_1();
     }
+    if(globals_get_alien_bullet_fired_1() == SHOTS_FIRED){
+      image_render_move_alien_bullet_1();
+    }
+    if(globals_get_alien_bullet_fired_1() == SHOTS_FIRED){
+      image_render_move_alien_bullet_1();
+    }
     if(globals_get_alien_bullet_fired_2() == SHOTS_FIRED){
       image_render_move_alien_bullet_2();
+    }
+    if(globals_get_alien_bullet_fired_2() == SHOTS_FIRED){
+      image_render_move_alien_bullet_2();
+    }
+    if(globals_get_alien_bullet_fired_2() == SHOTS_FIRED){
+      image_render_move_alien_bullet_2();
+    }
+    if(globals_get_alien_bullet_fired_3() == SHOTS_FIRED){
+      image_render_move_alien_bullet_3();
+    }
+    if(globals_get_alien_bullet_fired_3() == SHOTS_FIRED){
+      image_render_move_alien_bullet_3();
     }
     if(globals_get_alien_bullet_fired_3() == SHOTS_FIRED){
       image_render_move_alien_bullet_3();
@@ -265,7 +284,7 @@ void isr_fit() {
 
 
   alien_counter++; // increments the alien counter
-  if(alien_counter > 8) { // a little bit of a delay for the alien movement
+  if(alien_counter > alien_movement_delay) { // a little bit of a delay for the alien movement
     image_render_move_alien_block();
     alien_counter = 0;
   }
