@@ -14,6 +14,7 @@
 #include <sys/mman.h>
 #include "intc.h"
 
+/*********************************** macros ***********************************/
 #define INTC_MMAP_SIZE 0x1000 /* size of memory to allocate */
 #define FOUR_BYTES 4 /* 32 bits to write to fd */
 #define SIE_REG_OFFSET 0x10 /* sets the register bits in the IER */

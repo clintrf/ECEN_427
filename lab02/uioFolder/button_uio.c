@@ -13,6 +13,7 @@
 #include <sys/mman.h>
 #include "button_uio.h"
 
+/*********************************** macros ***********************************/
 #define UIO_MMAP_SIZE 0x1000 /* size of memory to allocate */
 #define GIER_REG_OFFSET 0x11C /* global interrupt register offset */
 #define GIER_MASK (1<<31) /* top register bit (31) is set to one */
