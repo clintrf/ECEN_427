@@ -17,6 +17,7 @@ static uint16_t alien_block_far_left = STARTING_LEFT_COLUMN;
 static uint16_t alien_block_far_right = STARTING_RIGHT_COLUMN;
 static uint16_t tank_bullet_fired = NOT_FIRED;
 static uint32_t tank_bullet_position;
+static uint32_t current_score = 0;
 
 /********************************* functions *********************************/
 // fetch whether the tank bullet has been fired or not
@@ -45,4 +46,16 @@ uint32_t globals_get_tank_bullet_position() {
 // pos : the new position which you wish to set
 void globals_set_tank_bullet_position(uint32_t pos) {
   tank_bullet_position = pos;
+}
+
+// fetches the current score of the current game
+// returns : the score of the current game
+uint32_t globals_get_current_score() {
+  return current_score;
+}
+
+// adds a value to the current score
+// score : the value of the score to add to the current score
+void globals_add_to_current_score(uint32_t score) {
+  current_score += score;
 }

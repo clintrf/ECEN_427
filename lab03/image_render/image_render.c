@@ -354,12 +354,12 @@ void image_render_move_tank_bullet() {
 
 // moves the saucer around the screen
 void image_render_saucer(){
-  if(saucer_start_pos > (SAUCER_ROW_START_LOCATION + SAUCER_END_POSITION*IMAGE_RENDER_BYTES_PER_PIXEL)){
+  if(saucer_start_pos > (SAUCER_ROW_START_LOCATION+SAUCER_END_POSITION*IMAGE_RENDER_BYTES_PER_PIXEL)){
     sprites_render_buffer(saucer_18x9,SPRITES_SAUCER_WIDTH,SPRITES_SAUCER_HEIGHT,(saucer_start_pos),ALIEN_SIZE,black);
     // only for milestone 2
-    saucer_start_pos = SAUCER_ROW_START_LOCATION - IMAGE_RENDER_BYTES_PER_PIXEL;
+    saucer_start_pos = SAUCER_ROW_START_LOCATION-IMAGE_RENDER_BYTES_PER_PIXEL;
   }
-  saucer_start_pos= saucer_start_pos + IMAGE_RENDER_BYTES_PER_PIXEL;
+  saucer_start_pos= saucer_start_pos+IMAGE_RENDER_BYTES_PER_PIXEL;
   sprites_render_buffer(saucer_18x9,SPRITES_SAUCER_WIDTH,SPRITES_SAUCER_HEIGHT,(saucer_start_pos),ALIEN_SIZE,red);
 }
 
