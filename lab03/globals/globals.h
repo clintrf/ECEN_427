@@ -42,6 +42,16 @@ uint32_t globals_get_alien_bullet_position();
 // pos : the new position which you wish to set
 void globals_set_alien_bullet_position(uint32_t pos);
 
+// fetches the amount of alien bullets there are
+// returns how many alien bullets are currently in the air
+uint16_t globals_get_alien_bullets_fired();
+
+// increments the amount of alien bullets there are
+void globals_inc_alien_bullets_fired();
+
+// decrements the amount of alien bullets there are
+void globals_dec_alien_bullets_fired();
+
 // fetches the current score of the current game
 // returns : the score of the current game
 uint32_t globals_get_current_score();

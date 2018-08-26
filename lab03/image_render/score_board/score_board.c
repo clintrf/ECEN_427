@@ -62,6 +62,7 @@
 
 /*********************************** globals ***********************************/
 char white_test[BYTES_PER_PIXEL] = {0xFF, 0xFF, 0xFF};
+char green_test[BYTES_PER_PIXEL] = {0x00,0x80,0x00};
 struct player_stats high_scores[TOP_TEN_SCORES];
 
 /*********************************** functions ***********************************/
@@ -202,11 +203,11 @@ void print_high_scores(){
     sprites_render_image(high_scores[i].name_char[POSTION_1],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,CHARACTER_TWO_POSITION,DEFAULT_CHAR_SCALE,white_test);
     sprites_render_image(high_scores[i].name_char[POSTION_2],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,CHARACTER_THREE_POSITION,DEFAULT_CHAR_SCALE,white_test);
 
-    sprites_render_image(high_scores[i].score_char[POSTION_0],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,NUMBER_ONE_POSITION,DEFAULT_CHAR_SCALE,white_test);
-    sprites_render_image(high_scores[i].score_char[POSTION_1],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,NUMBER_TWO_POSITION,DEFAULT_CHAR_SCALE,white_test);
-    sprites_render_image(high_scores[i].score_char[POSTION_2],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,NUMBER_THREE_POSITION,DEFAULT_CHAR_SCALE,white_test);
-    sprites_render_image(high_scores[i].score_char[POSTION_3],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,NUMBER_FOUR_POSITION,DEFAULT_CHAR_SCALE,white_test);
-    sprites_render_image(high_scores[i].score_char[POSTION_4],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,NUMBER_FIVE_POSITION,DEFAULT_CHAR_SCALE,white_test);
+    sprites_render_image(high_scores[i].score_char[POSTION_0],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,NUMBER_ONE_POSITION,DEFAULT_CHAR_SCALE,green_test);
+    sprites_render_image(high_scores[i].score_char[POSTION_1],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,NUMBER_TWO_POSITION,DEFAULT_CHAR_SCALE,green_test);
+    sprites_render_image(high_scores[i].score_char[POSTION_2],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,NUMBER_THREE_POSITION,DEFAULT_CHAR_SCALE,green_test);
+    sprites_render_image(high_scores[i].score_char[POSTION_3],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,NUMBER_FOUR_POSITION,DEFAULT_CHAR_SCALE,green_test);
+    sprites_render_image(high_scores[i].score_char[POSTION_4],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,NUMBER_FIVE_POSITION,DEFAULT_CHAR_SCALE,green_test);
   }
 }
 

@@ -28,6 +28,7 @@
 #define SPRITES_STATE 2
 #define ALIEN_MOVEMENT_DELAY 8
 #define SHOTS_FIRED 1
+#define MAX_ALIEN_SHOTS 1
 #define SAUCER_SHOT_DELAY_TIME 300
 #define SAUCER_SHOT 0
 #define SAUCER_ALIVE 1
@@ -43,6 +44,9 @@ char letter_2;
 char letter_3;
 uint32_t alien_counter = 0;
 uint32_t buttonPressed = 0;
+uint16_t alien_movement_delay = ALIEN_MOVEMENT_DELAY;
+uint16_t max_alien_shots = MAX_ALIEN_SHOTS;
+uint16_t current_alien_shots = 0;
 
 /*********************************** functions ***********************************/
 // moves the cursor around so the player can type in their name after the game is done
@@ -141,7 +145,6 @@ void move_tank(uint32_t buttonPressed) {
     case BTN_1_MASK:
       if(globals_get_tank_bullet_fired() != SHOTS_FIRED) {
         image_render_fire_tank_bullet();
-        image_render_fire_alien_bullet();
       }
       break;
     case BTN_2_MASK:
@@ -150,11 +153,55 @@ void move_tank(uint32_t buttonPressed) {
   }
 }
 
+#define TEN_THOUSAND_POINTS 10000
+#define EIGHT_THOUSAND_POINTS 8000
+#define SIX_THOUSAND_POINTS 6000
+#define FOUR_THOUSAND_POINTS 4000
+#define TWO_THOUSAND_FIVE_HUNDRED_POINTS 2500
+#define ONE_THOUSAND_POINTS 1000
+#define FASTEST_MOVEMENT 2
+#define MOST_SHOTS 5
+#define LEVEL_FOUR 4
+#define LEVEL_TWO_MOVE 7
+#define LEVEL_TWO_SHOTS 2
+#define LEVEL_THREE_MOVE 6
+#define LEVEL_THREE_SHOTS 3
+#define MOVE_DELAY_FIVE 5
+#define MOVE_DELAY_THREE 3
+
 // handles the FIT interrupts, moves the saucer, alien block, and bullets
 void isr_fit() {
   intc_ack_interrupt(INTC_FIT_MASK); // acknowledges the received FIT interrupt
 
-  global_alien_fire_bullet();
+  if(globals_get_current_score() > TEN_THOUSAND_POINTS) {
+    alien_movement_delay = FASTEST_MOVEMENT;
+  }
+  else if(globals_get_current_score() > EIGHT_THOUSAND_POINTS) {
+    alien_movement_delay = MOVE_DELAY_THREE;
+    max_alien_shots = MOST_SHOTS;
+  }
+  else if(globals_get_current_score() > SIX_THOUSAND_POINTS) {
+    alien_movement_delay = LEVEL_FOUR;
+    max_alien_shots = LEVEL_FOUR;
+  }
+  else if(globals_get_current_score() > FOUR_THOUSAND_POINTS) {
+    alien_movement_delay = MOVE_DELAY_FIVE;
+  }
+  else if(globals_get_current_score() > TWO_THOUSAND_FIVE_HUNDRED_POINTS) {
+    alien_movement_delay = LEVEL_THREE_MOVE;
+    max_alien_shots = LEVEL_THREE_SHOTS;
+  }
+  else if(globals_get_current_score() > ONE_THOUSAND_POINTS) {
+    alien_movement_delay = LEVEL_TWO_MOVE;
+    max_alien_shots = LEVEL_TWO_SHOTS;
+  }
+
+  printf("Bullets fired: %zu\n", globals_get_alien_bullets_fired());
+
+  if(globals_get_alien_bullets_fired() < max_alien_shots) {
+    image_render_alien_fire_bullet();
+    image_render_fire_alien_bullet();
+  }
 
   /* saucer flight handling in the main */
   if(globals_get_saucer_status() == SAUCER_SHOT) { // if the saucer is currently dead
@@ -175,10 +222,12 @@ void isr_fit() {
   /* This controls the firing of the bullets and their movement */
   if(globals_get_tank_bullet_fired() == SHOTS_FIRED) {
     image_render_move_tank_bullet();
+  }
+  if(globals_get_alien_bullet_fired() == SHOTS_FIRED){
     image_render_move_alien_bullet();
   }
   alien_counter++; // increments the alien counter
-  if(alien_counter > ALIEN_MOVEMENT_DELAY) { // a little bit of a delay for the alien movement
+  if(alien_counter > alien_movement_delay) { // a little bit of a delay for the alien movement
     image_render_move_alien_block();
     alien_counter = 0;
   }
@@ -206,7 +255,7 @@ int main() {
   image_render_init(); // initializes image making abilities
   image_render_print_start_screen();
   // bulk of state machine programming
-  while(1) {
+  while(globals_get_current_lives() > 0) {
     /* need to run this each time that we block, because this function will unblock */
     intc_enable_uio_interrupts(); /* enables Linux interrupts */
     // Call interrupt controller function to wait for interrupt
@@ -224,7 +273,7 @@ int main() {
     }
 
   }
-
+  run_game_over(); // runs the game over screen
   image_render_close(); // closes the image file
   button_uio_exit(); // exits from the button driver
   intc_exit(); // exits interrupt driver

@@ -46,6 +46,7 @@ static uint16_t tank_bullet_fired = NOT_FIRED;
 static uint32_t tank_bullet_position;
 static uint16_t alien_bullet_fired = NOT_FIRED;
 static uint32_t alien_bullet_position;
+static uint16_t alien_bullets_fired = 0;
 static uint32_t current_score = 0;
 static uint32_t saucer_pos = GLOBALS_SAUCER_ROW_START_LOCATION;
 static uint16_t saucer_status = SAUCER_ALIVE;
@@ -54,6 +55,7 @@ static uint16_t total_alien_count = STARTING_ALIEN_AMOUNT;
 static uint32_t current_lives = START_LIVES;
 
 uint32_t global_green[GLOBAL_BYTES_PER_PIXEL] = {0x00,0x80,0x00};
+uint32_t global_black[GLOBAL_BYTES_PER_PIXEL] = {0x00,0x00,0x00};
 
 /********************************* functions *********************************/
 // fetch whether the tank bullet has been fired or not
@@ -96,7 +98,8 @@ void globals_fire_alien_bullet(){
 }
 
 // set this to 0 once the bullet hits a target or reaches the top of the screen, prevents the alien from firing more bullets
-void globals_alien_bullet_stopped(){
+void globals_alien_bullet_stopped() {
+  globals_dec_alien_bullets_fired();
   alien_bullet_fired = NOT_FIRED;
 }
 
@@ -110,6 +113,22 @@ uint32_t globals_get_alien_bullet_position(){
 // pos : the new position which you wish to set
 void globals_set_alien_bullet_position(uint32_t pos){
   alien_bullet_position = pos;
+}
+
+// fetches the amount of alien bullets there are
+// returns how many alien bullets are currently in the air
+uint16_t globals_get_alien_bullets_fired() {
+  return alien_bullets_fired;
+}
+
+// increments the amount of alien bullets there are
+void globals_inc_alien_bullets_fired() {
+  alien_bullets_fired++;
+}
+
+// decrements the amount of alien bullets there are
+void globals_dec_alien_bullets_fired() {
+  alien_bullets_fired--;
 }
 
 // fetches the current score of the current game
@@ -183,31 +202,31 @@ void globals_reset_total_alien_count() {
 
 // prints current score
 void globals_print_current_score(){
-  uint32_t diget_1 = 0;
-  uint32_t diget_10 = 0;
-  uint32_t diget_100 = 0;
-  uint32_t diget_1000 = 0;
-  uint32_t diget_10000 = 0;
+  uint32_t digit_1 = 0;
+  uint32_t digit_10 = 0;
+  uint32_t digit_100 = 0;
+  uint32_t digit_1000 = 0;
+  uint32_t digit_10000 = 0;
 
   uint32_t temp = globals_get_current_score();
 
-  diget_10000 = ((temp)/TEN_THOUSAND_SCALE);
-  diget_1000 = ((temp-diget_10000*TEN_THOUSAND_SCALE)/THOUSAND_SCALE);
-  diget_100 = ((temp-diget_10000*TEN_THOUSAND_SCALE-diget_1000*THOUSAND_SCALE)/HUNDRED_SCALE);
-  diget_10 = ((temp-diget_10000*TEN_THOUSAND_SCALE-diget_1000*THOUSAND_SCALE-diget_100*HUNDRED_SCALE)/TEN_SCALE);
-  diget_1 = ((temp-diget_10000*TEN_THOUSAND_SCALE-diget_1000*THOUSAND_SCALE-diget_100*HUNDRED_SCALE-diget_10*TEN_SCALE)/ONE_SCALE);
+  digit_10000 = ((temp)/TEN_THOUSAND_SCALE);
+  digit_1000 = ((temp-digit_10000*TEN_THOUSAND_SCALE)/THOUSAND_SCALE);
+  digit_100 = ((temp-digit_10000*TEN_THOUSAND_SCALE-digit_1000*THOUSAND_SCALE)/HUNDRED_SCALE);
+  digit_10 = ((temp-digit_10000*TEN_THOUSAND_SCALE-digit_1000*THOUSAND_SCALE-digit_100*HUNDRED_SCALE)/TEN_SCALE);
+  digit_1 = ((temp-digit_10000*TEN_THOUSAND_SCALE-digit_1000*THOUSAND_SCALE-digit_100*HUNDRED_SCALE-digit_10*TEN_SCALE)/ONE_SCALE);
 
 
-  sprites_render_buffer(char_array[diget_10000],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SCORE_0_LOCATION,SPRITES_NORMAL_CHARACTER_SCALING,global_green);
-  sprites_render_buffer(char_array[diget_1000],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SCORE_1_LOCATION,SPRITES_NORMAL_CHARACTER_SCALING,global_green);
-  sprites_render_buffer(char_array[diget_100],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SCORE_2_LOCATION,SPRITES_NORMAL_CHARACTER_SCALING,global_green);
-  sprites_render_buffer(char_array[diget_10],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SCORE_3_LOCATION,SPRITES_NORMAL_CHARACTER_SCALING,global_green);
-  sprites_render_buffer(char_array[diget_1],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SCORE_4_LOCATION,SPRITES_NORMAL_CHARACTER_SCALING,global_green);
+  sprites_render_buffer(char_array[digit_10000],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SCORE_0_LOCATION,SPRITES_NORMAL_CHARACTER_SCALING,global_green);
+  sprites_render_buffer(char_array[digit_1000],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SCORE_1_LOCATION,SPRITES_NORMAL_CHARACTER_SCALING,global_green);
+  sprites_render_buffer(char_array[digit_100],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SCORE_2_LOCATION,SPRITES_NORMAL_CHARACTER_SCALING,global_green);
+  sprites_render_buffer(char_array[digit_10],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SCORE_3_LOCATION,SPRITES_NORMAL_CHARACTER_SCALING,global_green);
+  sprites_render_buffer(char_array[digit_1],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SCORE_4_LOCATION,SPRITES_NORMAL_CHARACTER_SCALING,global_green);
 }
 
 // get the lives counter
 uint32_t globals_get_current_lives(){
-  current_lives;
+  return current_lives;
 }
 
 // increments the current amount of lives upon defeating an entire alien block if you have less than five
@@ -219,25 +238,46 @@ void globals_increment_current_lives() {
 
 // decrements the current lives if the tank gets shot
 void globals_decrement_current_lives() {
-  current_lives--;
+  if (current_lives > 0) {
+    current_lives--;
+  }
 }
 
 // prints lives to screen
 void globals_print_current_lives(){
-  if(current_lives >= ONE_LIFE){
+  if(current_lives == ONE_LIFE){
     sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FIRST_LIFE_LOCATION,TANK_SIZING,global_green);
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,SECOND_LIFE_LOCATION,TANK_SIZING,global_black);
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,THIRD_LIFE_LOCATION,TANK_SIZING,global_black);
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FOURTH_LIFE_LOCATION,TANK_SIZING,global_black);
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FIFTH_LIFE_LOCATION,TANK_SIZING,global_black);
   }
-  if(current_lives >= TWO_LIFE){
+  if(current_lives == TWO_LIFE){
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FIRST_LIFE_LOCATION,TANK_SIZING,global_green);
     sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,SECOND_LIFE_LOCATION,TANK_SIZING,global_green);
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,THIRD_LIFE_LOCATION,TANK_SIZING,global_black);
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FOURTH_LIFE_LOCATION,TANK_SIZING,global_black);
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FIFTH_LIFE_LOCATION,TANK_SIZING,global_black);
   }
-  if(current_lives >= THREE_LIFE){
+  if(current_lives == THREE_LIFE){
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FIRST_LIFE_LOCATION,TANK_SIZING,global_green);
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,SECOND_LIFE_LOCATION,TANK_SIZING,global_green);
     sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,THIRD_LIFE_LOCATION,TANK_SIZING,global_green);
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FOURTH_LIFE_LOCATION,TANK_SIZING,global_black);
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FIFTH_LIFE_LOCATION,TANK_SIZING,global_black);
   }
-  if(current_lives >= FOUR_LIFE){
+  if(current_lives == FOUR_LIFE){
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FIRST_LIFE_LOCATION,TANK_SIZING,global_green);
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,SECOND_LIFE_LOCATION,TANK_SIZING,global_green);
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,THIRD_LIFE_LOCATION,TANK_SIZING,global_green);
     sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FOURTH_LIFE_LOCATION,TANK_SIZING,global_green);
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FIFTH_LIFE_LOCATION,TANK_SIZING,global_black);
   }
-  if(current_lives >= FIVE_LIFE){
+  if(current_lives == FIVE_LIFE){
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FIRST_LIFE_LOCATION,TANK_SIZING,global_green);
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,SECOND_LIFE_LOCATION,TANK_SIZING,global_green);
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,THIRD_LIFE_LOCATION,TANK_SIZING,global_green);
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FOURTH_LIFE_LOCATION,TANK_SIZING,global_green);
     sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FIFTH_LIFE_LOCATION,TANK_SIZING,global_green);
   }
-
 }

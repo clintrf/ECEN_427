@@ -15,6 +15,7 @@
 #define FOUR_HIT_POINTS 4
 #define ONE_HIT_POINT 1
 #define NO_HIT_POINTS 0
+#define IMAGE_RENDER_ALIEN_BULLET_TOTAL_PIXELS SPRITES_BULLET_HEIGHT*SPRITES_ALIEN_BULLET_WIDTH
 
 
 // a struct containing the data for an individual alien
@@ -28,6 +29,7 @@ struct Alien {
   uint16_t alive;
   uint32_t points;
   uint32_t block_placement;
+  uint32_t shooter;
 };
 
 // a struct containing the data for an individual bunker
@@ -36,6 +38,15 @@ struct Bunker {
   uint32_t position; // location of the top left corner
   uint16_t block_hit_points[IMAGE_RENDER_NUM_BUNKER_BLOCKS]; // status on each of the ten different positions
 };
+
+// a struct that contains the data for an individual alien bullet
+typedef struct AlienBullet AlienBullet;
+struct AlienBullet {
+  uint32_t position;
+  uint32_t image_in[IMAGE_RENDER_ALIEN_BULLET_TOTAL_PIXELS];
+  uint32_t image_out[IMAGE_RENDER_ALIEN_BULLET_TOTAL_PIXELS];
+  uint16_t fired;
+}
 
 // initializes a few of our necessary variables and starts the screen black
 void image_render_init();
@@ -54,6 +65,13 @@ Alien image_render_create_alien(const uint32_t image_in[], const uint32_t image_
 // creates the data for a single bunker object
 // pos : the position of the bunker on the screen
 Bunker image_render_create_bunker(uint32_t pos);
+
+// creates an individual alien bullet
+// pos : position of the bullet
+// image_in : inward image
+// image_out : outward image
+// returns created alien bullet structure
+AlienBullet image_render_create_alien_bullet(uint32_t pos, const uint32_t image_in[], const uint32_t image_out[]);
 
 // creates the entire alien block
 void image_render_create_alien_block();
@@ -92,8 +110,8 @@ void image_render_saucer();
 // moves the alien block around the screen
 void image_render_move_alien_block();
 
-// aliens fire bullents
-void global_alien_fire_bullet();
+// aliens fire bullets
+void image_render_alien_fire_bullet();
 
 // closes the hdmi connection
 void image_render_close();

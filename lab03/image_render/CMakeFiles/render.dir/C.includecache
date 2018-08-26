@@ -13,6 +13,12 @@ stdint.h
 -
 
 /home/xilinx/ECEN_427/lab03/image_render/image_render.c
+stdlib.h
+-
+stdio.h
+-
+time.h
+-
 score_board.h
 /home/xilinx/ECEN_427/lab03/image_render/score_board.h
 hdmi.h
