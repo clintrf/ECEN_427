@@ -127,7 +127,7 @@ void run_game_over() {
     }
   }
   image_render_print_game_over_screen_high_scores(); // prints out the high score screen
-  update_stats(letter_1,letter_2,letter_3,99999); // updates the stats with the new information
+  update_stats(letter_1,letter_2,letter_3,globals_get_current_score()); // updates the stats with the new information
   save_score_board(); // saves the newly acquired score into the score board before writing high scores out
   print_high_scores(); // prints out the high scores
 }

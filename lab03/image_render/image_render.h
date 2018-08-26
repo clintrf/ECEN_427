@@ -11,6 +11,10 @@
 #define IMAGE_RENDER_ALIEN_DESTROYED 0
 #define IMAGE_RENDER_LEFT_MOVEMENT 0
 #define IMAGE_RENDER_RIGHT_MOVEMENT 1
+#define IMAGE_RENDER_NUM_BUNKER_BLOCKS 12
+#define FOUR_HIT_POINTS 4
+#define ONE_HIT_POINT 1
+#define NO_HIT_POINTS 0
 
 
 // a struct containing the data for an individual alien
@@ -24,6 +28,13 @@ struct Alien {
   uint16_t alive;
   uint32_t points;
   uint32_t block_placement;
+};
+
+// a struct containing the data for an individual bunker
+typedef struct Bunker Bunker;
+struct Bunker {
+  uint32_t position; // location of the top left corner
+  uint16_t block_hit_points[IMAGE_RENDER_NUM_BUNKER_BLOCKS]; // status on each of the ten different positions
 };
 
 // initializes a few of our necessary variables and starts the screen black
@@ -40,10 +51,9 @@ void image_render_print_black_screen();
 // placement : where the alien is inside the block
 Alien image_render_create_alien(const uint32_t image_in[], const uint32_t image_out[], uint32_t starting_location, uint32_t points, uint32_t placement);
 
-// modifies a single alien
-// alien : passed in the alien to be modified
-// modifer : how the alien is to be modified (moving or destroyed)
-void image_render_modify_alien(Alien alien, uint16_t modifier);
+// creates the data for a single bunker object
+// pos : the position of the bunker on the screen
+Bunker image_render_create_bunker(uint32_t pos);
 
 // creates the entire alien block
 void image_render_create_alien_block();
