@@ -28,6 +28,9 @@
 #define SPRITES_STATE 2
 #define ALIEN_MOVEMENT_DELAY 8
 #define SHOTS_FIRED 1
+#define SAUCER_SHOT_DELAY_TIME 300
+#define SAUCER_SHOT 0
+#define SAUCER_ALIVE 1
 
 /*********************************** globals ***********************************/
 int32_t white_t[BYTES_PER_PIXEL] = {0xFF, 0xFF, 0xFF};
@@ -149,13 +152,29 @@ void move_tank(uint32_t buttonPressed) {
 // handles the FIT interrupts, moves the saucer, alien block, and bullets
 void isr_fit() {
   intc_ack_interrupt(INTC_FIT_MASK); // acknowledges the received FIT interrupt
-  // This will count up to 100 ticks before updating the time to one second
-  image_render_saucer();
+
+  /* saucer flight handling in the main */
+  if(globals_get_saucer_status() == SAUCER_SHOT) { // if the saucer is currently dead
+    uint32_t saucer_count = globals_get_saucer_shot_count();
+    if(saucer_count > SAUCER_SHOT_DELAY_TIME) { // we wait a certain amount of time before reprinting it
+      globals_set_saucer_status(SAUCER_ALIVE);
+      globals_reset_saucer_shot_count();
+      image_render_saucer();
+    }
+    else { // if the saucer hasn't reached the specified time, then we increment the counter
+      globals_inc_saucer_shot_count();
+    }
+  }
+  else { // if the saucer is currently alive
+    image_render_saucer();
+  }
+
+  /* This controls the firing of the bullets and their movement */
   if(globals_get_tank_bullet_fired() == SHOTS_FIRED) {
     image_render_move_tank_bullet();
   }
-  alien_counter++;
-  if(alien_counter > ALIEN_MOVEMENT_DELAY) {
+  alien_counter++; // increments the alien counter
+  if(alien_counter > ALIEN_MOVEMENT_DELAY) { // a little bit of a delay for the alien movement
     image_render_move_alien_block();
     alien_counter = 0;
   }

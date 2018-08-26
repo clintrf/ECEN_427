@@ -23,6 +23,8 @@ sprites.h
 /home/xilinx/ECEN_427/lab03/image_render/sprites.h
 ../globals/globals.h
 /home/xilinx/ECEN_427/lab03/globals/globals.h
+inttypes.h
+-
 
 /home/xilinx/ECEN_427/lab03/image_render/image_render.h
 stdint.h

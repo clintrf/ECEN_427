@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdint.h>
 
+/********************************** macros ***********************************/
+#define GLOBALS_SAUCER_ROW_START_LOCATION (15+(640*3)*20)
+
 /********************************* functions *********************************/
 
 // fetch whether the tank bullet has been fired or not
@@ -28,3 +31,30 @@ uint32_t globals_get_current_score();
 // adds a value to the current score
 // score : the value of the score to add to the current score
 void globals_add_to_current_score(uint32_t score);
+
+// fetches the position of the saucer
+// returns the position of the saucer
+uint32_t globals_get_saucer_pos();
+
+// sets the position of the saucer
+// pos : the position which we wish to place the saucer
+void globals_set_saucer_pos(uint32_t pos);
+
+// fetches the status of the saucer
+// returns the status of the saucer
+uint16_t globals_get_saucer_status();
+
+// sets the status of the saucer
+// status : the status that we wish to set for the saucer
+void globals_set_saucer_status(uint16_t status);
+
+// fetches the saucer delay count
+// returns : the delay count
+uint32_t globals_get_saucer_shot_count();
+
+// increments the saucer shot count until it reaches a certain delay and resets
+// the saucer start position
+void globals_inc_saucer_shot_count();
+
+// resets the saucer shot count
+void globals_reset_saucer_shot_count();

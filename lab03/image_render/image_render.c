@@ -3,6 +3,7 @@
 #include "image_render.h"
 #include "sprites.h"
 #include "../globals/globals.h"
+#include <inttypes.h>
 
 /********************************** macros ***********************************/
 #define IMAGE_RENDER_SCREEN_WIDTH 640
@@ -12,8 +13,7 @@
 #define NUMBER_OF_CHARS_FOR_NAME 3
 #define NUMBER_OF_BITS_PER_CHAR 25
 #define LETTER_A 11
-#define ALIEN_DEPTH ALIEN_SIZE*SPRITES_ALIEN_HEIGHT // 24
-#define SAUCER_ROW_START_LOCATION (15+(IMAGE_RENDER_SCREEN_WIDTH*3)*20)
+#define ALIEN_DEPTH ALIEN_SIZE*SPRITES_ALIEN_HEIGHT
 #define ALIEN_BLOCK_ROW_0 (15+(IMAGE_RENDER_SCREEN_WIDTH*3)*39)
 #define ALIEN_BLOCK_ROW_1 ALIEN_BLOCK_ROW_0+(IMAGE_RENDER_SCREEN_WIDTH*3)*(ALIEN_DEPTH+15)
 #define ALIEN_BLOCK_ROW_2 ALIEN_BLOCK_ROW_1+(IMAGE_RENDER_SCREEN_WIDTH*3)*(ALIEN_DEPTH+15)
@@ -29,6 +29,7 @@
 #define V_START_LOCATION_LVS (E_START_LOCATION_LVS-(SPRITES_NORMAL_CHARACTER_SCALING*SPRITES_CHARACTER_WIDTH*3)-9)
 #define I_START_LOCATION_LVS (V_START_LOCATION_LVS-(SPRITES_NORMAL_CHARACTER_SCALING*SPRITES_CHARACTER_WIDTH*3)-9)
 #define L_START_LOCATION_LVS (I_START_LOCATION_LVS-(SPRITES_NORMAL_CHARACTER_SCALING*SPRITES_CHARACTER_WIDTH*3)-9)
+#define SAUCER_POINTS 250
 #define ALIEN_TOP_POINTS 40
 #define ALIEN_MIDDLE_POINTS 20
 #define ALIEN_BOTTOM_POINTS 10
@@ -105,8 +106,9 @@
 #define BUNKER_THREE (400*(IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL)+(5*72*3))
 #define BUNKER_FOUR (400*(IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL)+(7*72*3))
 #define TOP_LEFT_CORNER_OF_SCREEN 0
-#define TANK_BULLET_START_POS BOTTOM_LEFT_CORNER_OF_SCREEN+(tank_start_pos*IMAGE_RENDER_BYTES_PER_PIXEL)-(SPRITES_BULLET_HEIGHT*640*3*ALIEN_SIZE-8*3*ALIEN_SIZE)
+#define TANK_BULLET_START_POS BOTTOM_LEFT_CORNER_OF_SCREEN+(tank_pos*IMAGE_RENDER_BYTES_PER_PIXEL)-(SPRITES_BULLET_HEIGHT*640*3*ALIEN_SIZE-8*3*ALIEN_SIZE)
 #define BULLET_MOVEMENT_TWO_PIXELS 640*3*2
+#define SAUCER_SHOT 0
 
 /********************************** globals **********************************/
 /* global arrays */
@@ -119,8 +121,7 @@ uint32_t white[IMAGE_RENDER_BYTES_PER_PIXEL] = {0xFF, 0xFF, 0xFF};
 uint32_t green[IMAGE_RENDER_BYTES_PER_PIXEL] = {0x00,0x80,0x00};
 uint32_t red[IMAGE_RENDER_BYTES_PER_PIXEL] = {0xFF,0x00,0x00};
 /* global variables */
-uint32_t tank_start_pos;
-uint32_t saucer_start_pos;
+uint32_t tank_pos;
 uint32_t alien_block_right_bound;
 uint32_t alien_block_left_bound;
 uint16_t current_alien_direction;
@@ -137,8 +138,7 @@ void image_render_create_alien_block();
 void image_render_init() {
   hdmi_init(HDMI_FILE_PATH); /* opens a path to the HDMI driver (enables/read write) */
   /* Set all the global variable start values */
-  tank_start_pos = TANK_START_POSITION;
-  saucer_start_pos = SAUCER_ROW_START_LOCATION;
+  tank_pos = TANK_START_POSITION;
   alien_block_right_bound = COLUMN_TEN_RIGHT_BOUND;
   alien_block_left_bound = COLUMN_ZERO_LEFT_BOUND;
   current_alien_direction = IMAGE_RENDER_RIGHT_MOVEMENT;
@@ -307,9 +307,9 @@ void image_render_print_start_screen() {
   sprites_render_buffer(bunker_24x18,SPRITES_BUNKER_WIDTH,SPRITES_BUNKER_HEIGHT,BUNKER_THREE,ALIEN_SIZE,green);
   sprites_render_buffer(bunker_24x18,SPRITES_BUNKER_WIDTH,SPRITES_BUNKER_HEIGHT,BUNKER_FOUR,ALIEN_SIZE,green);
   /* Prints the saucer as a starter */
-  sprites_render_buffer(saucer_18x9,SPRITES_SAUCER_WIDTH,SPRITES_SAUCER_HEIGHT,SAUCER_ROW_START_LOCATION,ALIEN_SIZE,red);
+  sprites_render_buffer(saucer_18x9,SPRITES_SAUCER_WIDTH,SPRITES_SAUCER_HEIGHT,GLOBALS_SAUCER_ROW_START_LOCATION,ALIEN_SIZE,red);
   /* Prints starting tank*/
-  sprites_render_buffer(tank_17x10,SPRITES_TANK_WIDTH,SPRITES_TANK_HEIGHT,BOTTOM_LEFT_CORNER_OF_SCREEN+(tank_start_pos*IMAGE_RENDER_BYTES_PER_PIXEL),ALIEN_SIZE,green);
+  sprites_render_buffer(tank_17x10,SPRITES_TANK_WIDTH,SPRITES_TANK_HEIGHT,BOTTOM_LEFT_CORNER_OF_SCREEN+(tank_pos*IMAGE_RENDER_BYTES_PER_PIXEL),ALIEN_SIZE,green);
   /* Prints the alien block completely */
   for(int i = 0; i < ALIEN_BLOCK_SIZE; i++) {
     Alien alien_temp = alien_block[i];
@@ -321,13 +321,13 @@ void image_render_print_start_screen() {
 // move : how many pixels to move the tank
 // dir : the direction to move the tank
 void image_render_tank(uint32_t move, uint16_t dir){
-  if(dir == IMAGE_RENDER_RIGHT_MOVEMENT && tank_start_pos <= RIGHT_BOUND_TANK) {
-    tank_start_pos = tank_start_pos+move;
-    sprites_render_buffer(tank_17x10,SPRITES_TANK_WIDTH,SPRITES_TANK_HEIGHT,BOTTOM_LEFT_CORNER_OF_SCREEN+(tank_start_pos*IMAGE_RENDER_BYTES_PER_PIXEL),ALIEN_SIZE,green);
+  if(dir == IMAGE_RENDER_RIGHT_MOVEMENT && tank_pos <= RIGHT_BOUND_TANK) {
+    tank_pos = tank_pos+move;
+    sprites_render_buffer(tank_17x10,SPRITES_TANK_WIDTH,SPRITES_TANK_HEIGHT,BOTTOM_LEFT_CORNER_OF_SCREEN+(tank_pos*IMAGE_RENDER_BYTES_PER_PIXEL),ALIEN_SIZE,green);
   }
-  else if(dir == IMAGE_RENDER_LEFT_MOVEMENT && tank_start_pos >= LEFT_BOUND) {
-    tank_start_pos = tank_start_pos-move;
-    sprites_render_buffer(tank_17x10,SPRITES_TANK_WIDTH,SPRITES_TANK_HEIGHT,BOTTOM_LEFT_CORNER_OF_SCREEN+(tank_start_pos*IMAGE_RENDER_BYTES_PER_PIXEL),ALIEN_SIZE,green);
+  else if(dir == IMAGE_RENDER_LEFT_MOVEMENT && tank_pos >= LEFT_BOUND) {
+    tank_pos = tank_pos-move;
+    sprites_render_buffer(tank_17x10,SPRITES_TANK_WIDTH,SPRITES_TANK_HEIGHT,BOTTOM_LEFT_CORNER_OF_SCREEN+(tank_pos*IMAGE_RENDER_BYTES_PER_PIXEL),ALIEN_SIZE,green);
   }
 }
 
@@ -343,24 +343,43 @@ void image_render_move_tank_bullet() {
   uint32_t current_pos = globals_get_tank_bullet_position(); // fetches current bullet position
   globals_set_tank_bullet_position(current_pos-(BULLET_MOVEMENT_TWO_PIXELS)); // sets the new bullet position moving up the screen
   current_pos = globals_get_tank_bullet_position(); // fetch the updated bullet position
-  if(current_pos < SAUCER_ROW_START_LOCATION) { // if the bullet reaches the top of the screen, delete the bullet
+  if(current_pos < GLOBALS_SAUCER_ROW_START_LOCATION) { // if the bullet reaches the top of the screen, delete the bullet
     sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
     globals_tank_bullet_stopped();
   }
   else { // if the bullet hasn't hit anything or reached the top of the screen, move it up
     sprites_render_buffer(tankbullet_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+    /* check for saucer location */
+    uint32_t saucer_pos = globals_get_saucer_pos();
+    for(int sh = 0; sh < SPRITES_SAUCER_HEIGHT*ALIEN_SIZE; sh++) { // checks along the saucer height
+      for(int sw = 0; sw < SPRITES_SAUCER_WIDTH*ALIEN_SIZE; sw++) { // checks along the saucer width
+        if(current_pos == saucer_pos+(sw*IMAGE_RENDER_BYTES_PER_PIXEL)+(sh*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH)) { // if the tank bullet position is the same as the saucer position, kill the saucer
+          sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+          sprites_render_buffer(saucer_18x9,SPRITES_SAUCER_WIDTH,SPRITES_SAUCER_HEIGHT,saucer_pos,ALIEN_SIZE,black);
+          globals_set_saucer_pos(GLOBALS_SAUCER_ROW_START_LOCATION);
+          globals_set_saucer_status(SAUCER_SHOT);
+          globals_tank_bullet_stopped();
+          globals_add_to_current_score(SAUCER_POINTS);
+          printf("Total score: %zu\n",globals_get_current_score());
+        }
+      }
+    }
+
   }
 }
 
 // moves the saucer around the screen
 void image_render_saucer(){
-  if(saucer_start_pos > (SAUCER_ROW_START_LOCATION+SAUCER_END_POSITION*IMAGE_RENDER_BYTES_PER_PIXEL)){
-    sprites_render_buffer(saucer_18x9,SPRITES_SAUCER_WIDTH,SPRITES_SAUCER_HEIGHT,(saucer_start_pos),ALIEN_SIZE,black);
+  uint32_t saucer_pos = globals_get_saucer_pos();
+  if(saucer_pos > (GLOBALS_SAUCER_ROW_START_LOCATION+SAUCER_END_POSITION*IMAGE_RENDER_BYTES_PER_PIXEL)){
+    sprites_render_buffer(saucer_18x9,SPRITES_SAUCER_WIDTH,SPRITES_SAUCER_HEIGHT,saucer_pos,ALIEN_SIZE,black);
     // only for milestone 2
-    saucer_start_pos = SAUCER_ROW_START_LOCATION-IMAGE_RENDER_BYTES_PER_PIXEL;
+    saucer_pos = GLOBALS_SAUCER_ROW_START_LOCATION-IMAGE_RENDER_BYTES_PER_PIXEL;
+    globals_set_saucer_pos(saucer_pos);
   }
-  saucer_start_pos= saucer_start_pos+IMAGE_RENDER_BYTES_PER_PIXEL;
-  sprites_render_buffer(saucer_18x9,SPRITES_SAUCER_WIDTH,SPRITES_SAUCER_HEIGHT,(saucer_start_pos),ALIEN_SIZE,red);
+  saucer_pos = saucer_pos+IMAGE_RENDER_BYTES_PER_PIXEL;
+  globals_set_saucer_pos(saucer_pos);
+  sprites_render_buffer(saucer_18x9,SPRITES_SAUCER_WIDTH,SPRITES_SAUCER_HEIGHT,saucer_pos,ALIEN_SIZE,red);
 }
 
 // moves the alien block around the screen

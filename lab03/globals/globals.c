@@ -9,6 +9,8 @@
 #define ALIEN_ALIVE 1
 #define NOT_FIRED 0
 #define FIRED 1
+#define SAUCER_ALIVE 1
+#define SAUCER_SHOT 0
 
 /********************************** globals **********************************/
 static uint16_t aliens_alive[STARTING_ALIEN_AMOUNT] = {ALIEN_ALIVE};
@@ -18,6 +20,9 @@ static uint16_t alien_block_far_right = STARTING_RIGHT_COLUMN;
 static uint16_t tank_bullet_fired = NOT_FIRED;
 static uint32_t tank_bullet_position;
 static uint32_t current_score = 0;
+static uint32_t saucer_pos = GLOBALS_SAUCER_ROW_START_LOCATION;
+static uint16_t saucer_status = SAUCER_ALIVE;
+static uint32_t saucer_shot_count = 0;
 
 /********************************* functions *********************************/
 // fetch whether the tank bullet has been fired or not
@@ -58,4 +63,45 @@ uint32_t globals_get_current_score() {
 // score : the value of the score to add to the current score
 void globals_add_to_current_score(uint32_t score) {
   current_score += score;
+}
+
+// fetches the position of the saucer
+// returns the position of the saucer
+uint32_t globals_get_saucer_pos() {
+  return saucer_pos;
+}
+
+// sets the position of the saucer
+// pos : the position which we wish to place the saucer
+void globals_set_saucer_pos(uint32_t pos) {
+  saucer_pos = pos;
+}
+
+// fetches the status of the saucer
+// returns the status of the saucer
+uint16_t globals_get_saucer_status() {
+  return saucer_status;
+}
+
+// sets the status of the saucer
+// status : the status that we wish to set for the saucer
+void globals_set_saucer_status(uint16_t status) {
+  saucer_status = status;
+}
+
+// fetches the saucer delay count
+// returns : the delay count
+uint32_t globals_get_saucer_shot_count() {
+  return saucer_shot_count;
+}
+
+// increments the saucer shot count until it reaches a certain delay and resets
+// the saucer start position
+void globals_inc_saucer_shot_count() {
+  saucer_shot_count++;
+}
+
+// resets the saucer shot count
+void globals_reset_saucer_shot_count() {
+  saucer_shot_count = 0;
 }
