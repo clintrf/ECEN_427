@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include "intcFolder/intc.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include "uioFolder/button_uio.h"
 #include "uioFolder/switch_uio.h"
 
@@ -16,34 +17,73 @@
 #define SWTCH_0_MASK 0x1 /* mask for switch 0 */
 #define SWTCH_0_MASK 0x1 /* first switch mask */
 
+#define SECONDS_MAX 59 /* max number the seconds value can be */
+#define MINUTES_MAX 59 /* max number the minutes value can be */
+#define HOURS_MAX 23 /* max number the hours value can be */
+#define TIME_MIN 0 /* smallest number the time values can be*/
+#define SWITCH_FLAG_UP 1 /* value of the flag when it is up*/
+#define SWITCH_FLAG_DOWN 0 /* value of the flag when it is down*/
+
+
 /*********************************** globals ***********************************/
-char switch_flag; /* this will track if the switch is flipped on or off */
-int32_t seconds; /* this will track the seconds for the clock */
-int32_t minutes; /* this will track the minutes for the clock */
-int32_t hours; /* this will track the hours for the clock */
+char switch_flag = SWITCH_FLAG_UP; /* this will track if the switch is flipped on or off */
+int32_t seconds = TIME_MIN; /* this will track the seconds for the clock */
+int32_t minutes = TIME_MIN; /* this will track the minutes for the clock */
+int32_t hours = TIME_MIN; /* this will track the hours for the clock */
+
+int32_t second_old = SECONDS_MAX; /* this will track the seconds for the clock */
+int32_t minute_old = MINUTES_MAX; /* this will track the minutes for the clock */
+int32_t hour_old = HOURS_MAX; /* this will track the hours for the clock */
+
+int32_t counter = TIME_MIN; /*counter for the interrupts to increment seconds */
+
+
 
 /*********************************** functions ***********************************/
+// updateds the time based on the switch possition.
+void update_time(int32_t time_max, int32_t *unit, char switch_control) {
+  int32_t temp = *unit;
+  if(switch_control){
+    if(temp >= time_max){
+      temp = TIME_MIN;
+    }
+    else{
+      temp++;
+    }
+  }
+  else{
+    if(temp <= TIME_MIN){
+      temp = time_max;
+    }
+    else{
+      temp--;
+    }
+  }
+  *unit = temp;
+}
+
+
 // This is invoked in response to a timer interrupt.
 // It does 2 things: 1) debounce switches, and 2) advances the time.
 void isr_fit() {
   intc_ack_interrupt(FIT_MASK);
-}
+  if(counter>=100){
+    int32_t temp_seconds = seconds;
+    int32_t temp_minutes = minutes;
 
-void advanceTimeOneSecond(char incFlag) {
-  if(incFlag) {
-    seconds++;
+    update_time(SECONDS_MAX, &seconds, SWITCH_FLAG_UP);
+    if(temp_seconds>=SECONDS_MAX){
+      update_time(MINUTES_MAX, &minutes, SWITCH_FLAG_UP);
+    }
+    if(temp_seconds>=SECONDS_MAX && temp_minutes >= MINUTES_MAX){
+      update_time(HOURS_MAX, &hours, SWITCH_FLAG_UP);
+    }
+
+    counter = TIME_MIN;
   }
-  else {
-    seconds--;
+  else{
+    counter++;
   }
-}
-
-void advanceTimeOneMinute() {
-
-}
-
-void advanceTimeOneHour() {
-
 }
 
 // This is invoked each time there is a change in the button state (result of a push or a bounce).
@@ -51,13 +91,16 @@ void isr_buttons() {
   uint32_t buttonPressed = button_read(GPIO_DATA_OFFSET);
   switch(buttonPressed) {
     case BTN_0_MASK:
-      printf("button 0 pressed\n");
+      //printf("button 0 pressed\n");
+      update_time(SECONDS_MAX, &seconds, switch_flag);
       break;
     case BTN_1_MASK:
-      printf("button 1 pressed\n");
+      //printf("button 1 pressed\n");
+      update_time(MINUTES_MAX, &minutes, switch_flag);
       break;
     case BTN_2_MASK:
-      printf("button 2 pressed\n");
+      //printf("button 2 pressed\n");
+      update_time(HOURS_MAX, &hours, switch_flag);
       break;
     default:
      break;
@@ -70,10 +113,10 @@ void isr_buttons() {
 void isr_switches(){
   uint32_t switchState = switch_read(GPIO_DATA_OFFSET);
   if(switchState & SWTCH_0_MASK) {
-    switch_flag = 1;
+    switch_flag = SWITCH_FLAG_UP;
   }
   else if(~(switchState & SWTCH_0_MASK)) {
-    switch_flag = 0;
+    switch_flag = SWITCH_FLAG_DOWN;
   }
   switch_acknowledge(CHANNEL_ONE_MASK); /* acknowledges an interrupt from the GPIO */
   intc_ack_interrupt(SWITCHES_MASK); /* acknowledges an interrupt from the interrupt controller */
@@ -107,6 +150,15 @@ int main() {
     if(interrupts & SWITCHES_MASK) {
       isr_switches();
     }
-//    printf("Time: %zu:%zu:%zu\n", hours, minutes, seconds);
+    // clear screen and print new values if the time has be updated
+    if(hour_old!=hours || minute_old!=minutes || second_old!=seconds){
+      // Clear the screen from the previous time
+      system("clear");
+      printf("Time: %02zu:%02zu:%02zu\n", hours, minutes, seconds);
+      // save new values into old time values
+      hour_old = hours;
+      minute_old = minutes;
+      second_old = seconds;
+    }
   }
 }
