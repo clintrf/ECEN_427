@@ -308,9 +308,9 @@ void image_render_print_start_screen() {
   sprites_render_buffer(letterV_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,V_START_LOCATION_LVS,SPRITES_NORMAL_CHARACTER_SCALING,white);
   sprites_render_buffer(letterE_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,E_START_LOCATION_LVS,SPRITES_NORMAL_CHARACTER_SCALING,white);
   sprites_render_buffer(letterS_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,S_START_LOCATION_LVS,SPRITES_NORMAL_CHARACTER_SCALING,white);
-  sprites_render_buffer(tank_15x8,15,8,FIRST_LIFE_START_LOCATION,ALIEN_SIZE,green);
-  sprites_render_buffer(tank_15x8,15,8,SECOND_LIFE_START_LOCATION,ALIEN_SIZE,green);
-  sprites_render_buffer(tank_15x8,15,8,THIRD_LIFE_START_LOCATION,ALIEN_SIZE,green);
+  sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-ALIEN_SIZE,SPRITES_TANK_HEIGHT-ALIEN_SIZE,FIRST_LIFE_START_LOCATION,ALIEN_SIZE,green);
+  sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-ALIEN_SIZE,SPRITES_TANK_HEIGHT-ALIEN_SIZE,SECOND_LIFE_START_LOCATION,ALIEN_SIZE,green);
+  sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-ALIEN_SIZE,SPRITES_TANK_HEIGHT-ALIEN_SIZE,THIRD_LIFE_START_LOCATION,ALIEN_SIZE,green);
   //sprites_render_buffer(tank_15x8,15,8,FOURTH_LIFE_START_LOCATION,ALIEN_SIZE,green);
   //sprites_render_buffer(tank_15x8,15,8,FIFTH_LIFE_START_LOCATION,ALIEN_SIZE,green);
   /* Prints bunkers */
@@ -363,7 +363,6 @@ void image_render_check_for_saucer(uint32_t current_pos) {
         globals_set_saucer_status(SAUCER_SHOT);
         globals_tank_bullet_stopped();
         globals_add_to_current_score(SAUCER_POINTS);
-        printf("Total score: %zu\n",globals_get_current_score());
       }
     }
   }
@@ -525,7 +524,6 @@ void image_render_check_for_aliens(uint32_t current_pos) {
           globals_decrement_total_alien_count(); // decreases total alien count
           image_render_set_left_bound(); // sets the left boundary
           image_render_set_right_bound(); // sets the right boundary
-          printf("Total score: %zu\n",globals_get_current_score());
           uint32_t counter = 0;
           while(counter < ALIEN_EXPLOSION_TIMER) { counter++; } // timer to display the explosion
           sprites_render_buffer(alien_explosion_14x12,SPRITES_ALIEN_WIDTH,SPRITES_ALIEN_HEIGHT,alien_pos,ALIEN_SIZE,black);
@@ -592,6 +590,7 @@ void image_render_move_alien_block() {
   if(globals_get_total_alien_count() == 0) {
     image_render_create_alien_block();
     globals_reset_total_alien_count();
+    globals_increment_current_lives();
     /* Prints the alien block completely */
     for(int i = 0; i < ALIEN_BLOCK_SIZE; i++) {
       Alien alien_temp = alien_block[i];
@@ -656,8 +655,6 @@ void image_render_move_alien_block() {
   else { // if the alien block is moving left
     if(alien_block_left_bound <= maximum_bound_left_alien) { // if it has reached the left bound
       for(uint32_t i = 0; i < ALIEN_BLOCK_SIZE; i++){ // if it has reached the left bound, the block should move down & continue right
-        printf("Left bound: %zu\n",alien_block_left_bound);
-        printf("Left Max bound: %zu\n",maximum_bound_left_alien);
         if(current_alien_position == ALIEN_OUT) { // if the alien is in the "out" position, write it in the "in" position, move down a few pixels
           if(alien_block[i].alive == ALIEN_ALIVE) {
             for(int d = 0; d < ALIEN_PIXEL_MOVEMENT; d++) { // repeat this for how many pixels you want to move down

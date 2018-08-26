@@ -75,5 +75,11 @@ void globals_print_current_score();
 // get the lives counter
 uint32_t globals_get_current_lives();
 
+// increments the current amount of lives upon defeating an entire alien block if you have less than five
+void globals_increment_current_lives();
+
+// decrements the current lives if the tank gets shot
+void globals_decrement_current_lives();
+
 // prints lives to screen
 void globals_print_current_lives();

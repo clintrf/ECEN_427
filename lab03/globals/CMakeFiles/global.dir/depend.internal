@@ -4,3 +4,7 @@
 globals/CMakeFiles/global.dir/globals.c.o
  /home/xilinx/ECEN_427/lab03/globals/globals.c
  /home/xilinx/ECEN_427/lab03/globals/globals.h
+ /home/xilinx/ECEN_427/lab03/image_render/hdmi/hdmi.h
+ /home/xilinx/ECEN_427/lab03/image_render/score_board/score_board.c
+ /home/xilinx/ECEN_427/lab03/image_render/score_board/score_board.h
+ /home/xilinx/ECEN_427/lab03/image_render/sprites/sprites.h

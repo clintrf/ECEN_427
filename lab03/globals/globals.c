@@ -10,6 +10,7 @@
 #define FIRED 1
 #define SAUCER_ALIVE 1
 #define SAUCER_SHOT 0
+#define MAX_LIVES 5
 
 #define S_LOCATION_SC 60
 #define C_LOCATION_SC S_LOCATION_SC+54
@@ -32,6 +33,12 @@
 #define GLOBAL_BYTES_PER_PIXEL 3
 
 #define START_LIVES 3
+#define TANK_SIZING 2
+#define ONE_LIFE 1
+#define TWO_LIFE 2
+#define THREE_LIFE 3
+#define FOUR_LIFE 4
+#define FIVE_LIFE 5
 
 /********************************** globals **********************************/
 static uint16_t tank_bullet_fired = NOT_FIRED;
@@ -143,7 +150,7 @@ void globals_reset_total_alien_count() {
   total_alien_count = STARTING_ALIEN_AMOUNT;
 }
 
-
+// prints current score
 void globals_print_current_score(){
   uint32_t diget_1 = 0;
   uint32_t diget_10 = 0;
@@ -167,25 +174,39 @@ void globals_print_current_score(){
   sprites_render_buffer(char_array[diget_1],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SCORE_4_LOCATION,SPRITES_NORMAL_CHARACTER_SCALING,global_green);
 }
 
+// get the lives counter
 uint32_t globals_get_current_lives(){
   current_lives;
 }
 
+// increments the current amount of lives upon defeating an entire alien block if you have less than five
+void globals_increment_current_lives() {
+  if(current_lives < MAX_LIVES)  { // checks to see if we have reached the max amount of lives
+    current_lives++;
+  }
+}
+
+// decrements the current lives if the tank gets shot
+void globals_decrement_current_lives() {
+  current_lives--;
+}
+
+// prints lives to screen
 void globals_print_current_lives(){
-  if(current_lives>=1){
-    sprites_render_buffer(tank_15x8,15,8,FIRST_LIFE_LOCATION,2,global_green);
+  if(current_lives >= ONE_LIFE){
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FIRST_LIFE_LOCATION,TANK_SIZING,global_green);
   }
-  if(current_lives>=2){
-    sprites_render_buffer(tank_15x8,15,8,SECOND_LIFE_LOCATION,2,global_green);
+  if(current_lives >= TWO_LIFE){
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,SECOND_LIFE_LOCATION,TANK_SIZING,global_green);
   }
-  if(current_lives>=3){
-    sprites_render_buffer(tank_15x8,15,8,THIRD_LIFE_LOCATION,2,global_green);
+  if(current_lives >= THREE_LIFE){
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,THIRD_LIFE_LOCATION,TANK_SIZING,global_green);
   }
-  if(current_lives>=4){
-    sprites_render_buffer(tank_15x8,15,8,FOURTH_LIFE_LOCATION,2,global_green);
+  if(current_lives >= FOUR_LIFE){
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FOURTH_LIFE_LOCATION,TANK_SIZING,global_green);
   }
-  if(current_lives>=5){
-    sprites_render_buffer(tank_15x8,15,8,FIFTH_LIFE_LOCATION,2,global_green);
+  if(current_lives >= FIVE_LIFE){
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FIFTH_LIFE_LOCATION,TANK_SIZING,global_green);
   }
 
 }
