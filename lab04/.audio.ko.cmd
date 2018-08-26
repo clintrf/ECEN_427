@@ -1,0 +1,1 @@
+cmd_/home/xilinx/ECEN_427/lab04/audio.ko := ld -EL -r  -T ./scripts/module-common.lds --build-id  -o /home/xilinx/ECEN_427/lab04/audio.ko /home/xilinx/ECEN_427/lab04/audio.o /home/xilinx/ECEN_427/lab04/audio.mod.o ;  true
