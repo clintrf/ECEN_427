@@ -51,14 +51,25 @@ static int audio_init(void) {
 
   // Get a major number for the driver -- alloc_chrdev_region; // pg. 45, LDD3.
 
-  // Create a device class. -- class_create()
+  create_audio_device(); // creates the audio device
 
   // Register the driver as a platform driver -- platform_driver_register
 
   // If any of the above functions fail, return an appropriate linux error code, and make sure
   // you reverse any function calls that were successful.
 
-  return 0; //(Success)
+  return 0; // (Success)
+}
+
+audio_device create_audio_device() {
+  audio_device dev;
+  // dev.minor_num = 0;
+  // dev.cdev = 0;
+  // dev.platform_device = 0;
+  // dev.phys_addr = 0;
+  // dev.mem_size = 0;
+  // dev.virt_addr = 0;
+  return dev;
 }
 
 // This is called when Linux unloads your driver
