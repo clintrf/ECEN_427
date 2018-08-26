@@ -19,6 +19,9 @@ __used
 __attribute__((section("__versions"))) = {
 	{ 0x1bfd809d, __VMLINUX_SYMBOL_STR(module_layout) },
 	{ 0xefd6cf06, __VMLINUX_SYMBOL_STR(__aeabi_unwind_cpp_pr0) },
+	{ 0xd4d7708e, __VMLINUX_SYMBOL_STR(__class_create) },
+	{ 0x7485e15e, __VMLINUX_SYMBOL_STR(unregister_chrdev_region) },
+	{ 0x29537c9e, __VMLINUX_SYMBOL_STR(alloc_chrdev_region) },
 	{ 0x27e1a049, __VMLINUX_SYMBOL_STR(printk) },
 };
 
