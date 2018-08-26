@@ -16,8 +16,8 @@
 // a struct containing the data for an individual alien
 typedef struct Alien Alien;
 struct Alien {
-  uint32_t image[IMAGE_RENDER_ALIEN_PIXEL_TOTAL];
-  uint32_t position;
+  uint32_t image_in[IMAGE_RENDER_ALIEN_PIXEL_TOTAL];
+  uint32_t image_out[IMAGE_RENDER_ALIEN_PIXEL_TOTAL];
   uint32_t width;
   uint32_t height;
   uint32_t current_location;
@@ -33,11 +33,12 @@ void image_render_init();
 void image_render_print_black_screen();
 
 // creates a single alien object
-// image : the image of the alien to be created
+// image_in : the image of the alien to be created (in)
+// image_out : the image of the alien to be created (out)
 // starting_location : starting location of the alien
 // points : how many points the alien is worth
 // placement : where the alien is inside the block
-Alien image_render_create_alien(const uint32_t image[], uint32_t starting_location, uint32_t points, uint32_t placement);
+Alien image_render_create_alien(const uint32_t image_in[], const uint32_t image_out[], uint32_t starting_location, uint32_t points, uint32_t placement);
 
 // modifies a single alien
 // alien : passed in the alien to be modified
@@ -63,6 +64,7 @@ void image_render_print_start_screen();
 // moves the tank around on the screen
 // move : direction of movement
 void image_render_tank(uint32_t move, uint16_t dir);
+
 
 // moves the alien block around the screen
 void image_render_move_alien_block();

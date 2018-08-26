@@ -15,6 +15,10 @@
 /*********************************** macros ***********************************/
 #define MOVE_ONE_SPACE 1
 
+#define TANK_STATE 0
+#define SAUCER_STATE 1
+#define SPRITES_STATE 2
+
 /*********************************** globals ***********************************/
 char white_t[BYTES_PER_PIXEL] = {0xFF, 0xFF, 0xFF};
 uint32_t button_counter = 0;
@@ -25,6 +29,9 @@ char letter_1;
 char letter_2;
 char letter_3;
 uint32_t alien_counter = 0;
+
+uint32_t press_flag = 0;
+uint32_t current_state = 0;       // startes the state machine in the tank state
 
 /*********************************** functions ***********************************/
 // moves the cursor around so the player can type in their name after the game is done
@@ -120,6 +127,7 @@ void move_tank(uint32_t buttonPressed) {
     case BTN_2_MASK:
       printf("%s moving left\r\n", "tank");
       image_render_tank(MOVE_ONE_SPACE,IMAGE_RENDER_LEFT_MOVEMENT);
+
       break;
   }
 }
@@ -130,22 +138,20 @@ void isr_buttons() {
   while(button_counter < BOUNCE) {
       button_counter++;
   }
-
   // while we are holding down the button, do auto increment
-  while (buttonPressed == button_uio_read(BUTTON_UIO_GPIO_DATA_OFFSET) && buttonPressed != 0){
+  if ((buttonPressed == button_uio_read(BUTTON_UIO_GPIO_DATA_OFFSET) && buttonPressed != 0) ){
     move_tank(buttonPressed);
   }
   button_counter = 0;
+
   button_uio_acknowledge(BUTTON_UIO_CHANNEL_ONE_MASK); /* acknowledges an interrupt from the GPIO */
   intc_ack_interrupt(INTC_BTNS_MASK); /* acknowledges an interrupt from the interrupt controller */
 }
 
 void isr_fit() {
-  alien_counter++;
-  if(alien_counter > 50) {
-      image_render_move_alien_block();
-      alien_counter = 0;
-  }
+  // alien_counter++;
+  image_render_move_alien_block();
+  // alien_counter = 0;
 }
 
 // main function that contains the main basic state machine
@@ -155,17 +161,48 @@ int main() {
   image_render_init(); // initializes image making abilities
   image_render_print_start_screen();
   // bulk of state machine programming
+
   while(1) {
     /* need to run this each time that we block, because this function will unblock */
     intc_enable_uio_interrupts(); /* enables Linux interrupts */
     uint32_t interrupts = intc_wait_for_interrupt();
     // Check which interrupt lines are high and call the appropriate ISR functions
-    if(interrupts & INTC_FIT_MASK) {
-      isr_fit();
+
+    // moore states
+    switch(current_state){
+      case TANK_STATE:
+        isr_buttons();
+      break;
+
+      case SAUCER_STATE:
+      break;
+
+      case SPRITES_STATE:
+        isr_fit();
+      break;
     }
-    if(interrupts & INTC_BTNS_MASK) {
-      isr_buttons();
+    // moore states
+    switch(current_state){
+      case TANK_STATE:
+        current_state = SAUCER_STATE;
+      break;
+
+      case SAUCER_STATE:
+        current_state = SPRITES_STATE;
+      break;
+
+      case SPRITES_STATE:
+        current_state = TANK_STATE;
+      break;
     }
+
+
+    // if(interrupts & INTC_FIT_MASK) {
+    //   isr_fit();
+    // }
+    // if((interrupts & INTC_BTNS_MASK )|| press_flag) {
+    //   isr_buttons();
+    // }
   }
   image_render_close(); // closes the image file
   button_uio_exit(); // exits from the button driver
