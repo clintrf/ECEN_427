@@ -478,7 +478,8 @@ void image_render_check_for_saucer(uint32_t current_pos) {
   uint32_t saucer_pos = globals_get_saucer_pos();
   for(int sh = 0; sh < SPRITES_SAUCER_HEIGHT*ALIEN_SIZE; sh++) { // checks along the saucer height
     for(int sw = 0; sw < SPRITES_SAUCER_WIDTH*ALIEN_SIZE; sw++) { // checks along the saucer width
-      if(current_pos == saucer_pos+(sw*IMAGE_RENDER_BYTES_PER_PIXEL)+(sh*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH)) { // if the tank bullet position is the same as the saucer position, kill the saucer
+      // if the tank bullet position is the same as the saucer position, kill the saucer
+      if(current_pos == saucer_pos+(sw*IMAGE_RENDER_BYTES_PER_PIXEL)+(sh*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH)) {
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         sprites_render_buffer(saucer_18x9,SPRITES_SAUCER_WIDTH,SPRITES_SAUCER_HEIGHT,saucer_pos,ALIEN_SIZE,black);
         globals_set_saucer_pos(GLOBALS_SAUCER_ROW_START_LOCATION);
@@ -1430,7 +1431,7 @@ void image_render_alien_fire_bullet_1(){
   for(uint32_t j = 0; j < (ALIEN_BLOCK_SIZE); j++){ // iterate through the whole block
     if(alien_block[j].shooter){ // if the alien is a shooter
       if (temp_1 == 0){ // set it as a current shooter
-        current_shooter_1 = alien_block[j].current_location + IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE*SPRITES_CHARACTER_WIDTH+640*3*SPRITES_CHARACTER_HEIGHT*ALIEN_SIZE*ALIEN_SIZE; //+ SPRITES_CHARACTER_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE + IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*RANDOM_SHOOTER;
+        current_shooter_1 = alien_block[j].current_location + IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE*SPRITES_CHARACTER_WIDTH+640*3*SPRITES_CHARACTER_HEIGHT*ALIEN_SIZE*ALIEN_SIZE;
 
       }
       temp_1--;
@@ -1457,7 +1458,7 @@ void image_render_alien_fire_bullet_2(){
   for(uint32_t j = 0; j < (ALIEN_BLOCK_SIZE); j++){ // iterate through the whole block
     if(alien_block[j].shooter){ // if the alien is a shooter
       if (temp_2 == 0){ // set it as a current shooter
-        current_shooter_2 = alien_block[j].current_location + IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE*SPRITES_CHARACTER_WIDTH+640*3*SPRITES_CHARACTER_HEIGHT*ALIEN_SIZE*ALIEN_SIZE; //+ SPRITES_CHARACTER_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE + IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*RANDOM_SHOOTER;
+        current_shooter_2 = alien_block[j].current_location + IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE*SPRITES_CHARACTER_WIDTH+640*3*SPRITES_CHARACTER_HEIGHT*ALIEN_SIZE*ALIEN_SIZE;
       }
       temp_2--;
     }
@@ -1483,7 +1484,7 @@ void image_render_alien_fire_bullet_3() {
   for(uint32_t j = 0; j < (ALIEN_BLOCK_SIZE); j++){ // iterate through the whole block
     if(alien_block[j].shooter){ // if the alien is a shooter
       if (temp_3 == 0){ // set it as a current shooter
-        current_shooter_3 = alien_block[j].current_location + IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE*SPRITES_CHARACTER_WIDTH+640*3*SPRITES_CHARACTER_HEIGHT*ALIEN_SIZE*ALIEN_SIZE; //+ SPRITES_CHARACTER_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE + IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*RANDOM_SHOOTER;
+        current_shooter_3 = alien_block[j].current_location + IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE*SPRITES_CHARACTER_WIDTH+640*3*SPRITES_CHARACTER_HEIGHT*ALIEN_SIZE*ALIEN_SIZE;
       }
       temp_3--;
     }
