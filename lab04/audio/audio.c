@@ -158,11 +158,12 @@ struct resource *res_irq; // Device Resource Structure
 
 /********************************** functions ********************************/
 // This is called when Linux loadrite (buffer);s your driver
-// returns : an int signalling a successful initialization or some kind of error
+// returns : an int signalling a successful initialization or an error
 static int audio_init(void) {
   pr_info("%s: Initializing Audio Driver!\n", MODULE_NAME);
   // Get a major number for the driver -- alloc_chrdev_region; // pg. 45, LDD3.
-  int err = alloc_chrdev_region(&dev_nums,FIRST_MINOR,NUM_OF_CONTIGUOUS_DEVS,MODULE_NAME);
+  int err = alloc_chrdev_region(&dev_nums,FIRST_MINOR,NUM_OF_CONTIGUOUS_DEVS,
+    MODULE_NAME);
   if(err < INIT_SUCCESS) { // failure doing region allocation
     pr_info("Failure allocating major/minor numbers!\n");
     return INIT_ERR;
@@ -172,29 +173,29 @@ static int audio_init(void) {
   // Create a device class. -- class_create()
   audio = class_create(THIS_MODULE,MODULE_NAME);
   if(audio == NULL) { // failed to create the class, undo allocation
-    pr_info("Failure creating device class!\nUnregistering...\n");
+    pr_info("Failure creating device class!\nRollback changes...\\n");
     unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
     return INIT_ERR;
   }
   // Register the driver as a platform driver -- platform_driver_register
   err = platform_driver_register(&audio_platform_driver);
-  if(err < INIT_SUCCESS) { // failed to register the platform driver, undo all the things
-    pr_info("Failure registering platform driver!\nUnregistering...\n");
+  if(err < INIT_SUCCESS) { // failed to register the platform driver,
+    pr_info("Failure registering platform driver!\nRollback changes...\\n");
     class_destroy(audio);
     unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
     return INIT_ERR;
   }
-  pr_info("%s:Audio Driver initialization success!\n", MODULE_NAME);
+  pr_info("%s: Audio Driver initialization success!\n", MODULE_NAME);
   return INIT_SUCCESS;
 }
 
 // This is called when Linux unloads your driver
 static void audio_exit(void) {
   pr_info("%s: Exiting Audio Driver!\n", MODULE_NAME);
-  platform_driver_unregister(&audio_platform_driver); // platform_driver_unregister
+  platform_driver_unregister(&audio_platform_driver);
   // class_unregister(&audio); // class_unregister
   class_destroy(audio); // class_destroy
-  unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS); // unregister_chrdev_region
+  unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
   pr_info("%s: Finish Exit Audio Driver!\n", MODULE_NAME);
   return;
 }
@@ -205,36 +206,41 @@ static void audio_exit(void) {
 // returns a flag stating if the irq was handled properly
 static irqreturn_t short_probing(int irq, void *dev_id)
 {
-  pr_info("Calling the irq_short_probe!\nSuccess...\n");
+  pr_info("Calling the irq_short_probe!\nRollback changes...\\n");
   return IRQ_HANDLED;
 }
 
-// Called by kernel when a platform device is detected that matches the 'compatible' name of this driver.
+// Called by kernel when a platform device is detected that matches the
+// 'compatible' name of this driver.
 // pdev : platform device which to probe
 // returns : an int signalling a successful probe or some kind of error
 static int audio_probe(struct platform_device *pdev) {
   pr_info("%s:Probing Audio Driver!\n", MODULE_NAME);
-  if(audio_probe_called_once == true) { // we only want to call this function once
+  if(audio_probe_called_once == true) { // we want to call this function once
     pr_info("Already called probe() once...\n");
     return PROBE_SUCCESS;
   }
+  pr_info("%s: Checkpoint 1!\n", MODULE_NAME);
+
   // Initialize the character device structure (cdev_init)
   cdev_init(&cdev,&audio_fops);
   // Register the character device with Linux (cdev_add)
   int err = cdev_add(&cdev,dev_nums,NUM_OF_CONTIGUOUS_DEVS);
-  if(err < PROBE_SUCCESS) { // if err is negative, the device has NOT been added
-    pr_info("Failure registering the cdev!\nDestroying...\n");
+  if(err < PROBE_SUCCESS) { // if err is negative, the device hasn't been added
+    pr_info("Failure registering the cdev!\nRollback changes...\\n");
     platform_driver_unregister(&audio_platform_driver);
     class_destroy(audio);
     unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
     return PROBE_ERR;
   }
   dev.cdev = cdev;
+  pr_info("%s: Checkpoint 2!\n", MODULE_NAME);
 
-  // Create a device file in /dev so that the character device can be accessed from user space
+  // Create a device file in /dev so that the character device can be accessed
+  // from user space
   device = device_create(audio,NULL,dev_nums,NULL,MODULE_NAME);
   if(device == NULL) { // if the device returns null, then we hit an error
-    pr_info("Failure creating device!\nUnregistering and destroying...\n");
+    pr_info("Failure creating device!\nRollback changes...\\n");
     cdev_del(&cdev);
     platform_driver_unregister(&audio_platform_driver);
     class_destroy(audio);
@@ -242,11 +248,12 @@ static int audio_probe(struct platform_device *pdev) {
     return PROBE_ERR;
   }
   dev.dev = device;
+  pr_info("%s: Checkpoint 3!\n", MODULE_NAME);
 
-  // Get the physical device address from the device tree -- platform_get_resource
+  // Get the physical device address from the device tree
   res = platform_get_resource(pdev,IORESOURCE_MEM,FIRST_RESOURCE);
   if(res == NULL){
-    pr_info("Failure Getting Resources 01!\nUnregistering and destroying...\n");
+    pr_info("Failure Getting Resources 01!\nRollback changes...\\n");
     device_destroy(audio,dev_nums); // device_destroy
     cdev_del(&cdev);
     platform_driver_unregister(&audio_platform_driver);
@@ -255,11 +262,13 @@ static int audio_probe(struct platform_device *pdev) {
     return PROBE_ERR;
   }
   dev.phys_addr = res->start;
+  pr_info("%s: Checkpoint 4!\n", MODULE_NAME);
 
+  // Reserve the memory region -- request_mem_region
   dev.mem_size = (res->end)-(res->start)+1;
-  res_mem = request_mem_region(dev.phys_addr,dev.mem_size,MODULE_NAME); // Reserve the memory region -- request_mem_region
+  res_mem = request_mem_region(dev.phys_addr,dev.mem_size,MODULE_NAME);
   if(res_mem == NULL) {
-    pr_info("Failure Requesting Memory Region!\nUnregistering and destroying...\n");
+    pr_info("Failure Requesting Memory Region!\nRollback changes...\n");
     device_destroy(audio,dev_nums); // device_destroy
     cdev_del(&cdev);
     platform_driver_unregister(&audio_platform_driver);
@@ -268,13 +277,14 @@ static int audio_probe(struct platform_device *pdev) {
   }
   // Get a (virtual memory) pointer to the device -- ioremap
   dev.virt_addr = ioremap(dev.phys_addr,dev.mem_size);
+  pr_info("%s: Checkpoint 5!\n", MODULE_NAME);
 
 
   // Get the IRQ number from the device tree -- platform_get_resource
   res_irq = platform_get_resource(pdev,IORESOURCE_IRQ,FIRST_RESOURCE);
   uint32_t irq_num = res_irq->start;
   if(res_irq == NULL){
-    pr_info("Failure Getting Resources 02!\nUnregistering and destroying...\n");
+    pr_info("Failure Getting Resources 02!\nRollback changes...\\n");
     release_mem_region(dev.phys_addr,dev.mem_size); // release_mem_region
     device_destroy(audio,dev_nums); // device_destroy
     cdev_del(&cdev);
@@ -284,11 +294,12 @@ static int audio_probe(struct platform_device *pdev) {
     return PROBE_ERR;
   }
   dev.pdev = pdev;
+  pr_info("%s: Checkpoint 6!\n", MODULE_NAME);
 
   // Register your interrupt service routine -- request_irq
   int irq_err = request_irq(irq_num,short_probing,0,MODULE_NAME,NULL);
   if(irq_err < PROBE_SUCCESS) { // failed to register the platform driver, undo all the things
-    pr_info("Failure calling the request_irq !\nUnregistering...\n");
+    pr_info("Failure calling the request_irq !\nRollback changes...\\n");
     release_mem_region(dev.phys_addr,dev.mem_size); // release_mem_region
     device_destroy(audio,dev_nums); // device_destroy
     cdev_del(&cdev);
@@ -299,7 +310,7 @@ static int audio_probe(struct platform_device *pdev) {
   }
 
   audio_probe_called_once = true; // makes certain we don't run probe twice
-  pr_info("%s:Audio Driver probing success!\n", MODULE_NAME);
+  pr_info("%s: Audio Driver probing success!\n", MODULE_NAME);
   return PROBE_SUCCESS;
 }
 
