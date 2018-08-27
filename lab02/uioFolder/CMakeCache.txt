@@ -171,6 +171,12 @@ Project_BINARY_DIR:STATIC=/home/xilinx/ECEN_427/lab02/uioFolder
 //Value Computed by CMake
 Project_SOURCE_DIR:STATIC=/home/xilinx/ECEN_427/lab02/uioFolder
 
+//Dependencies for target
+btn_LIB_DEPENDS:STATIC=
+
+//Dependencies for target
+swtch_LIB_DEPENDS:STATIC=
+
 
 ########################
 # INTERNAL cache entries

@@ -23,6 +23,9 @@
 #define TIME_MIN 0 /* smallest number the time values can be*/
 #define SWITCH_FLAG_UP 1 /* value of the flag when it is up*/
 #define SWITCH_FLAG_DOWN 0 /* value of the flag when it is down*/
+#define BOUNCE 100000
+#define FIVE_SECONDS 500
+#define DELAY_TIME 10
 
 
 /*********************************** globals ***********************************/
@@ -36,10 +39,27 @@ int32_t minute_old = MINUTES_MAX; /* this will track the minutes for the clock *
 int32_t hour_old = HOURS_MAX; /* this will track the hours for the clock */
 
 int32_t counter = TIME_MIN; /*counter for the interrupts to increment seconds */
+int32_t button_counter = TIME_MIN; /*counter for debounceing the buttons*/
+
+int32_t temp_temp = 100;
 
 
 
 /*********************************** functions ***********************************/
+
+void print_time() {
+  // clear screen and print new values if the time has be updated
+  if(hour_old!=hours || minute_old!=minutes || second_old!=seconds){
+    // Clear the screen from the previous time
+    system("clear");
+    printf("Time: %02zu:%02zu:%02zu\n", hours, minutes, seconds);
+    // save new values into old time values
+    hour_old = hours;
+    minute_old = minutes;
+    second_old = seconds;
+  }
+}
+
 // updateds the time based on the switch possition.
 void update_time(int32_t time_max, int32_t *unit, char switch_control) {
   int32_t temp = *unit;
@@ -60,14 +80,14 @@ void update_time(int32_t time_max, int32_t *unit, char switch_control) {
     }
   }
   *unit = temp;
+  print_time();
 }
-
 
 // This is invoked in response to a timer interrupt.
 // It does 2 things: 1) debounce switches, and 2) advances the time.
 void isr_fit() {
   intc_ack_interrupt(FIT_MASK);
-  if(counter>=100){
+  if(counter >= 100){
     int32_t temp_seconds = seconds;
     int32_t temp_minutes = minutes;
 
@@ -89,22 +109,62 @@ void isr_fit() {
 // This is invoked each time there is a change in the button state (result of a push or a bounce).
 void isr_buttons() {
   uint32_t buttonPressed = button_read(GPIO_DATA_OFFSET);
-  switch(buttonPressed) {
-    case BTN_0_MASK:
-      //printf("button 0 pressed\n");
-      update_time(SECONDS_MAX, &seconds, switch_flag);
-      break;
-    case BTN_1_MASK:
-      //printf("button 1 pressed\n");
-      update_time(MINUTES_MAX, &minutes, switch_flag);
-      break;
-    case BTN_2_MASK:
-      //printf("button 2 pressed\n");
-      update_time(HOURS_MAX, &hours, switch_flag);
-      break;
-    default:
-     break;
+  while(button_counter < BOUNCE) {
+      button_counter++;
   }
+
+  uint32_t debounce = button_read(GPIO_DATA_OFFSET);
+  if(debounce == buttonPressed){
+    switch(buttonPressed) {
+      case BTN_0_MASK:
+        //printf("button 0 pressed\n");
+        update_time(SECONDS_MAX, &seconds, switch_flag);
+        break;
+      case BTN_1_MASK:
+        //printf("button 1 pressed\n");
+        update_time(MINUTES_MAX, &minutes, switch_flag);
+        break;
+      case BTN_2_MASK:
+        //printf("button 2 pressed\n");
+        update_time(HOURS_MAX, &hours, switch_flag);
+        break;
+      default:
+        break;
+    }
+  }
+
+  // uint32_t auto_counter = 0;
+  // uint32_t delay_counter = 0;
+  // while (debounce == buttonPressed) {
+  //   debounce = button_read(GPIO_DATA_OFFSET);
+  //   auto_counter++;
+  //   if(auto_counter > FIVE_SECONDS) {
+  //     delay_counter++;
+  //     if(delay_counter > DELAY_TIME) {
+  //       switch(buttonPressed) {
+  //         case BTN_0_MASK:
+  //           //printf("button 0 pressed\n");
+  //           update_time(SECONDS_MAX, &seconds, switch_flag);
+  //           break;
+  //         case BTN_1_MASK:
+  //           //printf("button 1 pressed\n");
+  //           update_time(MINUTES_MAX, &minutes, switch_flag);
+  //           break;
+  //         case BTN_2_MASK:
+  //           //printf("button 2 pressed\n");
+  //           update_time(HOURS_MAX, &hours, switch_flag);
+  //           break;
+  //         default:
+  //           break;
+  //         delay_counter = 0;
+  //       }
+  //     }
+  //   }
+  // }
+  // auto_counter = 0;
+
+  button_counter = TIME_MIN;
+  debounce = 0;
   // ... do something ...
   button_acknowledge(CHANNEL_ONE_MASK); /* acknowledges an interrupt from the GPIO */
   intc_ack_interrupt(BTNS_MASK); /* acknowledges an interrupt from the interrupt controller */
@@ -150,15 +210,6 @@ int main() {
     if(interrupts & SWITCHES_MASK) {
       isr_switches();
     }
-    // clear screen and print new values if the time has be updated
-    if(hour_old!=hours || minute_old!=minutes || second_old!=seconds){
-      // Clear the screen from the previous time
-      system("clear");
-      printf("Time: %02zu:%02zu:%02zu\n", hours, minutes, seconds);
-      // save new values into old time values
-      hour_old = hours;
-      minute_old = minutes;
-      second_old = seconds;
-    }
+    print_time();
   }
 }

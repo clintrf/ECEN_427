@@ -1,2 +1,4 @@
 /home/xilinx/ECEN_427/lab02/uioFolder/CMakeFiles/edit_cache.dir
 /home/xilinx/ECEN_427/lab02/uioFolder/CMakeFiles/rebuild_cache.dir
+/home/xilinx/ECEN_427/lab02/uioFolder/CMakeFiles/swtch.dir
+/home/xilinx/ECEN_427/lab02/uioFolder/CMakeFiles/btn.dir

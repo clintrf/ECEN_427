@@ -60,6 +60,80 @@ CMAKE_SOURCE_DIR = /home/xilinx/ECEN_427/lab02/uioFolder
 CMAKE_BINARY_DIR = /home/xilinx/ECEN_427/lab02/uioFolder
 
 #=============================================================================
+# Target rules for target CMakeFiles/swtch.dir
+
+# All Build rule for target.
+CMakeFiles/swtch.dir/all:
+	$(MAKE) -f CMakeFiles/swtch.dir/build.make CMakeFiles/swtch.dir/depend
+	$(MAKE) -f CMakeFiles/swtch.dir/build.make CMakeFiles/swtch.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/lab02/uioFolder/CMakeFiles --progress-num=3,4 "Built target swtch"
+.PHONY : CMakeFiles/swtch.dir/all
+
+# Include target in all.
+all: CMakeFiles/swtch.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/swtch.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab02/uioFolder/CMakeFiles 2
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/swtch.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab02/uioFolder/CMakeFiles 0
+.PHONY : CMakeFiles/swtch.dir/rule
+
+# Convenience name for target.
+swtch: CMakeFiles/swtch.dir/rule
+
+.PHONY : swtch
+
+# clean rule for target.
+CMakeFiles/swtch.dir/clean:
+	$(MAKE) -f CMakeFiles/swtch.dir/build.make CMakeFiles/swtch.dir/clean
+.PHONY : CMakeFiles/swtch.dir/clean
+
+# clean rule for target.
+clean: CMakeFiles/swtch.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/btn.dir
+
+# All Build rule for target.
+CMakeFiles/btn.dir/all:
+	$(MAKE) -f CMakeFiles/btn.dir/build.make CMakeFiles/btn.dir/depend
+	$(MAKE) -f CMakeFiles/btn.dir/build.make CMakeFiles/btn.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/lab02/uioFolder/CMakeFiles --progress-num=1,2 "Built target btn"
+.PHONY : CMakeFiles/btn.dir/all
+
+# Include target in all.
+all: CMakeFiles/btn.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/btn.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab02/uioFolder/CMakeFiles 2
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/btn.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab02/uioFolder/CMakeFiles 0
+.PHONY : CMakeFiles/btn.dir/rule
+
+# Convenience name for target.
+btn: CMakeFiles/btn.dir/rule
+
+.PHONY : btn
+
+# clean rule for target.
+CMakeFiles/btn.dir/clean:
+	$(MAKE) -f CMakeFiles/btn.dir/build.make CMakeFiles/btn.dir/clean
+.PHONY : CMakeFiles/btn.dir/clean
+
+# clean rule for target.
+clean: CMakeFiles/btn.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
 # Special targets to cleanup operation of make.
 
 # Special rule to run CMake to check the build system integrity.
