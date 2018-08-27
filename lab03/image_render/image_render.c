@@ -76,6 +76,7 @@ void image_render_test_image() {
   sprites_render_image(number2_5x5,5,5,714,1,white);
   sprites_render_image(number1_5x5,5,5,741,1,white);
 
+  init_score_board();
   print_high_scores();
 }
 
