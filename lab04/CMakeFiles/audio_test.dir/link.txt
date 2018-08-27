@@ -1,0 +1,1 @@
+/usr/bin/cc     CMakeFiles/audio_test.dir/main.c.o  -o audio_test audio_driver/libaudio_driver.a 

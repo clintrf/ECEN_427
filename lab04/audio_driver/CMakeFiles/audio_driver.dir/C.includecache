@@ -1,0 +1,26 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/xilinx/ECEN_427/lab04/audio_driver/audio_driver.c
+stdint.h
+-
+stdio.h
+-
+unistd.h
+-
+fcntl.h
+-
+sys/mman.h
+-
+audio_driver.h
+/home/xilinx/ECEN_427/lab04/audio_driver/audio_driver.h
+
+/home/xilinx/ECEN_427/lab04/audio_driver/audio_driver.h
+stdint.h
+-
+

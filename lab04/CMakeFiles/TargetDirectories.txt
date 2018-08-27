@@ -1,0 +1,6 @@
+/home/xilinx/ECEN_427/lab04/CMakeFiles/edit_cache.dir
+/home/xilinx/ECEN_427/lab04/CMakeFiles/rebuild_cache.dir
+/home/xilinx/ECEN_427/lab04/CMakeFiles/audio_test.dir
+/home/xilinx/ECEN_427/lab04/audio_driver/CMakeFiles/edit_cache.dir
+/home/xilinx/ECEN_427/lab04/audio_driver/CMakeFiles/rebuild_cache.dir
+/home/xilinx/ECEN_427/lab04/audio_driver/CMakeFiles/audio_driver.dir

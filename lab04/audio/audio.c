@@ -25,10 +25,10 @@ MODULE_AUTHOR("Dax Eckles & Clint Frandsen");
 MODULE_DESCRIPTION("ECEn 427 Audio Driver");
 
 #define MODULE_NAME "audio"
-#define I2S_DATA_RX_L_REG_OFFSET 0x00 // input for left channel (low 24 bits)
-#define I2S_DATA_RX_R_REG_OFFSET 0x04 // input for right channel (low 24 bits)
-#define I2S_DATA_TX_R_REG_OFFSET 0x08 // output for right channel (low 24 bits)
-#define I2S_DATA_TX_L_REG_OFFSET 0x0C // output for left channel (low 24 bits)
+#define I2S_DATA_RX_L_REG_OFFSET 0 // input for left channel (low 24 bits)
+#define I2S_DATA_RX_R_REG_OFFSET 1 // input for right channel (low 24 bits)
+#define I2S_DATA_TX_R_REG_OFFSET 2 // output for right channel (low 24 bits)
+#define I2S_DATA_TX_L_REG_OFFSET 3 // output for left channel (low 24 bits)
 /*
  * Various statuses are held in this register
  * [0] : control interrupt generation (0 disabled, 1 enabled)
@@ -36,7 +36,7 @@ MODULE_DESCRIPTION("ECEn 427 Audio Driver");
  * [20-11] : number of values currently in the audio FIFO left channel
  * [21] : each time a new audio sample is available, this is 1, must be cleared
 */
-#define I2S_STATUS_REG_OFFSET 0x10
+#define I2S_STATUS_REG_OFFSET 4
 #define I2S_STATUS_REG_INTERRUPT_CONTROL 0
 #define I2S_STATUS_REG_RIGHT_FIFO_VALUE 1
 #define I2S_STATUS_REG_LEFT_FIFO_VALUE 11
@@ -49,6 +49,8 @@ MODULE_DESCRIPTION("ECEn 427 Audio Driver");
 #define INIT_ERR -1
 #define PROBE_SUCCESS 0
 #define PROBE_ERR -1
+#define INTERRUPTS_ON 0x1
+#define INTERRUPTS_OFF 0x0
 
 //#define platform_register_drivers(drivers, count) //cf (change)
 
@@ -58,24 +60,6 @@ static void audio_exit(void);
 
 module_init(audio_init);
 module_exit(audio_exit);
-
-// open function for files in the kernel
-// i :
-// f : the file to open
-// returns an int indicating success or failure
-static int audio_open(struct inode *i, struct file *f) {
-  printk(KERN_INFO "Driver: open()\n");
-  return INIT_SUCCESS;
-}
-
-// open function for files in the kernel
-// i :
-// f : the file to close
-// returns an int indicating success or failure
-static int audio_release(struct inode *i, struct file *f) {
-  printk(KERN_INFO "Driver: close()\n");
-  return INIT_SUCCESS;
-}
 
 // reads a certain amount of bytes from a buffer
 // f : the file to read from
@@ -96,7 +80,7 @@ static ssize_t audio_read(struct file *f, char *buf, size_t len, loff_t *off) {
 // returns
 static ssize_t audio_write(struct file *f, const char *buf, size_t len,
     loff_t *off) {
-  printk(KERN_INFO "Driv linux/config.her: write()\n");
+  printk(KERN_INFO "Driver: write()\n");
   return len;
 }
 
@@ -120,8 +104,6 @@ static int audio_remove(struct platform_device * pdev);
 // struct containing the file operations data
 static struct file_operations audio_fops = {
   .owner = THIS_MODULE,
-  .open = audio_open,
-  .release = audio_release,
   .read = audio_read,
   .write = audio_write
 };
@@ -155,6 +137,7 @@ static struct cdev cdev; // character device for the driver
 struct resource *res; // Device Resource Structure
 struct resource *res_mem; // Device Resource Structure
 struct resource *res_irq; // Device Resource Structure
+unsigned int irq_num;
 
 /********************************** functions ********************************/
 // This is called when Linux loadrite (buffer);s your driver
@@ -206,7 +189,8 @@ static void audio_exit(void) {
 // returns a flag stating if the irq was handled properly
 static irqreturn_t short_probing(int irq, void *dev_id)
 {
-  pr_info("Calling the irq_short_probe!\nRollback changes...\\n");
+  pr_info("Calling the irq_short_probe!\n");
+  disable_irq_nosync(irq);
   return IRQ_HANDLED;
 }
 
@@ -220,10 +204,9 @@ static int audio_probe(struct platform_device *pdev) {
     pr_info("Already called probe() once...\n");
     return PROBE_SUCCESS;
   }
-  pr_info("%s: Checkpoint 1!\n", MODULE_NAME);
-
   // Initialize the character device structure (cdev_init)
   cdev_init(&cdev,&audio_fops);
+  cdev.owner = THIS_MODULE;
   // Register the character device with Linux (cdev_add)
   int err = cdev_add(&cdev,dev_nums,NUM_OF_CONTIGUOUS_DEVS);
   if(err < PROBE_SUCCESS) { // if err is negative, the device hasn't been added
@@ -234,8 +217,6 @@ static int audio_probe(struct platform_device *pdev) {
     return PROBE_ERR;
   }
   dev.cdev = cdev;
-  pr_info("%s: Checkpoint 2!\n", MODULE_NAME);
-
   // Create a device file in /dev so that the character device can be accessed
   // from user space
   device = device_create(audio,NULL,dev_nums,NULL,MODULE_NAME);
@@ -248,8 +229,6 @@ static int audio_probe(struct platform_device *pdev) {
     return PROBE_ERR;
   }
   dev.dev = device;
-  pr_info("%s: Checkpoint 3!\n", MODULE_NAME);
-
   // Get the physical device address from the device tree
   res = platform_get_resource(pdev,IORESOURCE_MEM,FIRST_RESOURCE);
   if(res == NULL){
@@ -262,8 +241,6 @@ static int audio_probe(struct platform_device *pdev) {
     return PROBE_ERR;
   }
   dev.phys_addr = res->start;
-  pr_info("%s: Checkpoint 4!\n", MODULE_NAME);
-
   // Reserve the memory region -- request_mem_region
   dev.mem_size = (res->end)-(res->start)+1;
   res_mem = request_mem_region(dev.phys_addr,dev.mem_size,MODULE_NAME);
@@ -276,13 +253,10 @@ static int audio_probe(struct platform_device *pdev) {
     unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
   }
   // Get a (virtual memory) pointer to the device -- ioremap
-  dev.virt_addr = ioremap(dev.phys_addr,dev.mem_size);
-  pr_info("%s: Checkpoint 5!\n", MODULE_NAME);
-
-
+  dev.virt_addr = ioremap(res->start,dev.mem_size);
   // Get the IRQ number from the device tree -- platform_get_resource
   res_irq = platform_get_resource(pdev,IORESOURCE_IRQ,FIRST_RESOURCE);
-  uint32_t irq_num = res_irq->start;
+  irq_num = res_irq->start;
   if(res_irq == NULL){
     pr_info("Failure Getting Resources 02!\nRollback changes...\\n");
     release_mem_region(dev.phys_addr,dev.mem_size); // release_mem_region
@@ -294,8 +268,8 @@ static int audio_probe(struct platform_device *pdev) {
     return PROBE_ERR;
   }
   dev.pdev = pdev;
-  pr_info("%s: Checkpoint 6!\n", MODULE_NAME);
-
+  iowrite32(INTERRUPTS_ON,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
+  enable_irq(irq_num);
   // Register your interrupt service routine -- request_irq
   int irq_err = request_irq(irq_num,short_probing,0,MODULE_NAME,NULL);
   if(irq_err < PROBE_SUCCESS) { // failed to register the platform driver
@@ -308,9 +282,12 @@ static int audio_probe(struct platform_device *pdev) {
     unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
     return PROBE_ERR;
   }
-
   audio_probe_called_once = true; // makes certain we don't run probe twice
   pr_info("%s: Audio Driver probing success!\n", MODULE_NAME);
+  pr_info("%s: Major Number: %zu\n", MODULE_NAME, MAJOR(dev_nums));
+  pr_info("%s: Physical Addr: %zu\n", MODULE_NAME, dev.phys_addr);
+  pr_info("%s: Virtual Addr: %p\n", MODULE_NAME, dev.virt_addr);
+  pr_info("%s: IRQ Number: %zu\n", MODULE_NAME, irq_num);
   return PROBE_SUCCESS;
 }
 
@@ -318,6 +295,7 @@ static int audio_probe(struct platform_device *pdev) {
 // returns : an int signalling success or failure
 static int audio_remove(struct platform_device * pdev) {
   pr_info("%s: Removing Audio Driver!\n", MODULE_NAME);
+  free_irq(irq_num,NULL);
   ioport_unmap(dev.virt_addr); // iounmap
   release_mem_region(dev.phys_addr,dev.mem_size); // release_mem_region
   device_destroy(audio,dev_nums); // device_destroy

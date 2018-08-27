@@ -25,8 +25,7 @@
 #define GPIO_BITS 0x7 /* turns on all GPIO interrupts */
 #define MER_BITS 0x3 /* need to turn on lower two bits to enable interrupts */
 
-
-/*********************************** globals ***********************************/
+/********************************** globals **********************************/
 static int fd; /* this is a file descriptor that describes the UIO device */
 static char *va; /* virtual address of the interrupt handler registers */
 static int enable = 1; /* enable code for interrupt */
