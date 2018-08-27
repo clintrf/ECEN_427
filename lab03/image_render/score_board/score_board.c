@@ -98,11 +98,10 @@ const uint32_t *convert_to_array(int chrt){
   }
 };
 
-void init_score_board(){
-  uint32_t nam1, nam2, nam3, num, num1, num2, num3, num4, num5;
+void save_score_board(){
+  uint32_t nam1, nam2, nam3, num, num1, num2, num3, num4, num5, test;
   FILE * fp;
   fp = fopen("/home/xilinx/ECEN_427/lab03/image_render/score_board/high_scores.txt", "r");
-
   for(int i = 0; i < TOP_TEN_SCORES; i++){
     nam1 = getc(fp);
     nam2 = getc(fp);
@@ -113,10 +112,25 @@ void init_score_board(){
     num3 = getc(fp);
     num4 = getc(fp);
     num5 = getc(fp);
-    getc(fp);
+    while (test != '\n'){
+      test = getc(fp);
+      printf("%s ,%c \r\n" , "extra ", test);
+    }
+    test = '~';
 
-    num = 10000*(num1-CHAR_OFFSET)+1000*(num2-CHAR_OFFSET)+100*(num3-CHAR_OFFSET)+10*(num4-CHAR_OFFSET)+(num5-CHAR_OFFSET);
+    int temp1 = (10000*(num1-CHAR_OFFSET));
+    int temp2 = (1000*(num2-CHAR_OFFSET));
+    int temp3 = (100*(num3-CHAR_OFFSET));
+    int temp4 = (10*(num4-CHAR_OFFSET));
+    int temp5 = (1*(num5-CHAR_OFFSET));
+
+    num = temp1+temp2+temp3+temp4+temp5;
+    printf("%s %d\r\n" , "Initial numbers:", num);
     high_scores[i].score = num;
+    // printf("%s ,%d \r\n" , "temp ", temp);
+    high_scores[i].letter1 = nam1;
+    high_scores[i].letter2 = nam2;
+    high_scores[i].letter3 = nam3;
 
     for(int j = 0; j<25;j++){
       high_scores[i].name_char[0][j] = convert_to_array(nam1)[j];
@@ -129,6 +143,7 @@ void init_score_board(){
       high_scores[i].score_char[4][j] = convert_to_array(num5)[j];
     }
   }
+  fclose(fp);
 }
 
 // function to print the top 10 high scores
@@ -147,6 +162,61 @@ void print_high_scores(){
 }
 
 // function to update the high scores list.
-void update_stats(){
 
+// uint32_t convert_num(uint32_t final_score){
+//   uint32_t numb1,numb2,numb3,numb4,numb5;
+//   numb1 = ((final_score)/10000);
+//   numb2 = ((final_score-numb1*10000)/1000);
+//   numb3 = ((final_score-numb1*10000-numb2*1000)/100);
+//   numb4 = ((final_score-numb1*10000-numb2*1000-numb3*100)/10);
+//   numb5 = ((final_score-numb1*10000-numb2*1000-numb3*100-numb4*10)/1);
+//   uint32_t temp[5] = {numb5,numb4,numb3,numb2,numb1};
+//   return temp;
+// }
+
+void update_stats(uint32_t name1,uint32_t name2 ,uint32_t name3, uint32_t final_score){
+  uint16_t insert_flag = 1;
+  uint32_t numb1,numb2,numb3,numb4,numb5;
+  printf("%s %d\r\n" , "Final Score:", final_score);
+  save_score_board();
+
+  FILE * fpp;
+  int i;
+  /* open the file for writing*/
+  fpp = fopen ("/home/xilinx/ECEN_427/lab03/image_render/score_board/high_scores.txt","r+");
+  uint32_t whole_numb[5];
+  for(int i = 0; i < TOP_TEN_SCORES; i++){
+
+    //whole_numb = convert_num(high_scores[i].score);
+    numb1 = ((high_scores[i].score)/10000);
+    numb2 = ((high_scores[i].score-numb1*10000)/1000);
+    numb3 = ((high_scores[i].score-numb1*10000-numb2*1000)/100);
+    numb4 = ((high_scores[i].score-numb1*10000-numb2*1000-numb3*100)/10);
+    numb5 = ((high_scores[i].score-numb1*10000-numb2*1000-numb3*100-numb4*10)/1);
+
+    if(high_scores[i].score > final_score) {
+
+      fprintf (fpp, "%c%c%c %d%d%d%d%d\n" , high_scores[i].letter1,high_scores[i].letter2,high_scores[i].letter3,numb1,numb2,numb3,numb4,numb5);
+    }
+    else {
+      if (insert_flag){
+        numb1 = ((final_score)/10000);
+        numb2 = ((final_score-numb1*10000)/1000);
+        numb3 = ((final_score-numb1*10000-numb2*1000)/100);
+        numb4 = ((final_score-numb1*10000-numb2*1000-numb3*100)/10);
+        numb5 = ((final_score-numb1*10000-numb2*1000-numb3*100-numb4*10)/1);
+        fprintf (fpp, "%c%c%c %d%d%d%d%d\n" , name1,name2,name3,numb1,numb2,numb3,numb4,numb5);
+        insert_flag = 0;
+        i--;
+      }
+      else{
+        //numb5,numb4,numb3,numb2,numb1 = convert_num(high_scores[i].score);
+        fprintf (fpp, "%c%c%c %d%d%d%d%d\n" , high_scores[i].letter1,high_scores[i].letter2,high_scores[i].letter3,numb1,numb2,numb3,numb4,numb5);
+      }
+    }
+  }
+  fprintf (fpp, "\n" );
+  fprintf (fpp, "\n" );
+  fprintf (fpp, "\n" );
+  fclose(fpp);
 }

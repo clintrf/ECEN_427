@@ -95,6 +95,15 @@ void image_render_print_game_over_screen_high_scores() {
   sprites_render_image(letterR_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,R_START_LOCATION_HS,NORMAL_CHARACTER_SCALING,white);
   sprites_render_image(letterE_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,E_START_LOCATION_HS,NORMAL_CHARACTER_SCALING,white);
   sprites_render_image(letterS_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,S2_START_LOCATION_HS,NORMAL_CHARACTER_SCALING,white);
+  save_score_board();
+  update_stats('Z','Z','Z',120);
+  update_stats('A','B','C',121);
+  update_stats('A','B','A',1210);
+  update_stats('A','A','C',111);
+  update_stats('C','L','T',10);
+  update_stats('D','A','X',99999);
+  //init_score_board();
+  print_high_scores();
 }
 
 void image_render_print_start_screen() {}
@@ -126,7 +135,14 @@ void image_render_test_image() {
   sprites_render_image(number2_5x5,5,5,714,1,white);
   sprites_render_image(number1_5x5,5,5,741,1,white);
 
-  init_score_board();
+  save_score_board();
+  update_stats('Z','Z','Z',120);
+  update_stats('A','B','C',121);
+  update_stats('A','B','A',1210);
+  update_stats('A','A','C',111);
+  update_stats('C','L','T',10);
+  update_stats('D','A','X',999);
+  //init_score_board();
   print_high_scores();
 }
 

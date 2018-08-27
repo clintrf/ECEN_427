@@ -694,6 +694,46 @@ static const uint32_t char_array[37][25] = {
   {	1,1,1,1,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,1,1,1,1}  // Z			36
 };
 
+static const uint32_t letter_array[37] = {
+  0, // 0			0
+  1, // 1			1
+  2, // 2			2
+  3, // 3			3
+  4, // 4			4
+  5, // 5			5
+  6, // 6			6
+  7, // 7			7
+  8, // 8			8
+  9, // 9			9
+  ' ', // BLANK	10
+  'A', // A			11
+  'B', // B			12
+  'C', // C			13
+  'D', // D			14
+  'E', // E			15
+  'F', // F			16
+  'G', // G			17
+  'H', // H			18
+  'I', // I			19
+  'J', // J			20
+  'K', // K			21
+  'L', // L			22
+  'M', // M			23
+  'N', // N			24
+  'O', // O			25
+  'P', // P			26
+  'Q', // Q			27
+  'R', // R			28
+  'S', // S			29
+  'T', // T			30
+  'U', // U			31
+  'V', // V			32
+  'W', // W			33
+  'X', // X			34
+  'Y', // Y			35
+  'Z'  // Z			36
+};
+
 // prints an image to the screen
 // image[] : the image to be printed
 // current_location : top left pixel of the character
