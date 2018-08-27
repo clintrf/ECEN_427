@@ -80,14 +80,14 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab04/CMakeFiles /home/xilinx/ECEN_427/lab04/CMakeFiles/progress.marks
-	$(MAKE) -f CMakeFiles/Makefile2 all
+	cd /home/xilinx/ECEN_427/lab04 && $(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab04/CMakeFiles /home/xilinx/ECEN_427/lab04/i2cps/CMakeFiles/progress.marks
+	cd /home/xilinx/ECEN_427/lab04 && $(MAKE) -f CMakeFiles/Makefile2 i2cps/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab04/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	$(MAKE) -f CMakeFiles/Makefile2 clean
+	cd /home/xilinx/ECEN_427/lab04 && $(MAKE) -f CMakeFiles/Makefile2 i2cps/clean
 .PHONY : clean
 
 # The main clean target
@@ -97,84 +97,60 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	$(MAKE) -f CMakeFiles/Makefile2 preinstall
+	cd /home/xilinx/ECEN_427/lab04 && $(MAKE) -f CMakeFiles/Makefile2 i2cps/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	$(MAKE) -f CMakeFiles/Makefile2 preinstall
+	cd /home/xilinx/ECEN_427/lab04 && $(MAKE) -f CMakeFiles/Makefile2 i2cps/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	$(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /home/xilinx/ECEN_427/lab04 && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
-#=============================================================================
-# Target rules for targets named audio_test
+# Convenience name for target.
+i2cps/CMakeFiles/i2cps.dir/rule:
+	cd /home/xilinx/ECEN_427/lab04 && $(MAKE) -f CMakeFiles/Makefile2 i2cps/CMakeFiles/i2cps.dir/rule
+.PHONY : i2cps/CMakeFiles/i2cps.dir/rule
 
-# Build rule for target.
-audio_test: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 audio_test
-.PHONY : audio_test
+# Convenience name for target.
+i2cps: i2cps/CMakeFiles/i2cps.dir/rule
 
-# fast build rule for target.
-audio_test/fast:
-	$(MAKE) -f CMakeFiles/audio_test.dir/build.make CMakeFiles/audio_test.dir/build
-.PHONY : audio_test/fast
-
-#=============================================================================
-# Target rules for targets named audio_driver
-
-# Build rule for target.
-audio_driver: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 audio_driver
-.PHONY : audio_driver
-
-# fast build rule for target.
-audio_driver/fast:
-	$(MAKE) -f audio_driver/CMakeFiles/audio_driver.dir/build.make audio_driver/CMakeFiles/audio_driver.dir/build
-.PHONY : audio_driver/fast
-
-#=============================================================================
-# Target rules for targets named i2cps
-
-# Build rule for target.
-i2cps: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 i2cps
 .PHONY : i2cps
 
 # fast build rule for target.
 i2cps/fast:
-	$(MAKE) -f i2cps/CMakeFiles/i2cps.dir/build.make i2cps/CMakeFiles/i2cps.dir/build
+	cd /home/xilinx/ECEN_427/lab04 && $(MAKE) -f i2cps/CMakeFiles/i2cps.dir/build.make i2cps/CMakeFiles/i2cps.dir/build
 .PHONY : i2cps/fast
 
-main.o: main.c.o
+i2cps.o: i2cps.c.o
 
-.PHONY : main.o
+.PHONY : i2cps.o
 
 # target to build an object file
-main.c.o:
-	$(MAKE) -f CMakeFiles/audio_test.dir/build.make CMakeFiles/audio_test.dir/main.c.o
-.PHONY : main.c.o
+i2cps.c.o:
+	cd /home/xilinx/ECEN_427/lab04 && $(MAKE) -f i2cps/CMakeFiles/i2cps.dir/build.make i2cps/CMakeFiles/i2cps.dir/i2cps.c.o
+.PHONY : i2cps.c.o
 
-main.i: main.c.i
+i2cps.i: i2cps.c.i
 
-.PHONY : main.i
+.PHONY : i2cps.i
 
 # target to preprocess a source file
-main.c.i:
-	$(MAKE) -f CMakeFiles/audio_test.dir/build.make CMakeFiles/audio_test.dir/main.c.i
-.PHONY : main.c.i
+i2cps.c.i:
+	cd /home/xilinx/ECEN_427/lab04 && $(MAKE) -f i2cps/CMakeFiles/i2cps.dir/build.make i2cps/CMakeFiles/i2cps.dir/i2cps.c.i
+.PHONY : i2cps.c.i
 
-main.s: main.c.s
+i2cps.s: i2cps.c.s
 
-.PHONY : main.s
+.PHONY : i2cps.s
 
 # target to generate assembly for a file
-main.c.s:
-	$(MAKE) -f CMakeFiles/audio_test.dir/build.make CMakeFiles/audio_test.dir/main.c.s
-.PHONY : main.c.s
+i2cps.c.s:
+	cd /home/xilinx/ECEN_427/lab04 && $(MAKE) -f i2cps/CMakeFiles/i2cps.dir/build.make i2cps/CMakeFiles/i2cps.dir/i2cps.c.s
+.PHONY : i2cps.c.s
 
 # Help Target
 help:
@@ -184,12 +160,10 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... audio_test"
-	@echo "... audio_driver"
 	@echo "... i2cps"
-	@echo "... main.o"
-	@echo "... main.i"
-	@echo "... main.s"
+	@echo "... i2cps.o"
+	@echo "... i2cps.i"
+	@echo "... i2cps.s"
 .PHONY : help
 
 
@@ -201,6 +175,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	$(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /home/xilinx/ECEN_427/lab04 && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

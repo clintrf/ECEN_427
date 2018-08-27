@@ -18,6 +18,7 @@
 #include <linux/interrupt.h>
 #include <stdbool.h>
 #include <asm/io.h>
+#include <asm/uaccess.h>
 
 /*********************************** macros *********************************/
 MODULE_LICENSE("GPL");
@@ -52,8 +53,6 @@ MODULE_DESCRIPTION("ECEn 427 Audio Driver");
 #define INTERRUPTS_ON 0x1
 #define INTERRUPTS_OFF 0x0
 
-//#define platform_register_drivers(drivers, count) //cf (change)
-
 /**************************** function definitions ***************************/
 static int audio_init(void);
 static void audio_exit(void);
@@ -63,25 +62,48 @@ module_exit(audio_exit);
 
 // reads a certain amount of bytes from a buffer
 // f : the file to read from
-// buf : the buffer to read from
-// len : the length
-// off : offset
-// returns
+// buf : the buffer to place the read values into
+// len : the number of bytes to read
+// off : indicates the file position the user is accessing
+// returns a value (0,1) one means audio is being played, zero means no audio
 static ssize_t audio_read(struct file *f, char *buf, size_t len, loff_t *off) {
   printk(KERN_INFO "Driver: read()\n");
+  // unsigned long copy_to_user(void *to,const void *from,unsigned long count);
   return INIT_SUCCESS;
 }
 
 // reads a certain amount of bytes from a buffer
-// f : the file to write to
-// buf : the buffer to write to
-// len : the length
-// off : offset
-// returns
+// f : the file to read from
+// buf : accepts a signed 32 bit buffer containing an audio clip
+// len : the number of bytes to write
+// off : indicates the file position the user is accessing
+// returns a value stating whether the write was a success or not
 static ssize_t audio_write(struct file *f, const char *buf, size_t len,
     loff_t *off) {
   printk(KERN_INFO "Driver: write()\n");
+  // whenever we call write, we will immediately stop playing whatever is
+  // currently playing and play the new one passed in as buf
+  // Immediately disable interrupts from the audio core.
+  // Free the buffer used to store the old sound sample (if applicable) (kfree)
+  // allocate a buffer for the new clip (kmalloc).
+  // Copy the audio data from userspace to your newly allocated buffer (including
+  // safety checks on the userspace pointer) - LDD page 64.
+  // Make sure the audio core has interrupts enabled.
   return len;
+}
+
+// function that handles the irq
+// irq : irq number
+// dev_id : the device id
+// returns a flag stating if the irq was handled properly
+static irqreturn_t irq_isr(int irq, void *dev_id)
+{
+  pr_info("Calling the irq_isr!\n");
+  // Determine how much free space is in the audio FIFOs
+  // fill them up with the next audio samples to be played.
+  // Once end of the audio clip is reached, disable interrupts
+  disable_irq_nosync(irq);
+  return IRQ_HANDLED;
 }
 
 static int audio_probe(struct platform_device *pdev);
@@ -94,7 +116,6 @@ static int audio_remove(struct platform_device * pdev);
     struct cdev cdev;                   // Character device structure
     struct platform_device * pdev;      // Platform device pointer
     struct device* dev;                 // device (/dev)
-
     phys_addr_t phys_addr;              // Physical address
     u32 mem_size;                       // Allocated mem space size
     u32* virt_addr;                     // Virtual address
@@ -128,7 +149,6 @@ static struct platform_driver audio_platform_driver = {
 
 /****************************** global variables ****************************/
 static audio_dev dev; // global audio device
-// static struct platform_device *pdev; // global platform device
 static bool audio_probe_called_once = false; // makes audio_probe call once
 static dev_t dev_nums; // contains major and minor numbers
 static struct class *audio;
@@ -137,7 +157,7 @@ static struct cdev cdev; // character device for the driver
 struct resource *res; // Device Resource Structure
 struct resource *res_mem; // Device Resource Structure
 struct resource *res_irq; // Device Resource Structure
-unsigned int irq_num;
+unsigned int irq_num; // contains the irq number for interrupt handling
 
 /********************************** functions ********************************/
 // This is called when Linux loadrite (buffer);s your driver
@@ -175,29 +195,17 @@ static int audio_init(void) {
 // This is called when Linux unloads your driver
 static void audio_exit(void) {
   pr_info("%s: Exiting Audio Driver!\n", MODULE_NAME);
-  platform_driver_unregister(&audio_platform_driver);
-  // class_unregister(&audio); // class_unregister
+  platform_driver_unregister(&audio_platform_driver); // unregister platform
   class_destroy(audio); // class_destroy
   unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
   pr_info("%s: Finish Exit Audio Driver!\n", MODULE_NAME);
   return;
 }
 
-// function that handles the irq
-// irq : irq number
-// dev_id : the device id
-// returns a flag stating if the irq was handled properly
-static irqreturn_t short_probing(int irq, void *dev_id)
-{
-  pr_info("Calling the irq_short_probe!\n");
-  disable_irq_nosync(irq);
-  return IRQ_HANDLED;
-}
-
 // Called by kernel when a platform device is detected that matches the
 // 'compatible' name of this driver.
 // pdev : platform device which to probe
-// returns : an int signalling a successful probe or some kind of error
+// returns an int signalling a successful probe or some kind of error
 static int audio_probe(struct platform_device *pdev) {
   pr_info("%s: Probing Audio Driver!\n", MODULE_NAME);
   if(audio_probe_called_once == true) { // we want to call this function once
@@ -231,7 +239,7 @@ static int audio_probe(struct platform_device *pdev) {
   dev.dev = device;
   // Get the physical device address from the device tree
   res = platform_get_resource(pdev,IORESOURCE_MEM,FIRST_RESOURCE);
-  if(res == NULL){
+  if(res == NULL) { // if the resource returns null, then we hit an error
     pr_info("Failure Getting Resources 01!\nRollback changes...\\n");
     device_destroy(audio,dev_nums); // device_destroy
     cdev_del(&cdev);
@@ -244,7 +252,7 @@ static int audio_probe(struct platform_device *pdev) {
   // Reserve the memory region -- request_mem_region
   dev.mem_size = (res->end)-(res->start)+1;
   res_mem = request_mem_region(dev.phys_addr,dev.mem_size,MODULE_NAME);
-  if(res_mem == NULL) {
+  if(res_mem == NULL) { // if the resource returns null, then we hit an error
     pr_info("Failure Requesting Memory Region!\nRollback changes...\n");
     device_destroy(audio,dev_nums); // device_destroy
     cdev_del(&cdev);
@@ -257,7 +265,7 @@ static int audio_probe(struct platform_device *pdev) {
   // Get the IRQ number from the device tree -- platform_get_resource
   res_irq = platform_get_resource(pdev,IORESOURCE_IRQ,FIRST_RESOURCE);
   irq_num = res_irq->start;
-  if(res_irq == NULL){
+  if(res_irq == NULL){ // if the resource returns null, then we hit an error
     pr_info("Failure Getting Resources 02!\nRollback changes...\\n");
     release_mem_region(dev.phys_addr,dev.mem_size); // release_mem_region
     device_destroy(audio,dev_nums); // device_destroy
@@ -271,7 +279,7 @@ static int audio_probe(struct platform_device *pdev) {
   iowrite32(INTERRUPTS_ON,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
   enable_irq(irq_num);
   // Register your interrupt service routine -- request_irq
-  int irq_err = request_irq(irq_num,short_probing,0,MODULE_NAME,NULL);
+  int irq_err = request_irq(irq_num,irq_isr,0,MODULE_NAME,NULL);
   if(irq_err < PROBE_SUCCESS) { // failed to register the platform driver
     pr_info("Failure calling the request_irq !\nRollback changes...\\n");
     release_mem_region(dev.phys_addr,dev.mem_size); // release_mem_region

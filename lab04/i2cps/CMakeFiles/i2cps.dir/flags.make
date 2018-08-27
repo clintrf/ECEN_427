@@ -6,5 +6,5 @@ C_FLAGS =
 
 C_DEFINES = 
 
-C_INCLUDES = -I/home/xilinx/ECEN_427/lab04/i2cps 
+C_INCLUDES = 
 

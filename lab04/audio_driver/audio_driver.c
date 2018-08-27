@@ -16,12 +16,12 @@
 
 /*********************************** macros **********************************/
 #define AUDIO_DRIVER_MMAP_SIZE 0x1000 /* size of memory to allocate */
+#define END_OF_READ_FILE 0
 
 /********************************** globals **********************************/
 static int fd; /* this is a file descriptor that describes the UIO device */
 static char *va; /* virtual address of the audio driver */
 static int32_t buf = 0;
-static uint32_t len = 0;
 static uint16_t off = 0;
 
 /********************************* functions *********************************/
@@ -52,11 +52,26 @@ void audio_driver_exit() {
 }
 
 // Called to write to the audio driver
-void audio_driver_write() {
+// len : amount of bytes to write to the driver
+ void audio_driver_write(int32_t len) {
   write(fd,&buf,len);
 }
 
 // Called to read to the audio driver
-void audio_driver_read() {
-  read(fd,&buf,len);
+// len : the amount of bytes to read into the buffer
+// returns a value with the type of success pending
+int16_t audio_driver_read(int32_t len) {
+  int32_t count = read(fd,&buf,len);
+  if(count == len) { // optimal case success
+    return AUDIO_DRIVER_READ_OPTIMAL_SUCCESS;
+  }
+  else if(count > END_OF_READ_FILE) { // read parts of the data, but not all
+    return AUDIO_DRIVER_PARTIAL_DATA_TRANSFER;
+  }
+  else if(count == END_OF_READ_FILE) { // reached EOF before any data was read
+    return AUDIO_DRIVER_REACHED_EOF;
+  }
+  else { // some kind of error occured if the number is negative
+    return AUDIO_DRIVER_READ_ERROR;
+  }
 }

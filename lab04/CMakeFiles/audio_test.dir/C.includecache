@@ -6,6 +6,14 @@
 
 #IncludeRegexTransform: 
 
+/home/xilinx/ECEN_427/lab04/audio_driver/audio_driver.h
+stdint.h
+-
+
+/home/xilinx/ECEN_427/lab04/i2cps/i2cps.h
+linux/i2c-dev.h
+-
+
 /home/xilinx/ECEN_427/lab04/main.c
 stdio.h
 -
@@ -17,10 +25,8 @@ fcntl.h
 -
 sys/mman.h
 -
-audio_driver.h
-/home/xilinx/ECEN_427/lab04/audio_driver.h
-
 audio_driver/audio_driver.h
-stdint.h
--
+/home/xilinx/ECEN_427/lab04/audio_driver/audio_driver.h
+i2cps/i2cps.h
+/home/xilinx/ECEN_427/lab04/i2cps/i2cps.h
 

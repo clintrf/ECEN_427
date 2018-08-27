@@ -770,6 +770,14 @@ deps_/home/xilinx/ECEN_427/lab04/audio/audio.o := \
   arch/arm/include/asm/hardirq.h \
   include/linux/irq_cpustat.h \
   /usr/lib/gcc/arm-linux-gnueabihf/5/include/stdbool.h \
+  arch/arm/include/asm/uaccess.h \
+    $(wildcard include/config/have/efficient/unaligned/access.h) \
+    $(wildcard include/config/cpu/sw/domain/pan.h) \
+    $(wildcard include/config/cpu/use/domains.h) \
+    $(wildcard include/config/uaccess/with/memcpy.h) \
+  arch/arm/include/asm/domain.h \
+    $(wildcard include/config/io/36.h) \
+    $(wildcard include/config/cpu/cp15/mmu.h) \
 
 /home/xilinx/ECEN_427/lab04/audio/audio.o: $(deps_/home/xilinx/ECEN_427/lab04/audio/audio.o)
 

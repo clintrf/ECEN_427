@@ -1,0 +1,28 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/xilinx/ECEN_427/lab04/i2cps/i2cps.c
+fcntl.h
+-
+stdio.h
+-
+string.h
+-
+stdlib.h
+-
+unistd.h
+-
+sys/ioctl.h
+-
+i2cps.h
+/home/xilinx/ECEN_427/lab04/i2cps/i2cps.h
+
+/home/xilinx/ECEN_427/lab04/i2cps/i2cps.h
+linux/i2c-dev.h
+-
+

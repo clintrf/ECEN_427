@@ -4,3 +4,6 @@
 /home/xilinx/ECEN_427/lab04/audio_driver/CMakeFiles/edit_cache.dir
 /home/xilinx/ECEN_427/lab04/audio_driver/CMakeFiles/rebuild_cache.dir
 /home/xilinx/ECEN_427/lab04/audio_driver/CMakeFiles/audio_driver.dir
+/home/xilinx/ECEN_427/lab04/i2cps/CMakeFiles/edit_cache.dir
+/home/xilinx/ECEN_427/lab04/i2cps/CMakeFiles/rebuild_cache.dir
+/home/xilinx/ECEN_427/lab04/i2cps/CMakeFiles/i2cps.dir

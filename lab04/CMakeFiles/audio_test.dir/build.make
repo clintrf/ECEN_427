@@ -91,6 +91,7 @@ audio_test_EXTERNAL_OBJECTS =
 audio_test: CMakeFiles/audio_test.dir/main.c.o
 audio_test: CMakeFiles/audio_test.dir/build.make
 audio_test: audio_driver/libaudio_driver.a
+audio_test: i2cps/libi2cps.a
 audio_test: CMakeFiles/audio_test.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/xilinx/ECEN_427/lab04/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking C executable audio_test"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/audio_test.dir/link.txt --verbose=$(VERBOSE)
