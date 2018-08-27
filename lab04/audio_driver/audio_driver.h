@@ -96,9 +96,11 @@ int32_t audio_driver_init(char devDevice[]);
 // Called to exit the driver (unmap and close UIO file)
 void audio_driver_exit();
 
+
 // Called to write to the audio driver
 // len : amount of bytes to write to the driver
-void audio_driver_write(int32_t len);
+// buf : the buffer to be passed into the kernel (contains audio data)
+void audio_driver_write(const char *buf, int32_t len);
 
 // Called to read to the audio driver
 // len : the amount of bytes to read into the buffer
