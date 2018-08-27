@@ -31,6 +31,8 @@ sys/stat.h
 -
 sys/ioctl.h
 -
+err.h
+-
 audio_driver.h
 /home/xilinx/ECEN_427/lab04/audio_driver/audio_driver.h
 ../i2cps/i2cps.h

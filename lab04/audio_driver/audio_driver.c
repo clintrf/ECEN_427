@@ -48,6 +48,10 @@ static int fd; /* this is a file descriptor that describes the UIO device */
 static uint16_t off = 0;
 audio_data  data_array[9];
 
+
+/******************************** prototypes *********************************/
+void audio_driver_import_audio(char fileName[], uint16_t index);
+
 /********************************* functions *********************************/
 // Initializes the driver (opens UIO file and calls mmap)
 // devDevice: The file path to the uio dev file
@@ -108,7 +112,7 @@ void audio_driver_import_audio(char fileName[], uint16_t index) {
   //uint32_t * data;
   for (size_t i = 0; i < data.size; i++) {  // Loop through data and
       data.data[i] = sampleBuf[i];
-      printf("Data at Index %zu: %zu\n",i,data);
+      printf("Data at Index %zu: %zu\n",i,sampleBuf[i]);
   }
   data_array[index] = data;
 }
