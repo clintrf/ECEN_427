@@ -13,7 +13,7 @@ struct text_map{
   char value;
 };
 
-uint32_t *convert_to_array();
+const uint32_t *convert_to_array();
 
 void init_score_board();
 

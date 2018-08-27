@@ -8,15 +8,16 @@
 #define TOP_TEN_SCORES 10
 #define PIXEL_SPACING 3
 #define ONE_PIXEL 3
-#define DEFAULT_CHAR_SCALE 1
-#define SCORE_BOARD_START_POS 640*300+201
+#define DEFAULT_CHAR_SCALE 2
+#define SCORE_BOARD_START_POS 640*100*3+(220*3)
 #define SCALE_NEXT_LINE_ 640*ONE_PIXEL*10
+#define CHAR_OFFSET 48
 
 char white_test[3] = {0xFF, 0xFF, 0xFF};
 
 struct player_stats high_scores[TOP_TEN_SCORES];
 
-uint32_t convert_to_array(int chrt){
+const uint32_t *convert_to_array(int chrt){
   char temp = chrt;
   switch(temp){
     case '0':
@@ -91,36 +92,41 @@ uint32_t convert_to_array(int chrt){
       return char_array[34];
     case 'Y':
       return char_array[35];
-    case "Z":
+    case 'Z':
       return char_array[36];
-    default:
+
   }
 };
 
 void init_score_board(){
-
-
-
-
-  int one;
-  int two;
-  int three;
-
+  uint32_t nam1, nam2, nam3, num, num1, num2, num3, num4, num5;
   FILE * fp;
   fp = fopen("/home/xilinx/ECEN_427/lab03/image_render/score_board/high_scores.txt", "r");
 
   for(int i = 0; i < TOP_TEN_SCORES; i++){
-    for(int j = 0; j < 25; j++){
-      high_scores[i].name_char[0][j] = convert_to_array(getc(fp))[j];
-      high_scores[i].name_char[1][j] = convert_to_array(getc(fp))[j];
-      high_scores[i].name_char[2][j] = convert_to_array(getc(fp))[j];
-      getc(fp);
-      high_scores[i].score_char[0][j] = convert_to_array(getc(fp))[j];
-      high_scores[i].score_char[1][j] = convert_to_array(getc(fp))[j];
-      high_scores[i].score_char[2][j] = convert_to_array(getc(fp))[j];
-      high_scores[i].score_char[3][j] = convert_to_array(getc(fp))[j];
-      high_scores[i].score_char[4][j] = convert_to_array(getc(fp))[j];
-      getc(fp);
+    nam1 = getc(fp);
+    nam2 = getc(fp);
+    nam3 = getc(fp);
+    getc(fp);
+    num1 = getc(fp);
+    num2 = getc(fp);
+    num3 = getc(fp);
+    num4 = getc(fp);
+    num5 = getc(fp);
+    getc(fp);
+
+    num = 10000*(num1-CHAR_OFFSET)+1000*(num2-CHAR_OFFSET)+100*(num3-CHAR_OFFSET)+10*(num4-CHAR_OFFSET)+(num5-CHAR_OFFSET);
+    high_scores[i].score = num;
+
+    for(int j = 0; j<25;j++){
+      high_scores[i].name_char[0][j] = convert_to_array(nam1)[j];
+      high_scores[i].name_char[1][j] = convert_to_array(nam2)[j];
+      high_scores[i].name_char[2][j] = convert_to_array(nam3)[j];
+      high_scores[i].score_char[0][j] = convert_to_array(num1)[j];
+      high_scores[i].score_char[1][j] = convert_to_array(num2)[j];
+      high_scores[i].score_char[2][j] = convert_to_array(num3)[j];
+      high_scores[i].score_char[3][j] = convert_to_array(num4)[j];
+      high_scores[i].score_char[4][j] = convert_to_array(num5)[j];
     }
   }
 }
@@ -128,13 +134,15 @@ void init_score_board(){
 // function to print the top 10 high scores
 void print_high_scores(){
   for(int i = 0; i < TOP_TEN_SCORES; i++){
-    sprites_render_image(high_scores[i].name_char[0],5,5,(SCORE_BOARD_START_POS+(SCALE_NEXT_LINE_*i)+(0*DEFAULT_CHAR_SCALE*ONE_PIXEL*10)),DEFAULT_CHAR_SCALE,white_test);
-    sprites_render_image(high_scores[i].name_char[1],5,5,(SCORE_BOARD_START_POS+(SCALE_NEXT_LINE_*i)+(1*DEFAULT_CHAR_SCALE*ONE_PIXEL*10)),DEFAULT_CHAR_SCALE,white_test);
-    sprites_render_image(high_scores[i].name_char[2],5,5,(SCORE_BOARD_START_POS+(SCALE_NEXT_LINE_*i)+(2*DEFAULT_CHAR_SCALE*ONE_PIXEL*10)),DEFAULT_CHAR_SCALE,white_test);
+    sprites_render_image(high_scores[i].name_char[0],5,5,(SCORE_BOARD_START_POS+(SCALE_NEXT_LINE_*i*DEFAULT_CHAR_SCALE)+(0*DEFAULT_CHAR_SCALE*ONE_PIXEL*10)),DEFAULT_CHAR_SCALE,white_test);
+    sprites_render_image(high_scores[i].name_char[1],5,5,(SCORE_BOARD_START_POS+(SCALE_NEXT_LINE_*i*DEFAULT_CHAR_SCALE)+(1*DEFAULT_CHAR_SCALE*ONE_PIXEL*10)),DEFAULT_CHAR_SCALE,white_test);
+    sprites_render_image(high_scores[i].name_char[2],5,5,(SCORE_BOARD_START_POS+(SCALE_NEXT_LINE_*i*DEFAULT_CHAR_SCALE)+(2*DEFAULT_CHAR_SCALE*ONE_PIXEL*10)),DEFAULT_CHAR_SCALE,white_test);
 
-    sprites_render_image(high_scores[i].score_char[0],5,5,((SCORE_BOARD_START_POS+150)+(SCALE_NEXT_LINE_*i)+(0*DEFAULT_CHAR_SCALE*ONE_PIXEL*10)),DEFAULT_CHAR_SCALE,white_test);
-    sprites_render_image(high_scores[i].score_char[1],5,5,((SCORE_BOARD_START_POS+150)+(SCALE_NEXT_LINE_*i)+(1*DEFAULT_CHAR_SCALE*ONE_PIXEL*10)),DEFAULT_CHAR_SCALE,white_test);
-    sprites_render_image(high_scores[i].score_char[2],5,5,((SCORE_BOARD_START_POS+150)+(SCALE_NEXT_LINE_*i)+(2*DEFAULT_CHAR_SCALE*ONE_PIXEL*10)),DEFAULT_CHAR_SCALE,white_test);
+    sprites_render_image(high_scores[i].score_char[0],5,5,((SCORE_BOARD_START_POS+50*ONE_PIXEL*DEFAULT_CHAR_SCALE)+(SCALE_NEXT_LINE_*i*DEFAULT_CHAR_SCALE)+(0*DEFAULT_CHAR_SCALE*ONE_PIXEL*10)),DEFAULT_CHAR_SCALE,white_test);
+    sprites_render_image(high_scores[i].score_char[1],5,5,((SCORE_BOARD_START_POS+50*ONE_PIXEL*DEFAULT_CHAR_SCALE)+(SCALE_NEXT_LINE_*i*DEFAULT_CHAR_SCALE)+(1*DEFAULT_CHAR_SCALE*ONE_PIXEL*10)),DEFAULT_CHAR_SCALE,white_test);
+    sprites_render_image(high_scores[i].score_char[2],5,5,((SCORE_BOARD_START_POS+50*ONE_PIXEL*DEFAULT_CHAR_SCALE)+(SCALE_NEXT_LINE_*i*DEFAULT_CHAR_SCALE)+(2*DEFAULT_CHAR_SCALE*ONE_PIXEL*10)),DEFAULT_CHAR_SCALE,white_test);
+    sprites_render_image(high_scores[i].score_char[3],5,5,((SCORE_BOARD_START_POS+50*ONE_PIXEL*DEFAULT_CHAR_SCALE)+(SCALE_NEXT_LINE_*i*DEFAULT_CHAR_SCALE)+(3*DEFAULT_CHAR_SCALE*ONE_PIXEL*10)),DEFAULT_CHAR_SCALE,white_test);
+    sprites_render_image(high_scores[i].score_char[4],5,5,((SCORE_BOARD_START_POS+50*ONE_PIXEL*DEFAULT_CHAR_SCALE)+(SCALE_NEXT_LINE_*i*DEFAULT_CHAR_SCALE)+(4*DEFAULT_CHAR_SCALE*ONE_PIXEL*10)),DEFAULT_CHAR_SCALE,white_test);
   }
 }
 
