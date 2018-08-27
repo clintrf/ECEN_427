@@ -80,14 +80,14 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab04/CMakeFiles /home/xilinx/ECEN_427/lab04/CMakeFiles/progress.marks
-	$(MAKE) -f CMakeFiles/Makefile2 all
+	cd /home/xilinx/ECEN_427/lab04 && $(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab04/CMakeFiles /home/xilinx/ECEN_427/lab04/audio_adau/CMakeFiles/progress.marks
+	cd /home/xilinx/ECEN_427/lab04 && $(MAKE) -f CMakeFiles/Makefile2 audio_adau/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab04/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	$(MAKE) -f CMakeFiles/Makefile2 clean
+	cd /home/xilinx/ECEN_427/lab04 && $(MAKE) -f CMakeFiles/Makefile2 audio_adau/clean
 .PHONY : clean
 
 # The main clean target
@@ -97,97 +97,60 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	$(MAKE) -f CMakeFiles/Makefile2 preinstall
+	cd /home/xilinx/ECEN_427/lab04 && $(MAKE) -f CMakeFiles/Makefile2 audio_adau/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	$(MAKE) -f CMakeFiles/Makefile2 preinstall
+	cd /home/xilinx/ECEN_427/lab04 && $(MAKE) -f CMakeFiles/Makefile2 audio_adau/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	$(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /home/xilinx/ECEN_427/lab04 && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
-#=============================================================================
-# Target rules for targets named audio_test
+# Convenience name for target.
+audio_adau/CMakeFiles/audio_adau.dir/rule:
+	cd /home/xilinx/ECEN_427/lab04 && $(MAKE) -f CMakeFiles/Makefile2 audio_adau/CMakeFiles/audio_adau.dir/rule
+.PHONY : audio_adau/CMakeFiles/audio_adau.dir/rule
 
-# Build rule for target.
-audio_test: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 audio_test
-.PHONY : audio_test
+# Convenience name for target.
+audio_adau: audio_adau/CMakeFiles/audio_adau.dir/rule
 
-# fast build rule for target.
-audio_test/fast:
-	$(MAKE) -f CMakeFiles/audio_test.dir/build.make CMakeFiles/audio_test.dir/build
-.PHONY : audio_test/fast
-
-#=============================================================================
-# Target rules for targets named audio_driver
-
-# Build rule for target.
-audio_driver: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 audio_driver
-.PHONY : audio_driver
-
-# fast build rule for target.
-audio_driver/fast:
-	$(MAKE) -f audio_driver/CMakeFiles/audio_driver.dir/build.make audio_driver/CMakeFiles/audio_driver.dir/build
-.PHONY : audio_driver/fast
-
-#=============================================================================
-# Target rules for targets named i2cps
-
-# Build rule for target.
-i2cps: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 i2cps
-.PHONY : i2cps
-
-# fast build rule for target.
-i2cps/fast:
-	$(MAKE) -f i2cps/CMakeFiles/i2cps.dir/build.make i2cps/CMakeFiles/i2cps.dir/build
-.PHONY : i2cps/fast
-
-#=============================================================================
-# Target rules for targets named audio_adau
-
-# Build rule for target.
-audio_adau: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 audio_adau
 .PHONY : audio_adau
 
 # fast build rule for target.
 audio_adau/fast:
-	$(MAKE) -f audio_adau/CMakeFiles/audio_adau.dir/build.make audio_adau/CMakeFiles/audio_adau.dir/build
+	cd /home/xilinx/ECEN_427/lab04 && $(MAKE) -f audio_adau/CMakeFiles/audio_adau.dir/build.make audio_adau/CMakeFiles/audio_adau.dir/build
 .PHONY : audio_adau/fast
 
-main.o: main.c.o
+audio_adau1761.o: audio_adau1761.c.o
 
-.PHONY : main.o
+.PHONY : audio_adau1761.o
 
 # target to build an object file
-main.c.o:
-	$(MAKE) -f CMakeFiles/audio_test.dir/build.make CMakeFiles/audio_test.dir/main.c.o
-.PHONY : main.c.o
+audio_adau1761.c.o:
+	cd /home/xilinx/ECEN_427/lab04 && $(MAKE) -f audio_adau/CMakeFiles/audio_adau.dir/build.make audio_adau/CMakeFiles/audio_adau.dir/audio_adau1761.c.o
+.PHONY : audio_adau1761.c.o
 
-main.i: main.c.i
+audio_adau1761.i: audio_adau1761.c.i
 
-.PHONY : main.i
+.PHONY : audio_adau1761.i
 
 # target to preprocess a source file
-main.c.i:
-	$(MAKE) -f CMakeFiles/audio_test.dir/build.make CMakeFiles/audio_test.dir/main.c.i
-.PHONY : main.c.i
+audio_adau1761.c.i:
+	cd /home/xilinx/ECEN_427/lab04 && $(MAKE) -f audio_adau/CMakeFiles/audio_adau.dir/build.make audio_adau/CMakeFiles/audio_adau.dir/audio_adau1761.c.i
+.PHONY : audio_adau1761.c.i
 
-main.s: main.c.s
+audio_adau1761.s: audio_adau1761.c.s
 
-.PHONY : main.s
+.PHONY : audio_adau1761.s
 
 # target to generate assembly for a file
-main.c.s:
-	$(MAKE) -f CMakeFiles/audio_test.dir/build.make CMakeFiles/audio_test.dir/main.c.s
-.PHONY : main.c.s
+audio_adau1761.c.s:
+	cd /home/xilinx/ECEN_427/lab04 && $(MAKE) -f audio_adau/CMakeFiles/audio_adau.dir/build.make audio_adau/CMakeFiles/audio_adau.dir/audio_adau1761.c.s
+.PHONY : audio_adau1761.c.s
 
 # Help Target
 help:
@@ -197,13 +160,10 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... audio_test"
-	@echo "... audio_driver"
-	@echo "... i2cps"
 	@echo "... audio_adau"
-	@echo "... main.o"
-	@echo "... main.i"
-	@echo "... main.s"
+	@echo "... audio_adau1761.o"
+	@echo "... audio_adau1761.i"
+	@echo "... audio_adau1761.s"
 .PHONY : help
 
 
@@ -215,6 +175,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	$(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /home/xilinx/ECEN_427/lab04 && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

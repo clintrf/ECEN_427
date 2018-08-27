@@ -7,3 +7,6 @@
 /home/xilinx/ECEN_427/lab04/i2cps/CMakeFiles/edit_cache.dir
 /home/xilinx/ECEN_427/lab04/i2cps/CMakeFiles/rebuild_cache.dir
 /home/xilinx/ECEN_427/lab04/i2cps/CMakeFiles/i2cps.dir
+/home/xilinx/ECEN_427/lab04/audio_adau/CMakeFiles/edit_cache.dir
+/home/xilinx/ECEN_427/lab04/audio_adau/CMakeFiles/rebuild_cache.dir
+/home/xilinx/ECEN_427/lab04/audio_adau/CMakeFiles/audio_adau.dir

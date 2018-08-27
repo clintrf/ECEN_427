@@ -6,5 +6,5 @@ C_FLAGS =
 
 C_DEFINES = 
 
-C_INCLUDES = -I/home/xilinx/ECEN_427/lab04/audio_driver -I/home/xilinx/ECEN_427/lab04/i2cps -I/home/xilinx/ECEN_427/lab04/audio_adau 
+C_INCLUDES = 
 

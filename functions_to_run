@@ -1,0 +1,4 @@
+/* this one is to get rid of any clock skews in the build */
+find . -exec touch \{\} \;
+
+/* this one is to get rid of any problems with corrupted files in ./git */

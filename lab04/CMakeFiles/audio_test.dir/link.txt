@@ -1,1 +1,1 @@
-/usr/bin/cc     CMakeFiles/audio_test.dir/main.c.o  -o audio_test audio_driver/libaudio_driver.a i2cps/libi2cps.a 
+/usr/bin/cc     CMakeFiles/audio_test.dir/main.c.o  -o audio_test audio_driver/libaudio_driver.a i2cps/libi2cps.a audio_adau/libaudio_adau.a 
