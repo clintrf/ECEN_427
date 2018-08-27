@@ -2,3 +2,11 @@
 find . -exec touch \{\} \;
 
 /* this one is to get rid of any problems with corrupted files in ./git */
+find .git/objects/ -type f -empty | xargs rm
+git fetch -p
+git fsck --full
+
+/* this one is to do some set up for the kernel */
+sudo insmod audio.ko // inserts the audio kernel driver into the /dev folder
+dmesg // opens the kernel log to display messages from the drivers
+sudo rmmod audio.ko // removes the sudio kernel driver from the /dev folder

@@ -25,7 +25,7 @@
 
 /*********************************** macros **********************************/
 #define END_OF_READ_FILE 0
-#define SOUND_FILE_HOME "/home/xilinx/ECEN_427/lab04/wavFiles" // location of all our sound folder
+#define SOUND_FILE_HOME "/home/xilinx/ECEN_427/lab04/wavFiles"
 #define INVADER_DIE_AUDIO SOUND_FILE_HOME "/invader_die.wav"
 #define LASER_AUDIO SOUND_FILE_HOME "/laser.wav"
 #define PLAYER_DIE_AUDIO SOUND_FILE_HOME "/player_die.wav"
@@ -60,7 +60,7 @@ int32_t audio_driver_init(char devDevice[]) {
     printf("Audio Driver Error, file cannot open.\n");
     return AUDIO_DRIVER_ERROR;
   }
-  audio_driver_import_audio(LASER_AUDIO, 0);
+  audio_driver_import_audio(INVADER_DIE_AUDIO, 0);
   //audio_driver_import_audio(LASER_AUDIO, 1);
   //audio_driver_import_audio(PLAYER_DIE_AUDIO);
   //audio_driver_import_audio(UFO_AUDIO);
@@ -72,52 +72,53 @@ int32_t audio_driver_init(char devDevice[]) {
   return AUDIO_DRIVER_SUCCESS;
 }
 
+// This goes through one audio file, converts it, and puts it in the data_array
+// fileName : the name of the file to import
+// index : the index within data_array to place the imported and converted file
 void audio_driver_import_audio(char fileName[], uint16_t index) {
   printf("Print Audio Function\n");
   size_t sizeOfFile = 0;
   char* rawbuffer = 0;
   unsigned short int* sampleBuf = 0;
   size_t bytesRead = 0;
-
-  if (!fileName) { errx(1, "Filename not specified"); }                         // Error checking for getting file name
-  else {                                                                        // prints the file path
-    printf("File Name: ");                                                      // Print out the file name
-    for(int i = 0; i < 52; i++) {                                               // ^^^^^^^^^^^^^^^^^^^^^^^
-      printf("%c",fileName[i]);                                                 // ^^^^^^^^^^^^^^^^^^^^^^^
-    }                                                                           // ^^^^^^^^^^^^^^^^^^^^^^^
-    printf("\r\n");                                                             // ^^^^^^^^^^^^^^^^^^^^^^^
+  /* Error checking for getting file name */
+  if (!fileName) { errx(1, "Filename not specified"); }
+  else { /* If we are getting a fileName, we want to print the name */
+    printf("File Name: ");
+    for(int i = 0; i < 52; i++) {
+      printf("%c",fileName[i]);
+    }
+    printf("\r\n");
   }
-
-  FILE* fp = fopen(fileName, "r");                                              // Open the file given
-  if (!fp) { errx(1, "Filename not opened"); }                                  // Error check if File was correctly oppenned
-
-  fseek(fp, 0L, SEEK_END);                                                      // Run though the entire file
-  sizeOfFile = (size_t)ftell(fp);                                               // Save how many bytes thf fp is and use as size of file
-  rewind(fp);                                                                   // return to to top of file
-
-  rawbuffer = (char*)malloc(sizeOfFile);                                        // Alocate memory based on size of file
-  if (!rawbuffer){ errx(1, "Memory not allocated"); }                           // Error check if memory is alocated if not dealocate memory
-
-  bytesRead = fread((void*)rawbuffer, 1, sizeOfFile, fp);                       // Write to raw buffer
-  if(bytesRead != sizeOfFile){ errx(1, "Did not read entire file"); }           // Error check if buffer was written to
-
+  /* Open the file given */
+  FILE* fp = fopen(fileName, "r");
+  /* Error check if File was correctly opened */
+  if (!fp) { errx(1, "Filename not opened"); }
+  fseek(fp, 0L, SEEK_END); // Run though the entire file
+  sizeOfFile = (size_t)ftell(fp); // grab the size of the file
+  rewind(fp); // return to to top of file
+  /* Alocate memory based on size of file */
+  rawbuffer = (char*)malloc(sizeOfFile);
+  /* Error check if memory is alocated if not dealocate memory */
+  if (!rawbuffer){ errx(1, "Memory not allocated"); }
+  /* The actual reading part. Used to grab the data from the file */
+  bytesRead = fread((void*)rawbuffer, 1, sizeOfFile, fp);
+  /* Error check if buffer was written to */
+  if(bytesRead != sizeOfFile){ errx(1, "Did not read entire file"); }
+  /* Set up the audio_data structure and sets it to an index in data_array */
   audio_data data;
   data.total_size = bytesRead / sizeof(unsigned short int);
   data.head = rawbuffer;
-  data.data_size = data.total_size - DATA_OFFSET;
-  data.data = rawbuffer + DATA_OFFSET*BITS_PER_BYTE;
+  data.data_size = data.total_size-DATA_OFFSET;
+  data.data = rawbuffer+DATA_OFFSET*BITS_PER_BYTE;
   data_array[index] = data;
-
-  sampleBuf = (unsigned short int*)rawbuffer;                                   // Save copy of Raw buffer by converting from char to int
-  //uint32_t * dataTemp;
+  /* Save copy of Raw buffer by converting from char to int */
+  sampleBuf = (unsigned short int*)rawbuffer;
   size_t j = 0;
-  for (size_t i = 0; i < (data.total_size - data.data_size) ; i++) {  // Loop through data and
-       //dataTemp = sampleBuf[i];
-
-      printf("Data at Index %zu: %c\n",j, (sampleBuf[i]&0x00ff));
-      j++;
-      printf("Data at Index %zu: %c\n",j, (sampleBuf[i]&0xff00)>>8);
-      j++;
+  /* Used to print out the data in ASCII (checks for correct transfer) */
+  for (size_t i = 0; i < (data.total_size - data.data_size) ; i++) {
+      printf("Data at Index %zu: %c\n",j++,(sampleBuf[i]&0x00ff));
+      printf("Data at Index %zu: %c\n",j++, (sampleBuf[i]&0xff00)>>8);
   }
 
 }
