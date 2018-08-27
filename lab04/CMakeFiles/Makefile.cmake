@@ -11,7 +11,6 @@ set(CMAKE_MAKEFILE_DEPENDS
   "CMakeFiles/3.5.1/CMakeCXXCompiler.cmake"
   "CMakeFiles/3.5.1/CMakeSystem.cmake"
   "CMakeLists.txt"
-  "audio_adau/CMakeLists.txt"
   "audio_driver/CMakeLists.txt"
   "i2cps/CMakeLists.txt"
   "/usr/share/cmake-3.5/Modules/CMakeCInformation.cmake"
@@ -42,7 +41,6 @@ set(CMAKE_MAKEFILE_PRODUCTS
   "CMakeFiles/CMakeDirectoryInformation.cmake"
   "audio_driver/CMakeFiles/CMakeDirectoryInformation.cmake"
   "i2cps/CMakeFiles/CMakeDirectoryInformation.cmake"
-  "audio_adau/CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:
@@ -50,5 +48,4 @@ set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/audio_test.dir/DependInfo.cmake"
   "audio_driver/CMakeFiles/audio_driver.dir/DependInfo.cmake"
   "i2cps/CMakeFiles/i2cps.dir/DependInfo.cmake"
-  "audio_adau/CMakeFiles/audio_adau.dir/DependInfo.cmake"
   )

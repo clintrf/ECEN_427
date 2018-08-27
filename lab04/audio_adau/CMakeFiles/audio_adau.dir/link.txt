@@ -1,2 +1,0 @@
-/usr/bin/ar qc libaudio_adau.a  CMakeFiles/audio_adau.dir/audio_adau1761.c.o
-/usr/bin/ranlib libaudio_adau.a

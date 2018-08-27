@@ -12,14 +12,12 @@ set(CMAKE_C_COMPILER_ID "GNU")
 set(CMAKE_C_TARGET_INCLUDE_PATH
   "audio_driver"
   "i2cps"
-  "audio_adau"
   )
 
 # Targets to which this target links.
 set(CMAKE_TARGET_LINKED_INFO_FILES
   "/home/xilinx/ECEN_427/lab04/audio_driver/CMakeFiles/audio_driver.dir/DependInfo.cmake"
   "/home/xilinx/ECEN_427/lab04/i2cps/CMakeFiles/i2cps.dir/DependInfo.cmake"
-  "/home/xilinx/ECEN_427/lab04/audio_adau/CMakeFiles/audio_adau.dir/DependInfo.cmake"
   )
 
 # Fortran module output directory.

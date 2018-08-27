@@ -36,7 +36,6 @@ if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/home/xilinx/ECEN_427/lab04/audio_driver/cmake_install.cmake")
   include("/home/xilinx/ECEN_427/lab04/i2cps/cmake_install.cmake")
-  include("/home/xilinx/ECEN_427/lab04/audio_adau/cmake_install.cmake")
 
 endif()
 

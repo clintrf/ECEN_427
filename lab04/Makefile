@@ -149,19 +149,6 @@ i2cps/fast:
 	$(MAKE) -f i2cps/CMakeFiles/i2cps.dir/build.make i2cps/CMakeFiles/i2cps.dir/build
 .PHONY : i2cps/fast
 
-#=============================================================================
-# Target rules for targets named audio_adau
-
-# Build rule for target.
-audio_adau: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 audio_adau
-.PHONY : audio_adau
-
-# fast build rule for target.
-audio_adau/fast:
-	$(MAKE) -f audio_adau/CMakeFiles/audio_adau.dir/build.make audio_adau/CMakeFiles/audio_adau.dir/build
-.PHONY : audio_adau/fast
-
 main.o: main.c.o
 
 .PHONY : main.o
@@ -200,7 +187,6 @@ help:
 	@echo "... audio_test"
 	@echo "... audio_driver"
 	@echo "... i2cps"
-	@echo "... audio_adau"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

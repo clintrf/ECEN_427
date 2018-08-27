@@ -3,4 +3,5 @@
 
 audio_driver/CMakeFiles/audio_driver.dir/audio_driver.c.o: audio_driver/audio_driver.c
 audio_driver/CMakeFiles/audio_driver.dir/audio_driver.c.o: audio_driver/audio_driver.h
+audio_driver/CMakeFiles/audio_driver.dir/audio_driver.c.o: i2cps/i2cps.h
 

@@ -4,3 +4,4 @@
 audio_driver/CMakeFiles/audio_driver.dir/audio_driver.c.o
  /home/xilinx/ECEN_427/lab04/audio_driver/audio_driver.c
  /home/xilinx/ECEN_427/lab04/audio_driver/audio_driver.h
+ /home/xilinx/ECEN_427/lab04/i2cps/i2cps.h
