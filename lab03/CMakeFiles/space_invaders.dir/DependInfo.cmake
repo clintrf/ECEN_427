@@ -18,6 +18,7 @@ set(CMAKE_TARGET_LINKED_INFO_FILES
   "/home/xilinx/ECEN_427/lab03/image_render/CMakeFiles/render.dir/DependInfo.cmake"
   "/home/xilinx/ECEN_427/lab03/image_render/hdmi/CMakeFiles/hdmi.dir/DependInfo.cmake"
   "/home/xilinx/ECEN_427/lab03/image_render/sprites/CMakeFiles/sprites.dir/DependInfo.cmake"
+  "/home/xilinx/ECEN_427/lab03/image_render/score_board/CMakeFiles/score_board.dir/DependInfo.cmake"
   )
 
 # Fortran module output directory.

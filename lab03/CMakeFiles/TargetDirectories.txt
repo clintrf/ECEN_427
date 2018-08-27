@@ -10,3 +10,6 @@
 /home/xilinx/ECEN_427/lab03/image_render/sprites/CMakeFiles/edit_cache.dir
 /home/xilinx/ECEN_427/lab03/image_render/sprites/CMakeFiles/rebuild_cache.dir
 /home/xilinx/ECEN_427/lab03/image_render/sprites/CMakeFiles/sprites.dir
+/home/xilinx/ECEN_427/lab03/image_render/score_board/CMakeFiles/edit_cache.dir
+/home/xilinx/ECEN_427/lab03/image_render/score_board/CMakeFiles/rebuild_cache.dir
+/home/xilinx/ECEN_427/lab03/image_render/score_board/CMakeFiles/score_board.dir

@@ -13,6 +13,7 @@ set(CMAKE_MAKEFILE_DEPENDS
   "CMakeLists.txt"
   "image_render/CMakeLists.txt"
   "image_render/hdmi/CMakeLists.txt"
+  "image_render/score_board/CMakeLists.txt"
   "image_render/sprites/CMakeLists.txt"
   "/usr/share/cmake-3.5/Modules/CMakeCInformation.cmake"
   "/usr/share/cmake-3.5/Modules/CMakeCXXInformation.cmake"
@@ -43,6 +44,7 @@ set(CMAKE_MAKEFILE_PRODUCTS
   "image_render/CMakeFiles/CMakeDirectoryInformation.cmake"
   "image_render/hdmi/CMakeFiles/CMakeDirectoryInformation.cmake"
   "image_render/sprites/CMakeFiles/CMakeDirectoryInformation.cmake"
+  "image_render/score_board/CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:
@@ -51,4 +53,5 @@ set(CMAKE_DEPEND_INFO_FILES
   "image_render/CMakeFiles/render.dir/DependInfo.cmake"
   "image_render/hdmi/CMakeFiles/hdmi.dir/DependInfo.cmake"
   "image_render/sprites/CMakeFiles/sprites.dir/DependInfo.cmake"
+  "image_render/score_board/CMakeFiles/score_board.dir/DependInfo.cmake"
   )

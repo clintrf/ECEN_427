@@ -80,14 +80,14 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles /home/xilinx/ECEN_427/lab03/CMakeFiles/progress.marks
-	$(MAKE) -f CMakeFiles/Makefile2 all
+	cd /home/xilinx/ECEN_427/lab03 && $(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles /home/xilinx/ECEN_427/lab03/image_render/score_board/CMakeFiles/progress.marks
+	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f CMakeFiles/Makefile2 image_render/score_board/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	$(MAKE) -f CMakeFiles/Makefile2 clean
+	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f CMakeFiles/Makefile2 image_render/score_board/clean
 .PHONY : clean
 
 # The main clean target
@@ -97,110 +97,60 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	$(MAKE) -f CMakeFiles/Makefile2 preinstall
+	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f CMakeFiles/Makefile2 image_render/score_board/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	$(MAKE) -f CMakeFiles/Makefile2 preinstall
+	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f CMakeFiles/Makefile2 image_render/score_board/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	$(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /home/xilinx/ECEN_427/lab03 && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
-#=============================================================================
-# Target rules for targets named space_invaders
+# Convenience name for target.
+image_render/score_board/CMakeFiles/score_board.dir/rule:
+	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f CMakeFiles/Makefile2 image_render/score_board/CMakeFiles/score_board.dir/rule
+.PHONY : image_render/score_board/CMakeFiles/score_board.dir/rule
 
-# Build rule for target.
-space_invaders: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 space_invaders
-.PHONY : space_invaders
+# Convenience name for target.
+score_board: image_render/score_board/CMakeFiles/score_board.dir/rule
 
-# fast build rule for target.
-space_invaders/fast:
-	$(MAKE) -f CMakeFiles/space_invaders.dir/build.make CMakeFiles/space_invaders.dir/build
-.PHONY : space_invaders/fast
-
-#=============================================================================
-# Target rules for targets named render
-
-# Build rule for target.
-render: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 render
-.PHONY : render
-
-# fast build rule for target.
-render/fast:
-	$(MAKE) -f image_render/CMakeFiles/render.dir/build.make image_render/CMakeFiles/render.dir/build
-.PHONY : render/fast
-
-#=============================================================================
-# Target rules for targets named hdmi
-
-# Build rule for target.
-hdmi: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 hdmi
-.PHONY : hdmi
-
-# fast build rule for target.
-hdmi/fast:
-	$(MAKE) -f image_render/hdmi/CMakeFiles/hdmi.dir/build.make image_render/hdmi/CMakeFiles/hdmi.dir/build
-.PHONY : hdmi/fast
-
-#=============================================================================
-# Target rules for targets named sprites
-
-# Build rule for target.
-sprites: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 sprites
-.PHONY : sprites
-
-# fast build rule for target.
-sprites/fast:
-	$(MAKE) -f image_render/sprites/CMakeFiles/sprites.dir/build.make image_render/sprites/CMakeFiles/sprites.dir/build
-.PHONY : sprites/fast
-
-#=============================================================================
-# Target rules for targets named score_board
-
-# Build rule for target.
-score_board: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 score_board
 .PHONY : score_board
 
 # fast build rule for target.
 score_board/fast:
-	$(MAKE) -f image_render/score_board/CMakeFiles/score_board.dir/build.make image_render/score_board/CMakeFiles/score_board.dir/build
+	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f image_render/score_board/CMakeFiles/score_board.dir/build.make image_render/score_board/CMakeFiles/score_board.dir/build
 .PHONY : score_board/fast
 
-main.o: main.c.o
+score_board.o: score_board.c.o
 
-.PHONY : main.o
+.PHONY : score_board.o
 
 # target to build an object file
-main.c.o:
-	$(MAKE) -f CMakeFiles/space_invaders.dir/build.make CMakeFiles/space_invaders.dir/main.c.o
-.PHONY : main.c.o
+score_board.c.o:
+	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f image_render/score_board/CMakeFiles/score_board.dir/build.make image_render/score_board/CMakeFiles/score_board.dir/score_board.c.o
+.PHONY : score_board.c.o
 
-main.i: main.c.i
+score_board.i: score_board.c.i
 
-.PHONY : main.i
+.PHONY : score_board.i
 
 # target to preprocess a source file
-main.c.i:
-	$(MAKE) -f CMakeFiles/space_invaders.dir/build.make CMakeFiles/space_invaders.dir/main.c.i
-.PHONY : main.c.i
+score_board.c.i:
+	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f image_render/score_board/CMakeFiles/score_board.dir/build.make image_render/score_board/CMakeFiles/score_board.dir/score_board.c.i
+.PHONY : score_board.c.i
 
-main.s: main.c.s
+score_board.s: score_board.c.s
 
-.PHONY : main.s
+.PHONY : score_board.s
 
 # target to generate assembly for a file
-main.c.s:
-	$(MAKE) -f CMakeFiles/space_invaders.dir/build.make CMakeFiles/space_invaders.dir/main.c.s
-.PHONY : main.c.s
+score_board.c.s:
+	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f image_render/score_board/CMakeFiles/score_board.dir/build.make image_render/score_board/CMakeFiles/score_board.dir/score_board.c.s
+.PHONY : score_board.c.s
 
 # Help Target
 help:
@@ -210,14 +160,10 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... space_invaders"
-	@echo "... render"
-	@echo "... hdmi"
-	@echo "... sprites"
 	@echo "... score_board"
-	@echo "... main.o"
-	@echo "... main.i"
-	@echo "... main.s"
+	@echo "... score_board.o"
+	@echo "... score_board.i"
+	@echo "... score_board.s"
 .PHONY : help
 
 
@@ -229,6 +175,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	$(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /home/xilinx/ECEN_427/lab03 && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

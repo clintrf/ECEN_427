@@ -12,12 +12,14 @@ set(CMAKE_C_COMPILER_ID "GNU")
 set(CMAKE_C_TARGET_INCLUDE_PATH
   "image_render/hdmi"
   "image_render/sprites"
+  "image_render/score_board"
   )
 
 # Targets to which this target links.
 set(CMAKE_TARGET_LINKED_INFO_FILES
   "/home/xilinx/ECEN_427/lab03/image_render/hdmi/CMakeFiles/hdmi.dir/DependInfo.cmake"
   "/home/xilinx/ECEN_427/lab03/image_render/sprites/CMakeFiles/sprites.dir/DependInfo.cmake"
+  "/home/xilinx/ECEN_427/lab03/image_render/score_board/CMakeFiles/score_board.dir/DependInfo.cmake"
   )
 
 # Fortran module output directory.

@@ -3,5 +3,6 @@
 
 image_render/CMakeFiles/render.dir/image_render.c.o: image_render/image_render.c
 image_render/CMakeFiles/render.dir/image_render.c.o: image_render/hdmi/hdmi.h
+image_render/CMakeFiles/render.dir/image_render.c.o: image_render/score_board/score_board.h
 image_render/CMakeFiles/render.dir/image_render.c.o: image_render/sprites/sprites.h
 

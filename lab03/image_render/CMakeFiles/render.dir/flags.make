@@ -6,5 +6,5 @@ C_FLAGS =
 
 C_DEFINES = 
 
-C_INCLUDES = -I/home/xilinx/ECEN_427/lab03/image_render/hdmi -I/home/xilinx/ECEN_427/lab03/image_render/sprites 
+C_INCLUDES = -I/home/xilinx/ECEN_427/lab03/image_render/hdmi -I/home/xilinx/ECEN_427/lab03/image_render/sprites -I/home/xilinx/ECEN_427/lab03/image_render/score_board 
 

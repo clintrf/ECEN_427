@@ -1,4 +1,4 @@
-# Install script for directory: /home/xilinx/ECEN_427/lab03/image_render
+# Install script for directory: /home/xilinx/ECEN_427/lab03/image_render/score_board
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -30,13 +30,5 @@ endif()
 # Install shared libraries without execute permission?
 if(NOT DEFINED CMAKE_INSTALL_SO_NO_EXE)
   set(CMAKE_INSTALL_SO_NO_EXE "1")
-endif()
-
-if(NOT CMAKE_INSTALL_LOCAL_ONLY)
-  # Include the install script for each subdirectory.
-  include("/home/xilinx/ECEN_427/lab03/image_render/hdmi/cmake_install.cmake")
-  include("/home/xilinx/ECEN_427/lab03/image_render/sprites/cmake_install.cmake")
-  include("/home/xilinx/ECEN_427/lab03/image_render/score_board/cmake_install.cmake")
-
 endif()
 
