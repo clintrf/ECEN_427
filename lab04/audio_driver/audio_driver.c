@@ -108,17 +108,26 @@ void audio_driver_import_audio(char fileName[], uint16_t index) {
   /* Set up the audio_data structure and sets it to an index in data_array */
   audio_data data;
   data.total_size = bytesRead / sizeof(unsigned short int);
+  printf("Total Size: %zu\n", data.total_size);
   data.head = rawbuffer;
-  data.data_size = data.total_size-DATA_OFFSET;
-  data.data = rawbuffer+DATA_OFFSET*BITS_PER_BYTE;
+  data.data_size = data.total_size-(DATA_OFFSET/2);
+  printf("Total Size: %zu\n", data.data_size);
+  data.data = rawbuffer+DATA_OFFSET;
   data_array[index] = data;
   /* Save copy of Raw buffer by converting from char to int */
-  sampleBuf = (unsigned short int*)rawbuffer;
+  sampleBuf = (unsigned short int*) data.head;
+  unsigned short int * dataCheck = (unsigned short int *) data.data;
   size_t j = 0;
   /* Used to print out the data in ASCII (checks for correct transfer) */
   for (size_t i = 0; i < (data.total_size - data.data_size) ; i++) {
       printf("Data at Index %zu: %c\n",j++,(sampleBuf[i]&0x00ff));
       printf("Data at Index %zu: %c\n",j++, (sampleBuf[i]&0xff00)>>8);
+  }
+  printf("\r\n\n\n");
+  j = 44;
+  for(size_t i = 0; i < (data.data_size)/2; i++) {
+    printf("Data at Index %zu: %c\n",j++,(dataCheck[i]&0x00ff));
+    printf("Data at Index %zu: %c\n",j++, (dataCheck[i]&0xff00)>>8);
   }
 
 }
@@ -161,7 +170,7 @@ int16_t audio_driver_read(int32_t len) {
 // Call to get the audio header and data out of the data data_array
 // index : the audio sound numbersd
 // return : audio_data struct that contains the data buffer and the size of the index
-audio_data get_data_array(uint32_t index){
+audio_data audio_driver_get_data_array(uint32_t index){
   return data_array[index];
 }
 
@@ -293,7 +302,11 @@ void config_audio_codec(int iic_index) {
     write_audio_reg(R29_PLAYBACK_HEADPHONE_LEFT_VOLUME_CONTROL, 0xE5, iic_fd);
     write_audio_reg(R30_PLAYBACK_HEADPHONE_RIGHT_VOLUME_CONTROL, 0xE5, iic_fd);
 
+    /* ADDED CODE TO THIS FUNCTION (Clint's fault entirely)*/
     // Re enable muted audio.
+    write_audio_reg(R29_PLAYBACK_HEADPHONE_LEFT_VOLUME_CONTROL, 0xE7, iic_fd);
+    write_audio_reg(R30_PLAYBACK_HEADPHONE_RIGHT_VOLUME_CONTROL, 0xE7, iic_fd);
+    /* END ADDED CODE TO THIS FUNCTION */
 
     // Enable play back right and left channels
     write_audio_reg(R35_PLAYBACK_POWER_MANAGEMENT, 0x03, iic_fd);

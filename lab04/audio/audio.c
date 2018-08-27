@@ -127,7 +127,7 @@ module_exit(audio_exit);
 // buf : the buffer to place the read values into
 // len : the number of bytes to read
 // off : indicates the file position the user is accessing
-// returns how many bytes were read
+// return one byte of data (0 or 1) stating if an audio sample is being played
 static ssize_t audio_read(struct file *f, char *buf, size_t len, loff_t *off) {
   printk(KERN_INFO "Driver: read()\n");
   // unsigned long copy_to_user(void *to,const void *from,unsigned long count);
@@ -177,18 +177,21 @@ static ssize_t audio_write(struct file *f, const char *buf, size_t len,
 // returns a flag stating if the irq was handled properly
 static irqreturn_t irq_isr(int irq_loc, void *dev_id)
 {
+  /* LIST OF QUESTIONS */
+  // 1. How to access the I2S Status Register (check for space)
+  // 2. How to write information to the FIFOs
+  // 3. Covert 16 bit WAV file to 24 bit PCM & then to 32 bit to pass into write()
+  /* END LIST OF QUESTIONS */
+
   pr_info("Calling the irq_isr!\n");
-  //uio_ptr = setUIO(uio_index, audio_mmap_size);
+  int16_t iic_index = 0;
+  int16_t uio_index = 1;
+  void * uio_ptr = setUIO(uio_index, audio_mmap_size);
   // Read the sample from the input
   //DataR1 = *((volatile int *)(((uint8_t *)uio_ptr) + I2S_STATUS_REG + 1));
   //DataR2 = *((volatile int *)(((uint8_t *)uio_ptr) + I2S_STATUS_REG + 2));
-  //...
-
   // read(struct file *filp, char __user *buff,    size_t count, loff_t *offp);
-  // TX_DATACOUNT_L
-
   // Determine how much free space is in the audio FIFOs
-  //TX_DATACOUNT_L
   // fill them up with the next audio samples to be played.
   // Once end of the audio clip is reached, disable interrupts
   disable_irq_nosync(irq_loc);
