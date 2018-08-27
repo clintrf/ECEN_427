@@ -3,9 +3,9 @@
 
 
 struct player_stats{
-  unint32_r name_char[3];
-  unint32_t score_char[3]
-  unint32_t score;
+  uint32_t name_char[25][3];
+  uint32_t score_char[25][3]
+  uint32_t score;
 }
 
 void print_stats();

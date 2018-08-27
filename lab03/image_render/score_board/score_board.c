@@ -16,13 +16,13 @@ player_stats high_scores[TOP_TEN_SCORES];
 void init_score_board(){
   for(int i = 0; i < TOP_TEN_SCORES; i++){
     high_scores[i].score = 0;
-    high_scores[i].score_char[0] = number0_5x5;
-    high_scores[i].score_char[1] = number0_5x5;
-    high_scores[i].score_char[2] = number0_5x5;
-    
-    high_scores[i].name_char[0] = letterA_5x5;
-    high_scores[i].name_char[1] = letterA_5x5;
-    high_scores[i].name_char[2] = letterA_5x5;
+    high_scores[i].score_char[][0] = number0_5x5;
+    high_scores[i].score_char[][1] = number0_5x5;
+    high_scores[i].score_char[][2] = number0_5x5;
+
+    high_scores[i].name_char[][0] = letterA_5x5;
+    high_scores[i].name_char[][1] = letterA_5x5;
+    high_scores[i].name_char[][2] = letterA_5x5;
   }
 }
 
