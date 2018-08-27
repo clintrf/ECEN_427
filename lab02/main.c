@@ -23,9 +23,9 @@
 #define TIME_MIN 0 /* smallest number the time values can be*/
 #define SWITCH_FLAG_UP 1 /* value of the flag when it is up*/
 #define SWITCH_FLAG_DOWN 0 /* value of the flag when it is down*/
-#define BOUNCE 100000
-#define FIVE_SECONDS 500
-#define DELAY_TIME 10
+#define BOUNCE 100000 /* value of the ticks to seconds*/
+#define FIVE_SECONDS 1000000 /* value of the ticks to seconds*/
+#define DELAY_TIME 250000 /* value of the ticks to seconds for delay*/
 
 
 /*********************************** globals ***********************************/
@@ -41,7 +41,8 @@ int32_t hour_old = HOURS_MAX; /* this will track the hours for the clock */
 int32_t counter = TIME_MIN; /*counter for the interrupts to increment seconds */
 int32_t button_counter = TIME_MIN; /*counter for debounceing the buttons*/
 
-int32_t temp_temp = 100;
+
+int32_t multiple_buttons = 0;
 
 
 
@@ -63,6 +64,7 @@ void print_time() {
 // updateds the time based on the switch possition.
 void update_time(int32_t time_max, int32_t *unit, char switch_control) {
   int32_t temp = *unit;
+  // if switch is up increase time
   if(switch_control){
     if(temp >= time_max){
       temp = TIME_MIN;
@@ -71,6 +73,7 @@ void update_time(int32_t time_max, int32_t *unit, char switch_control) {
       temp++;
     }
   }
+  // if switch is down decrease time
   else{
     if(temp <= TIME_MIN){
       temp = time_max;
@@ -81,6 +84,27 @@ void update_time(int32_t time_max, int32_t *unit, char switch_control) {
   }
   *unit = temp;
   print_time();
+}
+
+void increment_time(uint32_t buttonPressed){
+  switch(buttonPressed) {
+    case BTN_0_MASK:
+      // button 0 pressed
+      update_time(SECONDS_MAX, &seconds, switch_flag);
+      break;
+    case BTN_1_MASK:
+      // button 1 pressed
+      update_time(MINUTES_MAX, &minutes, switch_flag);
+      break;
+    case BTN_2_MASK:
+      // button 2 pressed
+      update_time(HOURS_MAX, &hours, switch_flag);
+      break;
+    default:
+      //printf("%s \r\n", "ERROR");
+      multiple_buttons = 1;
+      break;
+  }
 }
 
 // This is invoked in response to a timer interrupt.
@@ -106,70 +130,6 @@ void isr_fit() {
   }
 }
 
-// This is invoked each time there is a change in the button state (result of a push or a bounce).
-void isr_buttons() {
-  uint32_t buttonPressed = button_read(GPIO_DATA_OFFSET);
-  while(button_counter < BOUNCE) {
-      button_counter++;
-  }
-
-  uint32_t debounce = button_read(GPIO_DATA_OFFSET);
-  if(debounce == buttonPressed){
-    switch(buttonPressed) {
-      case BTN_0_MASK:
-        //printf("button 0 pressed\n");
-        update_time(SECONDS_MAX, &seconds, switch_flag);
-        break;
-      case BTN_1_MASK:
-        //printf("button 1 pressed\n");
-        update_time(MINUTES_MAX, &minutes, switch_flag);
-        break;
-      case BTN_2_MASK:
-        //printf("button 2 pressed\n");
-        update_time(HOURS_MAX, &hours, switch_flag);
-        break;
-      default:
-        break;
-    }
-  }
-
-  // uint32_t auto_counter = 0;
-  // uint32_t delay_counter = 0;
-  // while (debounce == buttonPressed) {
-  //   debounce = button_read(GPIO_DATA_OFFSET);
-  //   auto_counter++;
-  //   if(auto_counter > FIVE_SECONDS) {
-  //     delay_counter++;
-  //     if(delay_counter > DELAY_TIME) {
-  //       switch(buttonPressed) {
-  //         case BTN_0_MASK:
-  //           //printf("button 0 pressed\n");
-  //           update_time(SECONDS_MAX, &seconds, switch_flag);
-  //           break;
-  //         case BTN_1_MASK:
-  //           //printf("button 1 pressed\n");
-  //           update_time(MINUTES_MAX, &minutes, switch_flag);
-  //           break;
-  //         case BTN_2_MASK:
-  //           //printf("button 2 pressed\n");
-  //           update_time(HOURS_MAX, &hours, switch_flag);
-  //           break;
-  //         default:
-  //           break;
-  //         delay_counter = 0;
-  //       }
-  //     }
-  //   }
-  // }
-  // auto_counter = 0;
-
-  button_counter = TIME_MIN;
-  debounce = 0;
-  // ... do something ...
-  button_acknowledge(CHANNEL_ONE_MASK); /* acknowledges an interrupt from the GPIO */
-  intc_ack_interrupt(BTNS_MASK); /* acknowledges an interrupt from the interrupt controller */
-}
-
 void isr_switches(){
   uint32_t switchState = switch_read(GPIO_DATA_OFFSET);
   if(switchState & SWTCH_0_MASK) {
@@ -180,6 +140,42 @@ void isr_switches(){
   }
   switch_acknowledge(CHANNEL_ONE_MASK); /* acknowledges an interrupt from the GPIO */
   intc_ack_interrupt(SWITCHES_MASK); /* acknowledges an interrupt from the interrupt controller */
+}
+
+// This is invoked each time there is a change in the button state (result of a push or a bounce).
+void isr_buttons() {
+  uint32_t buttonPressed = button_read(GPIO_DATA_OFFSET);
+  while(button_counter < BOUNCE) {
+      button_counter++;
+  }
+
+  if(buttonPressed == button_read(GPIO_DATA_OFFSET)){
+    isr_switches();
+    increment_time(buttonPressed);
+  }
+  uint32_t auto_counter = 0;
+  uint32_t delay_counter = 0;
+  while (buttonPressed == button_read(GPIO_DATA_OFFSET) && buttonPressed != 0){
+      auto_counter++;
+      if(auto_counter > FIVE_SECONDS) {
+       delay_counter++;
+       if(delay_counter > DELAY_TIME) {
+         isr_switches();
+         increment_time(buttonPressed);
+         delay_counter = 0;
+       }
+      }
+      if(multiple_buttons){
+        break;
+      }
+  }
+  auto_counter = 0;
+  multiple_buttons = 0;
+
+  button_counter = TIME_MIN;
+  // ... do something ...
+  button_acknowledge(CHANNEL_ONE_MASK); /* acknowledges an interrupt from the GPIO */
+  intc_ack_interrupt(BTNS_MASK); /* acknowledges an interrupt from the interrupt controller */
 }
 
 int main() {
