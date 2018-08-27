@@ -163,6 +163,19 @@ sprites/fast:
 .PHONY : sprites/fast
 
 #=============================================================================
+# Target rules for targets named score_board
+
+# Build rule for target.
+score_board: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 score_board
+.PHONY : score_board
+
+# fast build rule for target.
+score_board/fast:
+	$(MAKE) -f image_render/score_board/CMakeFiles/score_board.dir/build.make image_render/score_board/CMakeFiles/score_board.dir/build
+.PHONY : score_board/fast
+
+#=============================================================================
 # Target rules for targets named intc
 
 # Build rule for target.
@@ -240,6 +253,7 @@ help:
 	@echo "... render"
 	@echo "... hdmi"
 	@echo "... sprites"
+	@echo "... score_board"
 	@echo "... intc"
 	@echo "... swtch"
 	@echo "... btn"

@@ -66,11 +66,12 @@ CMAKE_BINARY_DIR = /home/xilinx/ECEN_427/lab03
 CMakeFiles/space_invaders.dir/all: image_render/CMakeFiles/render.dir/all
 CMakeFiles/space_invaders.dir/all: image_render/hdmi/CMakeFiles/hdmi.dir/all
 CMakeFiles/space_invaders.dir/all: image_render/sprites/CMakeFiles/sprites.dir/all
+CMakeFiles/space_invaders.dir/all: image_render/score_board/CMakeFiles/score_board.dir/all
 CMakeFiles/space_invaders.dir/all: intcFolder/CMakeFiles/intc.dir/all
 CMakeFiles/space_invaders.dir/all: uioFolder/CMakeFiles/btn.dir/all
 	$(MAKE) -f CMakeFiles/space_invaders.dir/build.make CMakeFiles/space_invaders.dir/depend
 	$(MAKE) -f CMakeFiles/space_invaders.dir/build.make CMakeFiles/space_invaders.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/lab03/CMakeFiles --progress-num=9,10 "Built target space_invaders"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/lab03/CMakeFiles --progress-num=11,12 "Built target space_invaders"
 .PHONY : CMakeFiles/space_invaders.dir/all
 
 # Include target in all.
@@ -80,7 +81,7 @@ all: CMakeFiles/space_invaders.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/space_invaders.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles 12
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles 14
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/space_invaders.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles 0
 .PHONY : CMakeFiles/space_invaders.dir/rule
@@ -107,6 +108,7 @@ clean: CMakeFiles/space_invaders.dir/clean
 image_render/all: image_render/CMakeFiles/render.dir/all
 image_render/all: image_render/hdmi/all
 image_render/all: image_render/sprites/all
+image_render/all: image_render/score_board/all
 
 .PHONY : image_render/all
 
@@ -114,12 +116,14 @@ image_render/all: image_render/sprites/all
 image_render/clean: image_render/CMakeFiles/render.dir/clean
 image_render/clean: image_render/hdmi/clean
 image_render/clean: image_render/sprites/clean
+image_render/clean: image_render/score_board/clean
 
 .PHONY : image_render/clean
 
 # Convenience name for "preinstall" pass in the directory.
 image_render/preinstall: image_render/hdmi/preinstall
 image_render/preinstall: image_render/sprites/preinstall
+image_render/preinstall: image_render/score_board/preinstall
 
 .PHONY : image_render/preinstall
 
@@ -129,6 +133,7 @@ image_render/preinstall: image_render/sprites/preinstall
 # All Build rule for target.
 image_render/CMakeFiles/render.dir/all: image_render/hdmi/CMakeFiles/hdmi.dir/all
 image_render/CMakeFiles/render.dir/all: image_render/sprites/CMakeFiles/sprites.dir/all
+image_render/CMakeFiles/render.dir/all: image_render/score_board/CMakeFiles/score_board.dir/all
 	$(MAKE) -f image_render/CMakeFiles/render.dir/build.make image_render/CMakeFiles/render.dir/depend
 	$(MAKE) -f image_render/CMakeFiles/render.dir/build.make image_render/CMakeFiles/render.dir/build
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/lab03/CMakeFiles --progress-num=7,8 "Built target render"
@@ -141,7 +146,7 @@ all: image_render/CMakeFiles/render.dir/all
 
 # Build rule for subdir invocation for target.
 image_render/CMakeFiles/render.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles 6
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles 8
 	$(MAKE) -f CMakeFiles/Makefile2 image_render/CMakeFiles/render.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles 0
 .PHONY : image_render/CMakeFiles/render.dir/rule
@@ -241,7 +246,7 @@ image_render/sprites/preinstall:
 image_render/sprites/CMakeFiles/sprites.dir/all:
 	$(MAKE) -f image_render/sprites/CMakeFiles/sprites.dir/build.make image_render/sprites/CMakeFiles/sprites.dir/depend
 	$(MAKE) -f image_render/sprites/CMakeFiles/sprites.dir/build.make image_render/sprites/CMakeFiles/sprites.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/lab03/CMakeFiles --progress-num=11,12 "Built target sprites"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/lab03/CMakeFiles --progress-num=13,14 "Built target sprites"
 .PHONY : image_render/sprites/CMakeFiles/sprites.dir/all
 
 # Include target in all.
@@ -268,6 +273,61 @@ image_render/sprites/CMakeFiles/sprites.dir/clean:
 
 # clean rule for target.
 clean: image_render/sprites/CMakeFiles/sprites.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
+# Directory level rules for directory image_render/score_board
+
+# Convenience name for "all" pass in the directory.
+image_render/score_board/all: image_render/score_board/CMakeFiles/score_board.dir/all
+
+.PHONY : image_render/score_board/all
+
+# Convenience name for "clean" pass in the directory.
+image_render/score_board/clean: image_render/score_board/CMakeFiles/score_board.dir/clean
+
+.PHONY : image_render/score_board/clean
+
+# Convenience name for "preinstall" pass in the directory.
+image_render/score_board/preinstall:
+
+.PHONY : image_render/score_board/preinstall
+
+#=============================================================================
+# Target rules for target image_render/score_board/CMakeFiles/score_board.dir
+
+# All Build rule for target.
+image_render/score_board/CMakeFiles/score_board.dir/all:
+	$(MAKE) -f image_render/score_board/CMakeFiles/score_board.dir/build.make image_render/score_board/CMakeFiles/score_board.dir/depend
+	$(MAKE) -f image_render/score_board/CMakeFiles/score_board.dir/build.make image_render/score_board/CMakeFiles/score_board.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/lab03/CMakeFiles --progress-num=9,10 "Built target score_board"
+.PHONY : image_render/score_board/CMakeFiles/score_board.dir/all
+
+# Include target in all.
+all: image_render/score_board/CMakeFiles/score_board.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+image_render/score_board/CMakeFiles/score_board.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles 2
+	$(MAKE) -f CMakeFiles/Makefile2 image_render/score_board/CMakeFiles/score_board.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles 0
+.PHONY : image_render/score_board/CMakeFiles/score_board.dir/rule
+
+# Convenience name for target.
+score_board: image_render/score_board/CMakeFiles/score_board.dir/rule
+
+.PHONY : score_board
+
+# clean rule for target.
+image_render/score_board/CMakeFiles/score_board.dir/clean:
+	$(MAKE) -f image_render/score_board/CMakeFiles/score_board.dir/build.make image_render/score_board/CMakeFiles/score_board.dir/clean
+.PHONY : image_render/score_board/CMakeFiles/score_board.dir/clean
+
+# clean rule for target.
+clean: image_render/score_board/CMakeFiles/score_board.dir/clean
 
 .PHONY : clean
 
@@ -353,7 +413,7 @@ uioFolder/preinstall:
 uioFolder/CMakeFiles/swtch.dir/all:
 	$(MAKE) -f uioFolder/CMakeFiles/swtch.dir/build.make uioFolder/CMakeFiles/swtch.dir/depend
 	$(MAKE) -f uioFolder/CMakeFiles/swtch.dir/build.make uioFolder/CMakeFiles/swtch.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/lab03/CMakeFiles --progress-num=13,14 "Built target swtch"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/lab03/CMakeFiles --progress-num=15,16 "Built target swtch"
 .PHONY : uioFolder/CMakeFiles/swtch.dir/all
 
 # Include target in all.

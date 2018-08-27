@@ -11,9 +11,17 @@ hdmi.h
 /home/xilinx/ECEN_427/lab03/image_render/hdmi.h
 sprites.h
 /home/xilinx/ECEN_427/lab03/image_render/sprites.h
+score_board.h
+/home/xilinx/ECEN_427/lab03/image_render/score_board.h
 
 image_render/hdmi/hdmi.h
 stdint.h
+-
+
+image_render/score_board/score_board.h
+stdint.h
+-
+stdio.h
 -
 
 image_render/sprites/sprites.h

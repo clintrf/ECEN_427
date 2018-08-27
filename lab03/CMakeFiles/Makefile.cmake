@@ -13,6 +13,7 @@ set(CMAKE_MAKEFILE_DEPENDS
   "CMakeLists.txt"
   "image_render/CMakeLists.txt"
   "image_render/hdmi/CMakeLists.txt"
+  "image_render/score_board/CMakeLists.txt"
   "image_render/sprites/CMakeLists.txt"
   "intcFolder/CMakeLists.txt"
   "uioFolder/CMakeLists.txt"
@@ -45,6 +46,7 @@ set(CMAKE_MAKEFILE_PRODUCTS
   "image_render/CMakeFiles/CMakeDirectoryInformation.cmake"
   "image_render/hdmi/CMakeFiles/CMakeDirectoryInformation.cmake"
   "image_render/sprites/CMakeFiles/CMakeDirectoryInformation.cmake"
+  "image_render/score_board/CMakeFiles/CMakeDirectoryInformation.cmake"
   "intcFolder/CMakeFiles/CMakeDirectoryInformation.cmake"
   "uioFolder/CMakeFiles/CMakeDirectoryInformation.cmake"
   )
@@ -55,6 +57,7 @@ set(CMAKE_DEPEND_INFO_FILES
   "image_render/CMakeFiles/render.dir/DependInfo.cmake"
   "image_render/hdmi/CMakeFiles/hdmi.dir/DependInfo.cmake"
   "image_render/sprites/CMakeFiles/sprites.dir/DependInfo.cmake"
+  "image_render/score_board/CMakeFiles/score_board.dir/DependInfo.cmake"
   "intcFolder/CMakeFiles/intc.dir/DependInfo.cmake"
   "uioFolder/CMakeFiles/swtch.dir/DependInfo.cmake"
   "uioFolder/CMakeFiles/btn.dir/DependInfo.cmake"
