@@ -109,6 +109,7 @@ void write_audio_reg(unsigned char u8RegAddr,
  * @return  none.
  *****************************************************************************/
 void config_audio_pll(int iic_index) {
+    printf("Configure Audio PLL...\n");
     unsigned char u8TxData[8], u8RxData[6];
     int iic_fd;
     iic_fd = setI2C(iic_index, IIC_SLAVE_ADDR);
@@ -175,6 +176,7 @@ void config_audio_pll(int iic_index) {
  * @return  none.
  *****************************************************************************/
 void config_audio_codec(int iic_index) {
+    printf("Configure Audio Codec...\n");
     int iic_fd;
     iic_fd = setI2C(iic_index, IIC_SLAVE_ADDR);
     if (iic_fd < 0) {
