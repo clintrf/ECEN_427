@@ -215,7 +215,7 @@ static irqreturn_t short_probing(int irq, void *dev_id)
 // pdev : platform device which to probe
 // returns : an int signalling a successful probe or some kind of error
 static int audio_probe(struct platform_device *pdev) {
-  pr_info("%s:Probing Audio Driver!\n", MODULE_NAME);
+  pr_info("%s: Probing Audio Driver!\n", MODULE_NAME);
   if(audio_probe_called_once == true) { // we want to call this function once
     pr_info("Already called probe() once...\n");
     return PROBE_SUCCESS;
