@@ -5,13 +5,7 @@
 /**************************** function prototypes ****************************/
 
 /********************************** macros ***********************************/
-#define TOP_TEN_SCORES 10
-#define PIXEL_SPACING 3
-#define ONE_PIXEL 3
-#define DEFAULT_CHAR_SCALE 2
-#define SCORE_BOARD_START_POS 640*100*3+(220*3)
-#define SCALE_NEXT_LINE_ 640*ONE_PIXEL*10
-#define CHAR_OFFSET 48
+
 
 char white_test[3] = {0xFF, 0xFF, 0xFF};
 
