@@ -322,9 +322,9 @@ void image_render_saucer(){
   if(saucer_start_pos > (SAUCER_ROW_START_LOCATION + 580*IMAGE_RENDER_BYTES_PER_PIXEL)){
     sprites_render_buffer(saucer_18x9,SPRITES_SAUCER_WIDTH,SPRITES_SAUCER_HEIGHT,(saucer_start_pos),ALIEN_SIZE,black);
     // only for milestone 2
-    saucer_start_pos = SAUCER_ROW_START_LOCATION - 1*IMAGE_RENDER_BYTES_PER_PIXEL;
+    saucer_start_pos = SAUCER_ROW_START_LOCATION - IMAGE_RENDER_BYTES_PER_PIXEL;
   }
-  saucer_start_pos= saucer_start_pos + 1*IMAGE_RENDER_BYTES_PER_PIXEL;
+  saucer_start_pos= saucer_start_pos + IMAGE_RENDER_BYTES_PER_PIXEL;
   sprites_render_buffer(saucer_18x9,SPRITES_SAUCER_WIDTH,SPRITES_SAUCER_HEIGHT,(saucer_start_pos),ALIEN_SIZE,red);
 
 }
