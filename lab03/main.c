@@ -7,7 +7,7 @@
 #include "intcFolder/intc.h"
 #include "uioFolder/button_uio.h"
 
-#define BOUNCE 10000000 /* value of the ticks to seconds */
+#define BOUNCE 8000000 /* value of the ticks to seconds */
 #define BTN_0_MASK 0x1 /* mask for button 0 */
 #define BTN_1_MASK 0x2 /* mask for button 1 */
 #define BTN_2_MASK 0x4 /* mask for button 2 */
