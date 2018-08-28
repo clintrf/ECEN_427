@@ -40,6 +40,10 @@ uint32_t hdmi_set_offset(uint32_t offset) {
   return lseek(fd, offset, SEEK_SET);
 }
 
+uint32_t hdmi_cur_offset(uint32_t offset) {
+  return lseek(fd, offset, SEEK_CUR);
+}
+
 // read a certain amount of bytes from the screen and puts them into a buffer
 // *buf : points to the buffer where we should place our read
 // bytes : the amount of bytes to read from the screen

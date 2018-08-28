@@ -72,6 +72,8 @@
 #define SPRITES_ONE_PIXEL 3
 #define SPRITES_SCORE_BOARD_START_POS 640*100*3+(150*3)
 
+#define WIDTH_PIXAL_COUNT_UNIT 42
+
 static const uint32_t saucer_16x7[] =
 {
 	0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,
@@ -983,6 +985,35 @@ static const uint32_t alienbullet2_gone_3x7[] = {
 	0,0,0
 };
 
+static const uint32_t v_14x10[] =
+{
+	1,0,0,0,0,0,0,0,0,0,0,0,0,0,
+	0,1,0,0,0,0,0,0,0,0,0,0,0,0,
+	0,0,1,0,0,0,0,0,0,0,0,0,0,0,
+	0,0,0,1,0,0,0,0,0,0,0,0,0,0,
+	0,0,0,0,1,0,0,0,0,0,0,0,0,0,
+	0,0,0,0,0,1,0,0,0,0,0,0,0,1,
+	0,0,0,0,0,0,1,0,0,0,0,0,1,0,
+	0,0,0,0,0,0,0,1,0,0,0,1,0,0,
+	0,0,0,0,0,0,0,0,1,0,1,0,0,0,
+	0,0,0,0,0,0,0,0,0,1,0,0,0,0
+};
+static const uint32_t ll_14x10[] =
+{
+	1,0,0,0,0,0,1,1,0,0,0,0,0,1,
+	0,0,0,0,0,0,1,1,0,0,0,0,0,0,
+	0,0,0,0,0,0,1,1,0,0,0,0,0,0,
+	0,0,0,0,0,0,1,1,0,0,0,0,0,0,
+	0,0,0,0,0,0,1,1,0,0,0,0,0,0,
+	0,0,0,0,0,0,1,1,0,0,0,0,0,0,
+	0,0,0,0,0,0,1,1,0,0,0,0,0,0,
+	0,0,0,0,0,0,1,1,0,0,0,0,0,0,
+	0,0,0,0,0,0,1,1,0,0,0,0,0,0,
+	1,0,0,0,0,0,1,1,0,0,0,0,0,1
+
+};
+
+
 // prints an image to the screen
 // image[] : the image to be printed
 // width : the pixel width of the image
@@ -991,3 +1022,5 @@ static const uint32_t alienbullet2_gone_3x7[] = {
 // scaling_factor : scale of the figure. must be int. size >= 1. place 1 for normal image
 // color : desired color of the image
 void sprites_render_image(const uint32_t image[], uint32_t width, uint32_t height, uint32_t starting_location, uint32_t scaling_factor, const void *color);
+
+void sprites_render_buffer(const uint32_t image[], uint32_t width, uint32_t height, uint32_t starting_location, uint32_t scaling_factor, const void *color);

@@ -120,12 +120,25 @@ void move_tank(uint32_t buttonPressed) {
   switch(buttonPressed) { // reads in which button was pressed
     case BTN_0_MASK:
       image_render_tank(MOVE_ONE_SPACE,IMAGE_RENDER_RIGHT_MOVEMENT);
+      image_render_tank(MOVE_ONE_SPACE,IMAGE_RENDER_RIGHT_MOVEMENT);
+      image_render_tank(MOVE_ONE_SPACE,IMAGE_RENDER_RIGHT_MOVEMENT);
+      image_render_tank(MOVE_ONE_SPACE,IMAGE_RENDER_RIGHT_MOVEMENT);
+      image_render_tank(MOVE_ONE_SPACE,IMAGE_RENDER_RIGHT_MOVEMENT);
+      image_render_tank(MOVE_ONE_SPACE,IMAGE_RENDER_RIGHT_MOVEMENT);
+      image_render_tank(MOVE_ONE_SPACE,IMAGE_RENDER_RIGHT_MOVEMENT);
+      image_render_tank(MOVE_ONE_SPACE,IMAGE_RENDER_RIGHT_MOVEMENT);
       break;
     case BTN_1_MASK:
       printf("%s shooting\r\n", "tank");
       break;
     case BTN_2_MASK:
-      printf("%s moving left\r\n", "tank");
+      image_render_tank(MOVE_ONE_SPACE,IMAGE_RENDER_LEFT_MOVEMENT);
+      image_render_tank(MOVE_ONE_SPACE,IMAGE_RENDER_LEFT_MOVEMENT);
+      image_render_tank(MOVE_ONE_SPACE,IMAGE_RENDER_LEFT_MOVEMENT);
+      image_render_tank(MOVE_ONE_SPACE,IMAGE_RENDER_LEFT_MOVEMENT);
+      image_render_tank(MOVE_ONE_SPACE,IMAGE_RENDER_LEFT_MOVEMENT);
+      image_render_tank(MOVE_ONE_SPACE,IMAGE_RENDER_LEFT_MOVEMENT);
+      image_render_tank(MOVE_ONE_SPACE,IMAGE_RENDER_LEFT_MOVEMENT);
       image_render_tank(MOVE_ONE_SPACE,IMAGE_RENDER_LEFT_MOVEMENT);
 
       break;
@@ -168,6 +181,10 @@ int main() {
     uint32_t interrupts = intc_wait_for_interrupt();
     // Check which interrupt lines are high and call the appropriate ISR functions
 
+
+    //printf("%s\r\n", "test bunker_24x18");alien_middle_out_14x10:   v_14x10
+    sprites_render_buffer(tank_15x8,15,8,(640*3*300+300),2,white_t);
+
     // moore states
     switch(current_state){
       case TANK_STATE:
@@ -184,6 +201,7 @@ int main() {
     // moore states
     switch(current_state){
       case TANK_STATE:
+        isr_buttons();
         current_state = SAUCER_STATE;
       break;
 

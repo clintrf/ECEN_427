@@ -31,6 +31,8 @@ uint32_t hdmi_write(const void *color, uint32_t pixels);
 // return : returns the current offset, -1 if an error occurs
 uint32_t hdmi_set_offset(uint32_t offset);
 
+uint32_t hdmi_cur_offset(uint32_t offset);
+
 // read a certain amount of bytes from the screen and puts them into a buffer
 // *buf : points to the buffer where we should place our read
 // bytes : the amount of bytes to read from the screen

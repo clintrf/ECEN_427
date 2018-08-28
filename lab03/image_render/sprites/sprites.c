@@ -38,3 +38,36 @@ void sprites_render_image(const uint32_t image[], uint32_t width, uint32_t heigh
     }
   }
 }
+
+void sprites_render_buffer(const uint32_t image[], uint32_t width, uint32_t height, uint32_t starting_location, uint32_t scaling_factor, const void *color) {
+  char color_image[2250]; // 450*5 base sprite times a max scaler of 5
+  if (scaling_factor>5){
+    scaling_factor=5;
+  }
+  uint32_t j = 0;
+
+  for(uint32_t h=0; h<height;h++){
+    for(uint32_t hs=0; hs<scaling_factor; hs++) { // this for loop tells us how much we should repeat each line (for scaling the image)
+      for(uint32_t w=0; w<width;w++){
+        for(uint32_t ws=0; ws<scaling_factor; ws++) { // this for loop tells us how much we should repeat each line (for scaling the image)
+          uint32_t temp = (w+(h*width));
+          //printf("%zu \r\n" , temp);
+          if(image[temp] == 1){
+            color_image[j++] = 0xFF;
+            color_image[j++] = 0xFF;
+            color_image[j++] = 0xFF;
+          }
+          else{
+            color_image[j++] = 0x00;
+            color_image[j++] = 0x00;
+            color_image[j++] = 0x00;
+          }
+        }
+      }
+    }
+  }
+  for(int h=0; h<(height*scaling_factor); h++) { // this for loop will iterate through the height (rows of the image)
+    hdmi_set_offset(starting_location+h*(SPRITES_SCALE_NEXT_LINE));
+    hdmi_write(color_image+(h*width*scaling_factor*SPRITES_ONE_PIXEL),width*SPRITES_ONE_PIXEL*scaling_factor); // draw the pixel
+  }
+}

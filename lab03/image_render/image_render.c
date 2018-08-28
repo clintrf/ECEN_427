@@ -300,12 +300,11 @@ void image_render_print_start_screen() {
 void image_render_tank(uint32_t move, uint16_t dir){
   if(dir == IMAGE_RENDER_RIGHT_MOVEMENT && tank_start_pos <= RIGHT_BOUND_TANK) {
     tank_start_pos = tank_start_pos+move;
-    sprites_render_image(tank_17x10,SPRITES_TANK_WIDTH,SPRITES_TANK_HEIGHT,BOTTOM_LEFT_CORNER_OF_SCREEN+(tank_start_pos*IMAGE_RENDER_BYTES_PER_PIXEL),ALIEN_SIZE,green);
+    sprites_render_buffer(tank_17x10,SPRITES_TANK_WIDTH,SPRITES_TANK_HEIGHT,BOTTOM_LEFT_CORNER_OF_SCREEN+(tank_start_pos*IMAGE_RENDER_BYTES_PER_PIXEL),ALIEN_SIZE,green);
   }
   else if(dir == IMAGE_RENDER_LEFT_MOVEMENT && tank_start_pos >= LEFT_BOUND) {
-    printf("moving left\n");
     tank_start_pos = tank_start_pos-move;
-    sprites_render_image(tank_17x10,SPRITES_TANK_WIDTH,SPRITES_TANK_HEIGHT,BOTTOM_LEFT_CORNER_OF_SCREEN+(tank_start_pos*IMAGE_RENDER_BYTES_PER_PIXEL),ALIEN_SIZE,green);
+    sprites_render_buffer(tank_17x10,SPRITES_TANK_WIDTH,SPRITES_TANK_HEIGHT,BOTTOM_LEFT_CORNER_OF_SCREEN+(tank_start_pos*IMAGE_RENDER_BYTES_PER_PIXEL),ALIEN_SIZE,green);
   }
 }
 
@@ -350,31 +349,57 @@ void image_render_move_alien_block() {
         Alien alien_temp10 = alien_block[j];
         alien_block[j++].current_location = alien_temp10.current_location+2*IMAGE_RENDER_BYTES_PER_PIXEL;
 
+        // if(current_alien_position == ALIEN_OUT) {
+        //   sprites_render_image(alien_temp0.image_in,alien_temp0.width,alien_temp0.height,alien_temp0.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp1.image_in,alien_temp1.width,alien_temp1.height,alien_temp1.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp2.image_in,alien_temp2.width,alien_temp2.height,alien_temp2.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp3.image_in,alien_temp3.width,alien_temp3.height,alien_temp3.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp4.image_in,alien_temp4.width,alien_temp4.height,alien_temp4.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp5.image_in,alien_temp5.width,alien_temp5.height,alien_temp5.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp6.image_in,alien_temp6.width,alien_temp6.height,alien_temp6.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp7.image_in,alien_temp7.width,alien_temp7.height,alien_temp7.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp8.image_in,alien_temp8.width,alien_temp8.height,alien_temp8.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp9.image_in,alien_temp9.width,alien_temp9.height,alien_temp9.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp10.image_in,alien_temp10.width,alien_temp10.height,alien_temp10.current_location,ALIEN_SIZE,white);
+        // }
+        // else {
+        //   sprites_render_image(alien_temp0.image_out,alien_temp0.width,alien_temp0.height,alien_temp0.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp1.image_out,alien_temp1.width,alien_temp1.height,alien_temp1.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp2.image_out,alien_temp2.width,alien_temp2.height,alien_temp2.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp3.image_out,alien_temp3.width,alien_temp3.height,alien_temp3.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp4.image_out,alien_temp4.width,alien_temp4.height,alien_temp4.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp5.image_out,alien_temp5.width,alien_temp5.height,alien_temp5.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp6.image_out,alien_temp6.width,alien_temp6.height,alien_temp6.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp7.image_out,alien_temp7.width,alien_temp7.height,alien_temp7.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp8.image_out,alien_temp8.width,alien_temp8.height,alien_temp8.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp9.image_out,alien_temp9.width,alien_temp9.height,alien_temp9.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp10.image_out,alien_temp10.width,alien_temp10.height,alien_temp10.current_location,ALIEN_SIZE,white);
+        // }
         if(current_alien_position == ALIEN_OUT) {
-          sprites_render_image(alien_temp0.image_in,alien_temp0.width,alien_temp0.height,alien_temp0.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp1.image_in,alien_temp1.width,alien_temp1.height,alien_temp1.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp2.image_in,alien_temp2.width,alien_temp2.height,alien_temp2.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp3.image_in,alien_temp3.width,alien_temp3.height,alien_temp3.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp4.image_in,alien_temp4.width,alien_temp4.height,alien_temp4.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp5.image_in,alien_temp5.width,alien_temp5.height,alien_temp5.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp6.image_in,alien_temp6.width,alien_temp6.height,alien_temp6.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp7.image_in,alien_temp7.width,alien_temp7.height,alien_temp7.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp8.image_in,alien_temp8.width,alien_temp8.height,alien_temp8.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp9.image_in,alien_temp9.width,alien_temp9.height,alien_temp9.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp10.image_in,alien_temp10.width,alien_temp10.height,alien_temp10.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp0.image_in,alien_temp0.width,alien_temp0.height,alien_temp0.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp1.image_in,alien_temp1.width,alien_temp1.height,alien_temp1.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp2.image_in,alien_temp2.width,alien_temp2.height,alien_temp2.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp3.image_in,alien_temp3.width,alien_temp3.height,alien_temp3.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp4.image_in,alien_temp4.width,alien_temp4.height,alien_temp4.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp5.image_in,alien_temp5.width,alien_temp5.height,alien_temp5.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp6.image_in,alien_temp6.width,alien_temp6.height,alien_temp6.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp7.image_in,alien_temp7.width,alien_temp7.height,alien_temp7.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp8.image_in,alien_temp8.width,alien_temp8.height,alien_temp8.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp9.image_in,alien_temp9.width,alien_temp9.height,alien_temp9.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp10.image_in,alien_temp10.width,alien_temp10.height,alien_temp10.current_location,ALIEN_SIZE,white);
         }
         else {
-          sprites_render_image(alien_temp0.image_out,alien_temp0.width,alien_temp0.height,alien_temp0.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp1.image_out,alien_temp1.width,alien_temp1.height,alien_temp1.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp2.image_out,alien_temp2.width,alien_temp2.height,alien_temp2.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp3.image_out,alien_temp3.width,alien_temp3.height,alien_temp3.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp4.image_out,alien_temp4.width,alien_temp4.height,alien_temp4.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp5.image_out,alien_temp5.width,alien_temp5.height,alien_temp5.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp6.image_out,alien_temp6.width,alien_temp6.height,alien_temp6.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp7.image_out,alien_temp7.width,alien_temp7.height,alien_temp7.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp8.image_out,alien_temp8.width,alien_temp8.height,alien_temp8.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp9.image_out,alien_temp9.width,alien_temp9.height,alien_temp9.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp10.image_out,alien_temp10.width,alien_temp10.height,alien_temp10.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp0.image_out,alien_temp0.width,alien_temp0.height,alien_temp0.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp1.image_out,alien_temp1.width,alien_temp1.height,alien_temp1.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp2.image_out,alien_temp2.width,alien_temp2.height,alien_temp2.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp3.image_out,alien_temp3.width,alien_temp3.height,alien_temp3.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp4.image_out,alien_temp4.width,alien_temp4.height,alien_temp4.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp5.image_out,alien_temp5.width,alien_temp5.height,alien_temp5.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp6.image_out,alien_temp6.width,alien_temp6.height,alien_temp6.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp7.image_out,alien_temp7.width,alien_temp7.height,alien_temp7.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp8.image_out,alien_temp8.width,alien_temp8.height,alien_temp8.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp9.image_out,alien_temp9.width,alien_temp9.height,alien_temp9.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp10.image_out,alien_temp10.width,alien_temp10.height,alien_temp10.current_location,ALIEN_SIZE,white);
         }
       }
       current_alien_position = ~current_alien_position;
@@ -418,31 +443,57 @@ void image_render_move_alien_block() {
         Alien alien_temp10 = alien_block[j];
         alien_block[j++].current_location = alien_temp10.current_location-2*IMAGE_RENDER_BYTES_PER_PIXEL;
 
+        // if(current_alien_position == ALIEN_OUT) {
+        //   sprites_render_image(alien_temp0.image_in,alien_temp0.width,alien_temp0.height,alien_temp0.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp1.image_in,alien_temp1.width,alien_temp1.height,alien_temp1.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp2.image_in,alien_temp2.width,alien_temp2.height,alien_temp2.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp3.image_in,alien_temp3.width,alien_temp3.height,alien_temp3.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp4.image_in,alien_temp4.width,alien_temp4.height,alien_temp4.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp5.image_in,alien_temp5.width,alien_temp5.height,alien_temp5.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp6.image_in,alien_temp6.width,alien_temp6.height,alien_temp6.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp7.image_in,alien_temp7.width,alien_temp7.height,alien_temp7.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp8.image_in,alien_temp8.width,alien_temp8.height,alien_temp8.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp9.image_in,alien_temp9.width,alien_temp9.height,alien_temp9.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp10.image_in,alien_temp10.width,alien_temp10.height,alien_temp10.current_location,ALIEN_SIZE,white);
+        // }
+        // else {
+        //   sprites_render_image(alien_temp0.image_out,alien_temp0.width,alien_temp0.height,alien_temp0.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp1.image_out,alien_temp1.width,alien_temp1.height,alien_temp1.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp2.image_out,alien_temp2.width,alien_temp2.height,alien_temp2.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp3.image_out,alien_temp3.width,alien_temp3.height,alien_temp3.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp4.image_out,alien_temp4.width,alien_temp4.height,alien_temp4.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp5.image_out,alien_temp5.width,alien_temp5.height,alien_temp5.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp6.image_out,alien_temp6.width,alien_temp6.height,alien_temp6.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp7.image_out,alien_temp7.width,alien_temp7.height,alien_temp7.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp8.image_out,alien_temp8.width,alien_temp8.height,alien_temp8.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp9.image_out,alien_temp9.width,alien_temp9.height,alien_temp9.current_location,ALIEN_SIZE,white);
+        //   sprites_render_image(alien_temp10.image_out,alien_temp10.width,alien_temp10.height,alien_temp10.current_location,ALIEN_SIZE,white);
+        // }
         if(current_alien_position == ALIEN_OUT) {
-          sprites_render_image(alien_temp0.image_in,alien_temp0.width,alien_temp0.height,alien_temp0.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp1.image_in,alien_temp1.width,alien_temp1.height,alien_temp1.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp2.image_in,alien_temp2.width,alien_temp2.height,alien_temp2.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp3.image_in,alien_temp3.width,alien_temp3.height,alien_temp3.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp4.image_in,alien_temp4.width,alien_temp4.height,alien_temp4.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp5.image_in,alien_temp5.width,alien_temp5.height,alien_temp5.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp6.image_in,alien_temp6.width,alien_temp6.height,alien_temp6.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp7.image_in,alien_temp7.width,alien_temp7.height,alien_temp7.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp8.image_in,alien_temp8.width,alien_temp8.height,alien_temp8.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp9.image_in,alien_temp9.width,alien_temp9.height,alien_temp9.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp10.image_in,alien_temp10.width,alien_temp10.height,alien_temp10.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp0.image_in,alien_temp0.width,alien_temp0.height,alien_temp0.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp1.image_in,alien_temp1.width,alien_temp1.height,alien_temp1.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp2.image_in,alien_temp2.width,alien_temp2.height,alien_temp2.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp3.image_in,alien_temp3.width,alien_temp3.height,alien_temp3.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp4.image_in,alien_temp4.width,alien_temp4.height,alien_temp4.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp5.image_in,alien_temp5.width,alien_temp5.height,alien_temp5.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp6.image_in,alien_temp6.width,alien_temp6.height,alien_temp6.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp7.image_in,alien_temp7.width,alien_temp7.height,alien_temp7.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp8.image_in,alien_temp8.width,alien_temp8.height,alien_temp8.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp9.image_in,alien_temp9.width,alien_temp9.height,alien_temp9.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp10.image_in,alien_temp10.width,alien_temp10.height,alien_temp10.current_location,ALIEN_SIZE,white);
         }
         else {
-          sprites_render_image(alien_temp0.image_out,alien_temp0.width,alien_temp0.height,alien_temp0.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp1.image_out,alien_temp1.width,alien_temp1.height,alien_temp1.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp2.image_out,alien_temp2.width,alien_temp2.height,alien_temp2.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp3.image_out,alien_temp3.width,alien_temp3.height,alien_temp3.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp4.image_out,alien_temp4.width,alien_temp4.height,alien_temp4.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp5.image_out,alien_temp5.width,alien_temp5.height,alien_temp5.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp6.image_out,alien_temp6.width,alien_temp6.height,alien_temp6.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp7.image_out,alien_temp7.width,alien_temp7.height,alien_temp7.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp8.image_out,alien_temp8.width,alien_temp8.height,alien_temp8.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp9.image_out,alien_temp9.width,alien_temp9.height,alien_temp9.current_location,ALIEN_SIZE,white);
-          sprites_render_image(alien_temp10.image_out,alien_temp10.width,alien_temp10.height,alien_temp10.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp0.image_out,alien_temp0.width,alien_temp0.height,alien_temp0.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp1.image_out,alien_temp1.width,alien_temp1.height,alien_temp1.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp2.image_out,alien_temp2.width,alien_temp2.height,alien_temp2.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp3.image_out,alien_temp3.width,alien_temp3.height,alien_temp3.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp4.image_out,alien_temp4.width,alien_temp4.height,alien_temp4.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp5.image_out,alien_temp5.width,alien_temp5.height,alien_temp5.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp6.image_out,alien_temp6.width,alien_temp6.height,alien_temp6.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp7.image_out,alien_temp7.width,alien_temp7.height,alien_temp7.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp8.image_out,alien_temp8.width,alien_temp8.height,alien_temp8.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp9.image_out,alien_temp9.width,alien_temp9.height,alien_temp9.current_location,ALIEN_SIZE,white);
+          sprites_render_buffer(alien_temp10.image_out,alien_temp10.width,alien_temp10.height,alien_temp10.current_location,ALIEN_SIZE,white);
         }
       }
       current_alien_position = ~current_alien_position;
