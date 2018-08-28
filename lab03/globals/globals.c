@@ -1,6 +1,7 @@
 #include "globals.h"
 #include "../image_render/score_board/score_board.c"
 
+
 /********************************** macros ***********************************/
 #define STARTING_LEFT_COLUMN 0
 #define STARTING_RIGHT_COLUMN 10
@@ -43,6 +44,8 @@
 /********************************** globals **********************************/
 static uint16_t tank_bullet_fired = NOT_FIRED;
 static uint32_t tank_bullet_position;
+static uint16_t alien_bullet_fired = NOT_FIRED;
+static uint32_t alien_bullet_position;
 static uint32_t current_score = 0;
 static uint32_t saucer_pos = GLOBALS_SAUCER_ROW_START_LOCATION;
 static uint16_t saucer_status = SAUCER_ALIVE;
@@ -79,6 +82,34 @@ uint32_t globals_get_tank_bullet_position() {
 // pos : the new position which you wish to set
 void globals_set_tank_bullet_position(uint32_t pos) {
   tank_bullet_position = pos;
+}
+
+// fetch whether the tank bullet has been fired or not
+// returns : a 1 if the bullet is still on the screen or a 0 if there is no bullet on screen
+uint16_t globals_get_alien_bullet_fired(){
+  return alien_bullet_fired;
+}
+
+// set this to 1 if a bullet has been fired, keep it asserted until the bullet hits a target or reaches the top of the screen
+void globals_fire_alien_bullet(){
+  alien_bullet_fired = FIRED;
+}
+
+// set this to 0 once the bullet hits a target or reaches the top of the screen, prevents the alien from firing more bullets
+void globals_alien_bullet_stopped(){
+  alien_bullet_fired = NOT_FIRED;
+}
+
+// fetch the current alien bullet position
+// returns : the current tank position
+uint32_t globals_get_alien_bullet_position(){
+  return alien_bullet_position;
+}
+
+// set a new alien bullet position
+// pos : the new position which you wish to set
+void globals_set_alien_bullet_position(uint32_t pos){
+  alien_bullet_position = pos;
 }
 
 // fetches the current score of the current game

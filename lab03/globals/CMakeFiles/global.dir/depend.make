@@ -4,6 +4,7 @@
 globals/CMakeFiles/global.dir/globals.c.o: globals/globals.c
 globals/CMakeFiles/global.dir/globals.c.o: globals/globals.h
 globals/CMakeFiles/global.dir/globals.c.o: image_render/hdmi/hdmi.h
+globals/CMakeFiles/global.dir/globals.c.o: image_render/image_render.h
 globals/CMakeFiles/global.dir/globals.c.o: image_render/score_board/score_board.c
 globals/CMakeFiles/global.dir/globals.c.o: image_render/score_board/score_board.h
 globals/CMakeFiles/global.dir/globals.c.o: image_render/sprites/sprites.h

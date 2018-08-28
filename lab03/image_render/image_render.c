@@ -109,11 +109,14 @@
 #define TOP_LEFT_CORNER_OF_SCREEN 0
 #define TANK_BULLET_START_POS BOTTOM_LEFT_CORNER_OF_SCREEN+(tank_pos*IMAGE_RENDER_BYTES_PER_PIXEL)-(SPRITES_BULLET_HEIGHT*640*3*ALIEN_SIZE-8*3*ALIEN_SIZE)
 #define BULLET_MOVEMENT_TWO_PIXELS 640*3*2
+#define BULLET_MOVEMENT_ONE_PIXELS 640*3
 #define SAUCER_SHOT 0
 #define ALIEN_EXPLOSION_TIMER 5000000
 #define ALIEN_ALIVE 1
 #define LEFT 1
 #define RIGHT 0
+
+#define ALIEN_BULLET_START_POS (640*3*50)+(tank_pos*IMAGE_RENDER_BYTES_PER_PIXEL)-(SPRITES_BULLET_HEIGHT*640*3*ALIEN_SIZE-8*3*ALIEN_SIZE)
 
 /********************************** globals **********************************/
 /* global arrays */
@@ -135,6 +138,7 @@ uint16_t current_alien_direction;
 uint32_t maximum_bound_right_alien;
 uint32_t maximum_bound_left_alien;
 uint16_t current_alien_position;
+uint32_t odd;                       // tracks alien pop wiggles
 
 /**************************** function prototypes ****************************/
 void image_render_print_black_screen();
@@ -152,6 +156,7 @@ void image_render_init() {
   maximum_bound_right_alien = ALIEN_BLOCK_ROW_0+IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL-30;
   maximum_bound_left_alien = ALIEN_BLOCK_ROW_0;
   current_alien_position = ALIEN_OUT;
+  odd = ALIEN_OUT;
 
   // initializes a buffer that contains all zeroes to print black to the entire screen
   for(uint32_t i = 0; i < IMAGE_RENDER_WHOLE_SCREEN; i++) {
@@ -349,6 +354,14 @@ void image_render_fire_tank_bullet() {
   globals_set_tank_bullet_position(TANK_BULLET_START_POS);
   sprites_render_buffer(tankbullet_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,TANK_BULLET_START_POS,ALIEN_SIZE,white);
 }
+
+// fires a bullet from the tank position
+void image_render_fire_alien_bullet(){
+  globals_fire_alien_bullet(); // says that the bullet has been fired
+  globals_set_alien_bullet_position(ALIEN_BULLET_START_POS);
+  sprites_render_buffer(tankbullet_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,TANK_BULLET_START_POS,ALIEN_SIZE,white);
+}
+
 
 // checks to see if the location of the saucer and the tank bullet match
 // current_pos : the current position of the tank bullet
@@ -570,6 +583,38 @@ void image_render_move_tank_bullet() {
   }
 }
 
+// moves the tank bullet up the screen
+void image_render_move_alien_bullet(){
+  uint32_t current_pos = globals_get_alien_bullet_position(); // fetches current bullet position
+  globals_set_alien_bullet_position(current_pos+(BULLET_MOVEMENT_ONE_PIXELS)); // sets the new bullet position moving up the screen
+  current_pos = globals_get_alien_bullet_position(); // fetch the updated bullet position
+  sprites_render_buffer(alienbullet2_gone_3x7,3,7,current_pos,ALIEN_SIZE,white);
+  if(current_pos > (420*3*640)) { // if the bullet reaches the top of the screen, delete the bullet
+    globals_set_alien_bullet_position(current_pos+(BULLET_MOVEMENT_ONE_PIXELS)); // sets the new bullet position moving up the screen
+    current_pos = globals_get_alien_bullet_position(); // fetch the updated bullet position
+    if(odd){
+      sprites_render_buffer(alienbullet2_up_3x7,3,7,current_pos,ALIEN_SIZE,white);
+    }
+    else{
+      sprites_render_buffer(alienbullet2_down_3x7,3,7,current_pos,ALIEN_SIZE,white);
+    }
+    globals_alien_bullet_stopped();
+  }
+  else { // if the bullet hasn't hit anything or reached the top of the screen, move it up
+    globals_set_alien_bullet_position(current_pos+(BULLET_MOVEMENT_ONE_PIXELS)); // sets the new bullet position moving up the screen
+    current_pos = globals_get_alien_bullet_position(); // fetch the updated bullet position
+    if(odd){
+      sprites_render_buffer(alienbullet2_up_3x7,3,7,current_pos,ALIEN_SIZE,white);
+    }
+    else{
+      sprites_render_buffer(alienbullet2_down_3x7,3,7,current_pos,ALIEN_SIZE,white);
+    }
+    /* check for saucer location */
+    //image_render_check_for_saucer(current_pos);
+    //image_render_check_for_aliens(current_pos);
+  }
+  odd = ~odd;
+}
 // moves the saucer around the screen
 void image_render_saucer(){
   uint32_t saucer_pos = globals_get_saucer_pos();
@@ -705,6 +750,22 @@ void image_render_move_alien_block() {
       current_alien_position = ~current_alien_position; // change the global alien position (not direction)
     }
   }
+}
+
+void global_alien_fire_bullet(){
+//
+//   time_t t;
+//   /* Intializes random number generator */
+//   srand((unsigned) time(&t));
+// alien_block[i].current_location
+//   // how many shooter left
+//   uint32_t shooters_left = 0;
+//
+//   /* Print 1 random numbers from 0 to 10 */
+//     temp = rand() % shooters_left);
+//
+//   // set bullet position to alien post
+//   globals_set_alien_bullet_position( alien_pos );
 }
 
 // closes the hdmi connection

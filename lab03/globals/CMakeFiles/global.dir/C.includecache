@@ -11,6 +11,8 @@ globals.h
 /home/xilinx/ECEN_427/lab03/globals/globals.h
 ../image_render/score_board/score_board.c
 /home/xilinx/ECEN_427/lab03/image_render/score_board/score_board.c
+../image_render/image_render.h
+/home/xilinx/ECEN_427/lab03/image_render/image_render.h
 
 /home/xilinx/ECEN_427/lab03/globals/globals.h
 stdio.h
@@ -20,6 +22,12 @@ stdint.h
 
 /home/xilinx/ECEN_427/lab03/image_render/hdmi/hdmi.h
 stdint.h
+-
+
+/home/xilinx/ECEN_427/lab03/image_render/image_render.h
+stdint.h
+-
+stdio.h
 -
 
 /home/xilinx/ECEN_427/lab03/image_render/score_board/score_board.c

@@ -70,11 +70,20 @@ void image_render_fire_tank_bullet();
 // moves the tank bullet up the screen
 void image_render_move_tank_bullet();
 
+// fires a bullet from the tank position
+void image_render_fire_alien_bullet();
+
+// moves the tank bullet up the screen
+void image_render_move_alien_bullet();
+
 // moves the saucer around the screen
 void image_render_saucer();
 
 // moves the alien block around the screen
 void image_render_move_alien_block();
+
+// aliens fire bullents
+void global_alien_fire_bullet();
 
 // closes the hdmi connection
 void image_render_close();

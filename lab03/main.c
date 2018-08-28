@@ -11,7 +11,7 @@
 
 /*********************************** macros ***********************************/
 #define MOVE_ONE_SPACE 2
-#define BOUNCE 1000000 
+#define BOUNCE 1000000
 #define BTN_0_MASK 0x1
 #define BTN_1_MASK 0x2
 #define BTN_2_MASK 0x4
@@ -141,6 +141,7 @@ void move_tank(uint32_t buttonPressed) {
     case BTN_1_MASK:
       if(globals_get_tank_bullet_fired() != SHOTS_FIRED) {
         image_render_fire_tank_bullet();
+        image_render_fire_alien_bullet();
       }
       break;
     case BTN_2_MASK:
@@ -152,6 +153,8 @@ void move_tank(uint32_t buttonPressed) {
 // handles the FIT interrupts, moves the saucer, alien block, and bullets
 void isr_fit() {
   intc_ack_interrupt(INTC_FIT_MASK); // acknowledges the received FIT interrupt
+
+  global_alien_fire_bullet();
 
   /* saucer flight handling in the main */
   if(globals_get_saucer_status() == SAUCER_SHOT) { // if the saucer is currently dead
@@ -172,6 +175,7 @@ void isr_fit() {
   /* This controls the firing of the bullets and their movement */
   if(globals_get_tank_bullet_fired() == SHOTS_FIRED) {
     image_render_move_tank_bullet();
+    image_render_move_alien_bullet();
   }
   alien_counter++; // increments the alien counter
   if(alien_counter > ALIEN_MOVEMENT_DELAY) { // a little bit of a delay for the alien movement
