@@ -59,6 +59,12 @@
 #define R_START_LOCATION_HS EXTRA_INFORMATION_START_LINE+960+18+(45*3)
 #define E_START_LOCATION_HS EXTRA_INFORMATION_START_LINE+960+24+(45*4)
 #define S2_START_LOCATION_HS EXTRA_INFORMATION_START_LINE+960+30+(45*5)
+#define ENTER_NAME_CHARACTER_HEIGHT EXTRA_INFORMATION_START_LINE+NORMAL_CHARACTER_SCALING*CHARACTER_HEIGHT*SCALE_NEXT_LINE
+#define NAME_LINE_START_LOCATION ENTER_NAME_CHARACTER_HEIGHT+(SCALE_NEXT_LINE*20)
+#define CHARACTER_ONE_START_LOCATION (SCORE_BOARD_START_POS+(0*DEFAULT_CHAR_SCALE*ONE_PIXEL*10))
+#define CHARACTER_TWO_START_LOCATION (SCORE_BOARD_START_POS+(1*DEFAULT_CHAR_SCALE*ONE_PIXEL*10))
+#define CHARACTER_THREE_START_LOCATION (SCORE_BOARD_START_POS+(2*DEFAULT_CHAR_SCALE*ONE_PIXEL*10))
+
 
 #define TOP_TEN_SCORES 10
 #define PIXEL_SPACING 3
@@ -703,16 +709,16 @@ static const uint32_t char_array[37][25] = {
 };
 
 static const uint32_t letter_array[37] = {
-  0, // 0			0
-  1, // 1			1
-  2, // 2			2
-  3, // 3			3
-  4, // 4			4
-  5, // 5			5
-  6, // 6			6
-  7, // 7			7
-  8, // 8			8
-  9, // 9			9
+  '0', // 0			0
+  '1', // 1			1
+  '2', // 2			2
+  '3', // 3			3
+  '4', // 4			4
+  '5', // 5			5
+  '6', // 6			6
+  '7', // 7			7
+  '8', // 8			8
+  '9', // 9			9
   ' ', // BLANK	10
   'A', // A			11
   'B', // B			12
@@ -744,6 +750,9 @@ static const uint32_t letter_array[37] = {
 
 // prints an image to the screen
 // image[] : the image to be printed
-// current_location : top left pixel of the character
+// width : the pixel width of the image
+// height : the pixel height of the image
+// starting_location : top left pixel of the character
 // scaling_factor : scale of the figure. must be int. size >= 1. place 1 for normal image
+// color : desired color of the image
 void sprites_render_image(const uint32_t image[], uint32_t width, uint32_t height, uint32_t starting_location, uint32_t scaling_factor, const void *color);

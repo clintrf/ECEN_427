@@ -2,18 +2,33 @@
 #include "../sprites/sprites.h"
 #include "../hdmi/hdmi.h"
 
-/**************************** function prototypes ****************************/
-
 /********************************** macros ***********************************/
+#define TEN_THOUSAND_SCALE 10000
+#define THOUSAND_SCALE 1000
+#define HUNDRED_SCALE 100
+#define TEN_SCALE 10
+#define ONE_SCALE 1
+#define BYTES_PER_PIXEL 3
+#define CHARACTER_ONE_POSITION (SCORE_BOARD_START_POS+(SCALE_NEXT_LINE_*i*DEFAULT_CHAR_SCALE)+(0*DEFAULT_CHAR_SCALE*ONE_PIXEL*10))
+#define CHARACTER_TWO_POSITION (SCORE_BOARD_START_POS+(SCALE_NEXT_LINE_*i*DEFAULT_CHAR_SCALE)+(1*DEFAULT_CHAR_SCALE*ONE_PIXEL*10))
+#define CHARACTER_THREE_POSITION (SCORE_BOARD_START_POS+(SCALE_NEXT_LINE_*i*DEFAULT_CHAR_SCALE)+(2*DEFAULT_CHAR_SCALE*ONE_PIXEL*10))
+#define NUMBER_ONE_POSITION ((SCORE_BOARD_START_POS+50*ONE_PIXEL*DEFAULT_CHAR_SCALE)+(SCALE_NEXT_LINE_*i*DEFAULT_CHAR_SCALE)+(0*DEFAULT_CHAR_SCALE*ONE_PIXEL*10))
+#define NUMBER_TWO_POSITION ((SCORE_BOARD_START_POS+50*ONE_PIXEL*DEFAULT_CHAR_SCALE)+(SCALE_NEXT_LINE_*i*DEFAULT_CHAR_SCALE)+(1*DEFAULT_CHAR_SCALE*ONE_PIXEL*10))
+#define NUMBER_THREE_POSITION ((SCORE_BOARD_START_POS+50*ONE_PIXEL*DEFAULT_CHAR_SCALE)+(SCALE_NEXT_LINE_*i*DEFAULT_CHAR_SCALE)+(2*DEFAULT_CHAR_SCALE*ONE_PIXEL*10))
+#define NUMBER_FOUR_POSITION ((SCORE_BOARD_START_POS+50*ONE_PIXEL*DEFAULT_CHAR_SCALE)+(SCALE_NEXT_LINE_*i*DEFAULT_CHAR_SCALE)+(3*DEFAULT_CHAR_SCALE*ONE_PIXEL*10))
+#define NUMBER_FIVE_POSITION ((SCORE_BOARD_START_POS+50*ONE_PIXEL*DEFAULT_CHAR_SCALE)+(SCALE_NEXT_LINE_*i*DEFAULT_CHAR_SCALE)+(4*DEFAULT_CHAR_SCALE*ONE_PIXEL*10))
 
-
-char white_test[3] = {0xFF, 0xFF, 0xFF};
-
+/*********************************** globals ***********************************/
+char white_test[BYTES_PER_PIXEL] = {0xFF, 0xFF, 0xFF};
 struct player_stats high_scores[TOP_TEN_SCORES];
 
+/*********************************** functions ***********************************/
+// converts an integer or char passed into the function out as its array form for printing to the screen
+// chrt : the char we wish to convert to an array form
+// returns : the array form of the passed in character
 const uint32_t *convert_to_array(int chrt){
   char temp = chrt;
-  switch(temp){
+  switch(temp){ // simple switch statement that maps to the correct index containing pixelized version of the letters
     case '0':
       return char_array[0];
     case '1':
@@ -88,15 +103,15 @@ const uint32_t *convert_to_array(int chrt){
       return char_array[35];
     case 'Z':
       return char_array[36];
-
   }
 };
 
+// saves the scores to the board data structures in the program
 void save_score_board(){
   uint32_t nam1, nam2, nam3, num, num1, num2, num3, num4, num5, test;
   FILE * fp;
   fp = fopen("/home/xilinx/ECEN_427/lab03/image_render/score_board/high_scores.txt", "r");
-  for(int i = 0; i < TOP_TEN_SCORES; i++){
+  for(int i = 0; i < TOP_TEN_SCORES; i++){ // reads the file and grabs the top scores from the file
     nam1 = getc(fp);
     nam2 = getc(fp);
     nam3 = getc(fp);
@@ -106,27 +121,25 @@ void save_score_board(){
     num3 = getc(fp);
     num4 = getc(fp);
     num5 = getc(fp);
-    while (test != '\n'){
+    while (test != '\n'){ // goes until the end of file
       test = getc(fp);
-      printf("%s ,%c \r\n" , "extra ", test);
+      // printf("%s ,%c \r\n" , "extra ", test);
     }
     test = '~';
 
-    int temp1 = (10000*(num1-CHAR_OFFSET));
-    int temp2 = (1000*(num2-CHAR_OFFSET));
-    int temp3 = (100*(num3-CHAR_OFFSET));
-    int temp4 = (10*(num4-CHAR_OFFSET));
-    int temp5 = (1*(num5-CHAR_OFFSET));
+    int temp1 = (TEN_THOUSAND_SCALE*(num1-CHAR_OFFSET));
+    int temp2 = (THOUSAND_SCALE*(num2-CHAR_OFFSET));
+    int temp3 = (HUNDRED_SCALE*(num3-CHAR_OFFSET));
+    int temp4 = (TEN_SCALE*(num4-CHAR_OFFSET));
+    int temp5 = (ONE_SCALE*(num5-CHAR_OFFSET));
 
-    num = temp1+temp2+temp3+temp4+temp5;
-    printf("%s %d\r\n" , "Initial numbers:", num);
-    high_scores[i].score = num;
-    // printf("%s ,%d \r\n" , "temp ", temp);
+    num = temp1+temp2+temp3+temp4+temp5; // establihes the high score
+    high_scores[i].score = num; // transfer all the data into the high scores data structure
     high_scores[i].letter1 = nam1;
     high_scores[i].letter2 = nam2;
     high_scores[i].letter3 = nam3;
 
-    for(int j = 0; j<25;j++){
+    for(int j = 0; j < CHAR_ARRAY_SIZE;j++){ // converts those numbers to the array version
       high_scores[i].name_char[0][j] = convert_to_array(nam1)[j];
       high_scores[i].name_char[1][j] = convert_to_array(nam2)[j];
       high_scores[i].name_char[2][j] = convert_to_array(nam3)[j];
@@ -137,37 +150,29 @@ void save_score_board(){
       high_scores[i].score_char[4][j] = convert_to_array(num5)[j];
     }
   }
-  fclose(fp);
+  fclose(fp); // closes the file
 }
 
 // function to print the top 10 high scores
 void print_high_scores(){
-  for(int i = 0; i < TOP_TEN_SCORES; i++){
-    sprites_render_image(high_scores[i].name_char[0],5,5,(SCORE_BOARD_START_POS+(SCALE_NEXT_LINE_*i*DEFAULT_CHAR_SCALE)+(0*DEFAULT_CHAR_SCALE*ONE_PIXEL*10)),DEFAULT_CHAR_SCALE,white_test);
-    sprites_render_image(high_scores[i].name_char[1],5,5,(SCORE_BOARD_START_POS+(SCALE_NEXT_LINE_*i*DEFAULT_CHAR_SCALE)+(1*DEFAULT_CHAR_SCALE*ONE_PIXEL*10)),DEFAULT_CHAR_SCALE,white_test);
-    sprites_render_image(high_scores[i].name_char[2],5,5,(SCORE_BOARD_START_POS+(SCALE_NEXT_LINE_*i*DEFAULT_CHAR_SCALE)+(2*DEFAULT_CHAR_SCALE*ONE_PIXEL*10)),DEFAULT_CHAR_SCALE,white_test);
+  for(int i = 0; i < TOP_TEN_SCORES; i++){ // prints the high scores onto the screen via for loop
+    sprites_render_image(high_scores[i].name_char[0],CHARACTER_WIDTH,CHARACTER_HEIGHT,CHARACTER_ONE_POSITION,DEFAULT_CHAR_SCALE,white_test);
+    sprites_render_image(high_scores[i].name_char[1],CHARACTER_WIDTH,CHARACTER_HEIGHT,CHARACTER_TWO_POSITION,DEFAULT_CHAR_SCALE,white_test);
+    sprites_render_image(high_scores[i].name_char[2],CHARACTER_WIDTH,CHARACTER_HEIGHT,CHARACTER_THREE_POSITION,DEFAULT_CHAR_SCALE,white_test);
 
-    sprites_render_image(high_scores[i].score_char[0],5,5,((SCORE_BOARD_START_POS+50*ONE_PIXEL*DEFAULT_CHAR_SCALE)+(SCALE_NEXT_LINE_*i*DEFAULT_CHAR_SCALE)+(0*DEFAULT_CHAR_SCALE*ONE_PIXEL*10)),DEFAULT_CHAR_SCALE,white_test);
-    sprites_render_image(high_scores[i].score_char[1],5,5,((SCORE_BOARD_START_POS+50*ONE_PIXEL*DEFAULT_CHAR_SCALE)+(SCALE_NEXT_LINE_*i*DEFAULT_CHAR_SCALE)+(1*DEFAULT_CHAR_SCALE*ONE_PIXEL*10)),DEFAULT_CHAR_SCALE,white_test);
-    sprites_render_image(high_scores[i].score_char[2],5,5,((SCORE_BOARD_START_POS+50*ONE_PIXEL*DEFAULT_CHAR_SCALE)+(SCALE_NEXT_LINE_*i*DEFAULT_CHAR_SCALE)+(2*DEFAULT_CHAR_SCALE*ONE_PIXEL*10)),DEFAULT_CHAR_SCALE,white_test);
-    sprites_render_image(high_scores[i].score_char[3],5,5,((SCORE_BOARD_START_POS+50*ONE_PIXEL*DEFAULT_CHAR_SCALE)+(SCALE_NEXT_LINE_*i*DEFAULT_CHAR_SCALE)+(3*DEFAULT_CHAR_SCALE*ONE_PIXEL*10)),DEFAULT_CHAR_SCALE,white_test);
-    sprites_render_image(high_scores[i].score_char[4],5,5,((SCORE_BOARD_START_POS+50*ONE_PIXEL*DEFAULT_CHAR_SCALE)+(SCALE_NEXT_LINE_*i*DEFAULT_CHAR_SCALE)+(4*DEFAULT_CHAR_SCALE*ONE_PIXEL*10)),DEFAULT_CHAR_SCALE,white_test);
+    sprites_render_image(high_scores[i].score_char[0],CHARACTER_WIDTH,CHARACTER_HEIGHT,NUMBER_ONE_POSITION,DEFAULT_CHAR_SCALE,white_test);
+    sprites_render_image(high_scores[i].score_char[1],CHARACTER_WIDTH,CHARACTER_HEIGHT,NUMBER_TWO_POSITION,DEFAULT_CHAR_SCALE,white_test);
+    sprites_render_image(high_scores[i].score_char[2],CHARACTER_WIDTH,CHARACTER_HEIGHT,NUMBER_THREE_POSITION,DEFAULT_CHAR_SCALE,white_test);
+    sprites_render_image(high_scores[i].score_char[3],CHARACTER_WIDTH,CHARACTER_HEIGHT,NUMBER_FOUR_POSITION,DEFAULT_CHAR_SCALE,white_test);
+    sprites_render_image(high_scores[i].score_char[4],CHARACTER_WIDTH,CHARACTER_HEIGHT,NUMBER_FIVE_POSITION,DEFAULT_CHAR_SCALE,white_test);
   }
 }
 
-// function to update the high scores list.
-
-// uint32_t convert_num(uint32_t final_score){
-//   uint32_t numb1,numb2,numb3,numb4,numb5;
-//   numb1 = ((final_score)/10000);
-//   numb2 = ((final_score-numb1*10000)/1000);
-//   numb3 = ((final_score-numb1*10000-numb2*1000)/100);
-//   numb4 = ((final_score-numb1*10000-numb2*1000-numb3*100)/10);
-//   numb5 = ((final_score-numb1*10000-numb2*1000-numb3*100-numb4*10)/1);
-//   uint32_t temp[5] = {numb5,numb4,numb3,numb2,numb1};
-//   return temp;
-// }
-
+// updates the scores on the board
+// name1 : first character of the players name
+// name2 : second character of the players name
+// name3 : third character of the players name
+// final_score : thescore the player received in the game
 void update_stats(uint32_t name1,uint32_t name2 ,uint32_t name3, uint32_t final_score){
   uint16_t insert_flag = 1;
   uint32_t numb1,numb2,numb3,numb4,numb5;
@@ -178,32 +183,31 @@ void update_stats(uint32_t name1,uint32_t name2 ,uint32_t name3, uint32_t final_
   int i;
   /* open the file for writing*/
   fpp = fopen ("/home/xilinx/ECEN_427/lab03/image_render/score_board/high_scores.txt","r+");
-  uint32_t whole_numb[5];
+  uint32_t whole_numb[NUMBER_OF_NUMBERS_IN_SCORE];
   for(int i = 0; i < TOP_TEN_SCORES; i++){
 
     //whole_numb = convert_num(high_scores[i].score);
-    numb1 = ((high_scores[i].score)/10000);
-    numb2 = ((high_scores[i].score-numb1*10000)/1000);
-    numb3 = ((high_scores[i].score-numb1*10000-numb2*1000)/100);
-    numb4 = ((high_scores[i].score-numb1*10000-numb2*1000-numb3*100)/10);
-    numb5 = ((high_scores[i].score-numb1*10000-numb2*1000-numb3*100-numb4*10)/1);
+    numb1 = ((high_scores[i].score)/TEN_THOUSAND_SCALE);
+    numb2 = ((high_scores[i].score-numb1*TEN_THOUSAND_SCALE)/THOUSAND_SCALE);
+    numb3 = ((high_scores[i].score-numb1*TEN_THOUSAND_SCALE-numb2*THOUSAND_SCALE)/HUNDRED_SCALE);
+    numb4 = ((high_scores[i].score-numb1*TEN_THOUSAND_SCALE-numb2*THOUSAND_SCALE-numb3*HUNDRED_SCALE)/TEN_SCALE);
+    numb5 = ((high_scores[i].score-numb1*TEN_THOUSAND_SCALE-numb2*THOUSAND_SCALE-numb3*HUNDRED_SCALE-numb4*TEN_SCALE)/ONE_SCALE);
 
-    if(high_scores[i].score > final_score) {
-
+    if(high_scores[i].score > final_score) { // if the player score is lower than a high score, write the high score to the file
       fprintf (fpp, "%c%c%c %d%d%d%d%d\n" , high_scores[i].letter1,high_scores[i].letter2,high_scores[i].letter3,numb1,numb2,numb3,numb4,numb5);
     }
-    else {
-      if (insert_flag){
-        numb1 = ((final_score)/10000);
-        numb2 = ((final_score-numb1*10000)/1000);
-        numb3 = ((final_score-numb1*10000-numb2*1000)/100);
-        numb4 = ((final_score-numb1*10000-numb2*1000-numb3*100)/10);
-        numb5 = ((final_score-numb1*10000-numb2*1000-numb3*100-numb4*10)/1);
+    else { // if the player's score is higher than the current high score position, then write the player score to the file
+      if (insert_flag){ // only do this if the insert flg is up
+        numb1 = ((final_score)/TEN_THOUSAND_SCALE);
+        numb2 = ((final_score-numb1*TEN_THOUSAND_SCALE)/THOUSAND_SCALE);
+        numb3 = ((final_score-numb1*TEN_THOUSAND_SCALE-numb2*THOUSAND_SCALE)/HUNDRED_SCALE);
+        numb4 = ((final_score-numb1*TEN_THOUSAND_SCALE-numb2*THOUSAND_SCALE-numb3*HUNDRED_SCALE)/TEN_SCALE);
+        numb5 = ((final_score-numb1*TEN_THOUSAND_SCALE-numb2*THOUSAND_SCALE-numb3*HUNDRED_SCALE-numb4*TEN_SCALE)/ONE_SCALE);
         fprintf (fpp, "%c%c%c %d%d%d%d%d\n" , name1,name2,name3,numb1,numb2,numb3,numb4,numb5);
         insert_flag = 0;
         i--;
       }
-      else{
+      else{ // if the insert flag is down, then the high score has already been written
         //numb5,numb4,numb3,numb2,numb1 = convert_num(high_scores[i].score);
         fprintf (fpp, "%c%c%c %d%d%d%d%d\n" , high_scores[i].letter1,high_scores[i].letter2,high_scores[i].letter3,numb1,numb2,numb3,numb4,numb5);
       }
@@ -212,5 +216,6 @@ void update_stats(uint32_t name1,uint32_t name2 ,uint32_t name3, uint32_t final_
   fprintf (fpp, "\n" );
   fprintf (fpp, "\n" );
   fprintf (fpp, "\n" );
-  fclose(fpp);
+  save_score_board(); // save this score board
+  fclose(fpp); // close the file
 }

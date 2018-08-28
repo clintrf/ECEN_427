@@ -20,8 +20,6 @@ void image_render_print_start_screen();
 
 void image_render_update_screen();
 
-void image_render_print_high_scores();
-
 // this is simply a test to see if we could print some characters... which we can!
 void image_render_test_image();
 

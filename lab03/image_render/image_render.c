@@ -10,6 +10,7 @@
 #define IMAGE_RENDER_WHOLE_SCREEN IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_SCREEN_HEIGHT*IMAGE_RENDER_BYTES_PER_PIXEL
 #define NUMBER_OF_CHARS_FOR_NAME 3
 #define NUMBER_OF_BITS_PER_CHAR 25
+#define LETTER_A 11
 
 /********************************** globals **********************************/
 char full_screen_black[IMAGE_RENDER_WHOLE_SCREEN];
@@ -43,7 +44,8 @@ void image_render_print_black_screen() {
 // prints the first part of the game over screen
 // this will display "GAME OVER" and "Enter your name" and a place to enter the player name
 void image_render_print_game_over_screen_enter_name() {
-  image_render_print_black_screen();
+  image_render_print_black_screen(); // print the whole screen black
+  /* print out the words GAME OVER */
   sprites_render_image(letterG_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,G_START_LOCATION_GO,GAME_OVER_SCALING,white);
   sprites_render_image(letterA_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,A_START_LOCATION_GO,GAME_OVER_SCALING,white);
   sprites_render_image(letterM_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,M_START_LOCATION_GO,GAME_OVER_SCALING,white);
@@ -52,6 +54,7 @@ void image_render_print_game_over_screen_enter_name() {
   sprites_render_image(letterV_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,V_START_LOCATION_GO,GAME_OVER_SCALING,white);
   sprites_render_image(letterE_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,E2_START_LOCATION_GO,GAME_OVER_SCALING,white);
   sprites_render_image(letterR_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,R_START_LOCATION_GO,GAME_OVER_SCALING,white);
+  /* print out the words ENTER YOUR NAME */
   sprites_render_image(letterE_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,E_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,white);
   sprites_render_image(letterN_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,N_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,white);
   sprites_render_image(letterT_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,T_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,white);
@@ -65,10 +68,10 @@ void image_render_print_game_over_screen_enter_name() {
   sprites_render_image(letterA_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,A_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,white);
   sprites_render_image(letterM_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,M_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,white);
   sprites_render_image(letterE_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,E3_START_LOCATION_YN,NORMAL_CHARACTER_SCALING,white);
-  // three original characters
-  sprites_render_image(char_array[11],5,5,(SCORE_BOARD_START_POS+(0*DEFAULT_CHAR_SCALE*ONE_PIXEL*10)),NORMAL_CHARACTER_SCALING,white);
-  sprites_render_image(char_array[11],5,5,(SCORE_BOARD_START_POS+(1*DEFAULT_CHAR_SCALE*ONE_PIXEL*10)),NORMAL_CHARACTER_SCALING,white);
-  sprites_render_image(char_array[11],5,5,(SCORE_BOARD_START_POS+(2*DEFAULT_CHAR_SCALE*ONE_PIXEL*10)),NORMAL_CHARACTER_SCALING,white);
+  /* print out three original characters for player name */
+  sprites_render_image(char_array[LETTER_A],CHARACTER_WIDTH,CHARACTER_HEIGHT,CHARACTER_ONE_START_LOCATION,NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(char_array[LETTER_A],CHARACTER_WIDTH,CHARACTER_HEIGHT,CHARACTER_TWO_START_LOCATION,NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(char_array[LETTER_A],CHARACTER_WIDTH,CHARACTER_HEIGHT,CHARACTER_THREE_START_LOCATION,NORMAL_CHARACTER_SCALING,white);
 }
 
 // prints the second part of the game over screen
@@ -99,17 +102,13 @@ void image_render_print_game_over_screen_high_scores() {
   sprites_render_image(letterR_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,R_START_LOCATION_HS,NORMAL_CHARACTER_SCALING,white);
   sprites_render_image(letterE_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,E_START_LOCATION_HS,NORMAL_CHARACTER_SCALING,white);
   sprites_render_image(letterS_5x5,CHARACTER_WIDTH,CHARACTER_HEIGHT,S2_START_LOCATION_HS,NORMAL_CHARACTER_SCALING,white);
-  //save_score_board();
-  //init_score_board();
-  //print_high_scores();
 }
 
 void image_render_print_start_screen() {}
 
 void image_render_update_screen() {}
 
-void image_render_print_high_scores() {}
-
+// ONLY FOR TESTING, DELETE LATER
 void image_render_test_image() {
   // uint32_t image[], uint32_t width, uint32_t height, uint32_t starting_location,
   // uint32_t scaling_factor, const void *color
@@ -132,16 +131,6 @@ void image_render_test_image() {
   sprites_render_image(letterX_5x5,5,5,687,1,white);
   sprites_render_image(number2_5x5,5,5,714,1,white);
   sprites_render_image(number1_5x5,5,5,741,1,white);
-
-  // save_score_board();
-  // update_stats('Z','Z','Z',120);
-  // update_stats('A','B','C',121);
-  // update_stats('A','B','A',1210);
-  // update_stats('A','A','C',111);
-  // update_stats('C','L','T',10);
-  // update_stats('D','A','X',999);
-  // //init_score_board();
-  // print_high_scores();
 }
 
 // closes the hdmi connection
