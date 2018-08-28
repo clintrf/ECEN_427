@@ -133,15 +133,15 @@ void image_render_test_image() {
   sprites_render_image(number2_5x5,5,5,714,1,white);
   sprites_render_image(number1_5x5,5,5,741,1,white);
 
-  save_score_board();
-  update_stats('Z','Z','Z',120);
-  update_stats('A','B','C',121);
-  update_stats('A','B','A',1210);
-  update_stats('A','A','C',111);
-  update_stats('C','L','T',10);
-  update_stats('D','A','X',999);
-  //init_score_board();
-  print_high_scores();
+  // save_score_board();
+  // update_stats('Z','Z','Z',120);
+  // update_stats('A','B','C',121);
+  // update_stats('A','B','A',1210);
+  // update_stats('A','A','C',111);
+  // update_stats('C','L','T',10);
+  // update_stats('D','A','X',999);
+  // //init_score_board();
+  // print_high_scores();
 }
 
 // closes the hdmi connection

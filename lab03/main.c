@@ -121,7 +121,7 @@ int main() {
   intc_init(INTC_GPIO_FILE_PATH);
   button_uio_init(BUTTON_UIO_GPIO_FILE_PATH);
   image_render_init();
-  // image_render_test_image();
+  image_render_test_image();
   while(1) {
     /* need to run this each time that we block, because this function will unblock */
     intc_enable_uio_interrupts(); /* enables Linux interrupts */
