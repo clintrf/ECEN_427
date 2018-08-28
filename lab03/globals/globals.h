@@ -26,31 +26,32 @@ void globals_set_tank_bullet_position(uint32_t pos);
 
 // fetch whether the tank bullet has been fired or not
 // returns : a 1 if the bullet is still on the screen or a 0 if there is no bullet on screen
-uint16_t globals_get_alien_bullet_fired();
+uint16_t globals_get_alien_bullet_fired_0();
+uint16_t globals_get_alien_bullet_fired_1();
+uint16_t globals_get_alien_bullet_fired_2();
 
 // set this to 1 if a bullet has been fired, keep it asserted until the bullet hits a target or reaches the top of the screen
-void globals_fire_alien_bullet();
+void globals_fire_alien_bullet_0();
+void globals_fire_alien_bullet_1();
+void globals_fire_alien_bullet_2();
 
 // set this to 0 once the bullet hits a target or reaches the top of the screen, prevents the alien from firing more bullets
-void globals_alien_bullet_stopped();
+void globals_alien_bullet_stopped_0();
+void globals_alien_bullet_stopped_1();
+void globals_alien_bullet_stopped_2();
 
 // fetch the current alien bullet position
 // returns : the current tank position
-uint32_t globals_get_alien_bullet_position();
+uint32_t globals_get_alien_bullet_position_0();
+uint32_t globals_get_alien_bullet_position_1();
+uint32_t globals_get_alien_bullet_position_2();
 
 // set a new alien bullet position
 // pos : the new position which you wish to set
-void globals_set_alien_bullet_position(uint32_t pos);
+void globals_set_alien_bullet_position_0(uint32_t pos);
+void globals_set_alien_bullet_position_1(uint32_t pos);
+void globals_set_alien_bullet_position_2(uint32_t pos);
 
-// fetches the amount of alien bullets there are
-// returns how many alien bullets are currently in the air
-uint16_t globals_get_alien_bullets_fired();
-
-// increments the amount of alien bullets there are
-void globals_inc_alien_bullets_fired();
-
-// decrements the amount of alien bullets there are
-void globals_dec_alien_bullets_fired();
 
 // fetches the current score of the current game
 // returns : the score of the current game

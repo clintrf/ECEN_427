@@ -99,10 +99,18 @@ void image_render_fire_tank_bullet();
 void image_render_move_tank_bullet();
 
 // fires a bullet from the tank position
-void image_render_fire_alien_bullet();
+void image_render_fire_alien_bullet_0();
+// fires a bullet from the tank position
+void image_render_fire_alien_bullet_1();
+// fires a bullet from the tank position
+void image_render_fire_alien_bullet_2();
 
 // moves the tank bullet up the screen
-void image_render_move_alien_bullet();
+void image_render_move_alien_bullet_0();
+// moves the tank bullet up the screen
+void image_render_move_alien_bullet_1();
+// moves the tank bullet up the screen
+void image_render_move_alien_bullet_2();
 
 // moves the saucer around the screen
 void image_render_saucer();
@@ -111,7 +119,11 @@ void image_render_saucer();
 void image_render_move_alien_block();
 
 // aliens fire bullets
-void image_render_alien_fire_bullet();
+void image_render_alien_fire_bullet_0();
+// aliens fire bullets
+void image_render_alien_fire_bullet_1();
+// aliens fire bullets
+void image_render_alien_fire_bullet_2();
 
 // closes the hdmi connection
 void image_render_close();

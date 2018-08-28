@@ -37,6 +37,12 @@
 int32_t white_t[BYTES_PER_PIXEL] = {0xFF, 0xFF, 0xFF};
 uint32_t button_counter = 0;
 uint32_t button_pressed_counter = 0;
+uint32_t bullet_delay_0 = 0;
+uint32_t bullet_delay_1 = 0;
+uint32_t bullet_delay_2 = 0;
+uint32_t counter_delay = 0;
+uint32_t tanks_bullet_delay = 0;
+uint32_t saucer_counter = 0;
 uint32_t letter_index = LETTER_A;
 uint32_t interrupts;
 char letter_1;
@@ -168,6 +174,12 @@ void move_tank(uint32_t buttonPressed) {
 #define LEVEL_THREE_SHOTS 3
 #define MOVE_DELAY_FIVE 5
 #define MOVE_DELAY_THREE 3
+#define BULLET_DELAY_0 100
+#define BULLET_DELAY_1 120
+#define BULLET_DELAY_2 150
+#define TANK_BULLET_DELAY 2
+#define COUNTER_DELAY 10
+#define SAUCER_DELAY 2
 
 // handles the FIT interrupts, moves the saucer, alien block, and bullets
 void isr_fit() {
@@ -204,44 +216,96 @@ void isr_fit() {
     max_alien_shots = LEVEL_TWO_SHOTS;
   }
 
-  printf("Bullets fired: %zu\n", globals_get_alien_bullets_fired());
+  //printf("Bullets fired: %zu\n", globals_get_alien_bullets_fired());
 
-  if(globals_get_alien_bullets_fired() < max_alien_shots) {
-    image_render_alien_fire_bullet();
-    image_render_fire_alien_bullet();
+
+  // if(globals_get_alien_bullets_fired() < max_alien_shots) {
+  //   image_render_alien_fire_bullet();
+  //   image_render_fire_alien_bullet();
+  // }
+  if(bullet_delay_0> BULLET_DELAY_0){
+    if(globals_get_alien_bullet_fired_0() != SHOTS_FIRED){
+      image_render_alien_fire_bullet_0();
+      image_render_fire_alien_bullet_0();
+      bullet_delay_0 = 0;
+    }
+    bullet_delay_0 = 0;
   }
+  if(bullet_delay_1> BULLET_DELAY_1){
+    if(globals_get_alien_bullet_fired_1() != SHOTS_FIRED){
+      image_render_alien_fire_bullet_1();
+      image_render_fire_alien_bullet_1();
+      bullet_delay_1 = 0;
+    }
+    bullet_delay_1 = 0;
+  }
+  if(bullet_delay_2> BULLET_DELAY_2){
+    if(globals_get_alien_bullet_fired_2() != SHOTS_FIRED){
+      image_render_alien_fire_bullet_2();
+      image_render_fire_alien_bullet_2();
+      bullet_delay_2 = 0;
+    }
+    bullet_delay_2 = 0;
+  }
+  bullet_delay_0++;
+  bullet_delay_1++;
+  bullet_delay_2++;
 
-  /* saucer flight handling in the main */
-  if(globals_get_saucer_status() == SAUCER_SHOT) { // if the saucer is currently dead
-    uint32_t saucer_count = globals_get_saucer_shot_count();
-    if(saucer_count > SAUCER_SHOT_DELAY_TIME) { // we wait a certain amount of time before reprinting it
-      globals_set_saucer_status(SAUCER_ALIVE);
-      globals_reset_saucer_shot_count();
+
+  if(saucer_counter>SAUCER_DELAY){
+    /* saucer flight handling in the main */
+    if(globals_get_saucer_status() == SAUCER_SHOT) { // if the saucer is currently dead
+      uint32_t saucer_count = globals_get_saucer_shot_count();
+      if(saucer_count > SAUCER_SHOT_DELAY_TIME) { // we wait a certain amount of time before reprinting it
+        globals_set_saucer_status(SAUCER_ALIVE);
+        globals_reset_saucer_shot_count();
+        image_render_saucer();
+      }
+      else { // if the saucer hasn't reached the specified time, then we increment the counter
+        globals_inc_saucer_shot_count();
+      }
+    }
+    else { // if the saucer is currently alive
       image_render_saucer();
     }
-    else { // if the saucer hasn't reached the specified time, then we increment the counter
-      globals_inc_saucer_shot_count();
-    }
+    saucer_counter = 0;
   }
-  else { // if the saucer is currently alive
-    image_render_saucer();
-  }
+  saucer_counter++;
 
-  /* This controls the firing of the bullets and their movement */
-  if(globals_get_tank_bullet_fired() == SHOTS_FIRED) {
-    image_render_move_tank_bullet();
+  if (tanks_bullet_delay>TANK_BULLET_DELAY){
+    /* This controls the firing of the bullets and their movement */
+    if(globals_get_tank_bullet_fired() == SHOTS_FIRED) {
+      image_render_move_tank_bullet();
+    }
+    tanks_bullet_delay=0;
   }
-  if(globals_get_alien_bullet_fired() == SHOTS_FIRED){
-    image_render_move_alien_bullet();
+  tanks_bullet_delay++;
+
+  if (counter_delay>COUNTER_DELAY){
+    if(globals_get_alien_bullet_fired_0() == SHOTS_FIRED){
+      image_render_move_alien_bullet_0();
+    }
+    if(globals_get_alien_bullet_fired_1() == SHOTS_FIRED){
+      image_render_move_alien_bullet_1();
+    }
+    if(globals_get_alien_bullet_fired_2() == SHOTS_FIRED){
+      image_render_move_alien_bullet_2();
+    }
+    counter_delay = 0;
   }
+  counter_delay++;
+
+
   alien_counter++; // increments the alien counter
-  if(alien_counter > 2) { // a little bit of a delay for the alien movement
+  if(alien_counter > 50) { // a little bit of a delay for the alien movement
     image_render_move_alien_block();
     alien_counter = 0;
   }
   globals_print_current_score();
   globals_print_current_lives();
+
 }
+
 
 // handles the button interrupts in the main game
 void isr_buttons() {
@@ -255,6 +319,7 @@ void isr_buttons() {
   button_uio_acknowledge(BUTTON_UIO_CHANNEL_ONE_MASK); /* acknowledges an interrupt from the GPIO */
   intc_ack_interrupt(INTC_BTNS_MASK); /* acknowledges an interrupt from the interrupt controller */
 }
+
 
 // main function that contains the main basic state machine
 int main() {

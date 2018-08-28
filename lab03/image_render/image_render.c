@@ -119,7 +119,7 @@
 #define BULLET_MOVEMENT_TWO_PIXELS 640*3*2
 #define BULLET_MOVEMENT_ONE_PIXELS 640*3
 #define SAUCER_SHOT 0
-#define ALIEN_EXPLOSION_TIMER 5000000
+#define ALIEN_EXPLOSION_TIMER 1000000
 #define TANK_EXPLOSION_TIMER 50000000
 #define ALIEN_ALIVE 1
 #define LEFT 1
@@ -141,13 +141,14 @@
 #define BLOCK_SIX_OFFSET ((SPRITES_BUNKER_DAMAGE_WIDTH*ALIEN_SIZE*IMAGE_RENDER_BYTES_PER_PIXEL*2)+IMAGE_RENDER_SCREEN_WIDTH*SPRITES_BUNKER_DAMAGE_HEIGHT*IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE)
 #define THREE_HIT_POINTS 3
 #define TWO_HIT_POINTS 2
-#define ALIEN_BULLET_START_POS (640*3*50)+(tank_pos*IMAGE_RENDER_BYTES_PER_PIXEL)-(SPRITES_BULLET_HEIGHT*640*3*ALIEN_SIZE-8*3*ALIEN_SIZE)
 #define TANK_START_DEPTH 440
 #define TANK_FIND_DEPTH 450
 #define RANDOM_SHOOTER 10
 #define ROW_COUNTER 4
 #define ALIEN_SHOOTING 1
-#define ALIEN_BULLET 9
+#define ALIEN_BULLET_0 8
+#define ALIEN_BULLET_1 9
+#define ALIEN_BULLET_2 10
 #define TANK_BULLET 11
 #define MAX_NUM_ALIEN_BULLETS 5
 
@@ -171,9 +172,15 @@ uint16_t current_alien_direction;
 uint32_t maximum_bound_right_alien;
 uint32_t maximum_bound_left_alien;
 uint16_t current_alien_position;
-uint32_t odd;                       // tracks alien pop wiggles
-uint32_t total_shooters;
-uint32_t current_shooter;
+uint32_t odd_0;                       // tracks alien pop wiggles
+uint32_t odd_1;                       // tracks alien pop wiggles
+uint32_t odd_2;                       // tracks alien pop wiggles
+uint32_t total_shooters_0;
+uint32_t total_shooters_1;
+uint32_t total_shooters_2;
+uint32_t current_shooter_0;
+uint32_t current_shooter_1;
+uint32_t current_shooter_2;
 Bunker bunker_set[NUM_BUNKERS];
 AlienBullet bullet_set[MAX_NUM_ALIEN_BULLETS];
 
@@ -193,7 +200,9 @@ void image_render_init() {
   maximum_bound_right_alien = ALIEN_BLOCK_ROW_0+IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL-30;
   maximum_bound_left_alien = ALIEN_BLOCK_ROW_0;
   current_alien_position = ALIEN_OUT;
-  odd = ALIEN_OUT;
+  odd_0 = ALIEN_OUT;
+  odd_1 = ALIEN_OUT;
+  odd_2 = ALIEN_OUT;
 
   // initializes a buffer that contains all zeroes to print black to the entire screen
   for(uint32_t i = 0; i < IMAGE_RENDER_WHOLE_SCREEN; i++) {
@@ -424,15 +433,34 @@ void image_render_fire_tank_bullet() {
 }
 
 // fires a bullet from the tank position
-void image_render_fire_alien_bullet() {
-  globals_fire_alien_bullet(); // says that the bullet has been fired
-  globals_inc_alien_bullets_fired();
-  globals_set_alien_bullet_position(current_shooter);
-  if(odd){
-    sprites_render_buffer(alienbullet2_up_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_shooter,ALIEN_SIZE,white);
+void image_render_fire_alien_bullet_0() {
+  globals_fire_alien_bullet_0(); // says that the bullet has been fired
+  globals_set_alien_bullet_position_0(current_shooter_0);
+  if(odd_0){
+    sprites_render_buffer(alienbullet2_up_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_shooter_0,ALIEN_SIZE,white);
   }
   else{
-    sprites_render_buffer(alienbullet2_down_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_shooter,ALIEN_SIZE,white);
+    sprites_render_buffer(alienbullet2_down_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_shooter_0,ALIEN_SIZE,white);
+  }
+}
+void image_render_fire_alien_bullet_1() {
+  globals_fire_alien_bullet_1(); // says that the bullet has been fired
+  globals_set_alien_bullet_position_1(current_shooter_1);
+  if(odd_1){
+    sprites_render_buffer(alienbullet2_up_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_shooter_1,ALIEN_SIZE,green);
+  }
+  else{
+    sprites_render_buffer(alienbullet2_down_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_shooter_1,ALIEN_SIZE,green);
+  }
+}
+void image_render_fire_alien_bullet_2() {
+  globals_fire_alien_bullet_2(); // says that the bullet has been fired
+  globals_set_alien_bullet_position_2(current_shooter_2);
+  if(odd_2){
+    sprites_render_buffer(alienbullet2_up_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_shooter_2,ALIEN_SIZE,pink);
+  }
+  else{
+    sprites_render_buffer(alienbullet2_down_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_shooter_2,ALIEN_SIZE,pink);
   }
 }
 
@@ -607,6 +635,7 @@ void image_render_check_for_aliens(uint32_t current_pos) {
           sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
           sprites_render_buffer(alien_explosion_14x12,SPRITES_ALIEN_WIDTH,SPRITES_ALIEN_HEIGHT,alien_pos,ALIEN_SIZE,pink);
           alien_block[i].alive = 0;
+          alien_block[i].shooter = 0;
           globals_tank_bullet_stopped(); // stops the tank bullet
           globals_add_to_current_score(alien_block[i].points); // adds the alien's points to the score
           globals_decrement_total_alien_count(); // decreases total alien count
@@ -624,9 +653,15 @@ void image_render_check_for_aliens(uint32_t current_pos) {
 // blows the tank up
 // current_pos : current position of the alien bullet
 void image_render_blow_tank_up(uint32_t current_pos) {
-  sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos-SPRITES_BULLET_HEIGHT*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH*ALIEN_SIZE,ALIEN_SIZE,black);
+  //sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos-SPRITES_BULLET_HEIGHT*IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH*ALIEN_SIZE,ALIEN_SIZE,white);
+  sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,globals_get_alien_bullet_position_0(),ALIEN_SIZE,green);
+  sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,globals_get_alien_bullet_position_1(),ALIEN_SIZE,green);
+  sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,globals_get_alien_bullet_position_2(),ALIEN_SIZE,green);
+
   sprites_render_buffer(tank_explosion2_17x10,SPRITES_TANK_WIDTH,SPRITES_TANK_HEIGHT,(IMAGE_RENDER_SCREEN_WIDTH*TANK_FIND_DEPTH+tank_pos)*IMAGE_RENDER_BYTES_PER_PIXEL,ALIEN_SIZE,green);
-  globals_alien_bullet_stopped();
+  //globals_alien_bullet_stopped_0();
+  //globals_alien_bullet_stopped_1();
+  //globals_alien_bullet_stopped_2();
   globals_decrement_current_lives();
   uint32_t counter = 0;
   while(counter < TANK_EXPLOSION_TIMER) { counter++; } // timer to display the explosion
@@ -679,9 +714,18 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
       if(bullet_id == TANK_BULLET) {
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
-      } else {
+      }
+      if(bullet_id == ALIEN_BULLET_0){
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped();
+        globals_alien_bullet_stopped_0();
+      }
+      if(bullet_id == ALIEN_BULLET_1){
+        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        globals_alien_bullet_stopped_1();
+      }
+      if(bullet_id == ALIEN_BULLET_2){
+        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        globals_alien_bullet_stopped_2();
       }
 
       bunker_set[bunker_num].block_hit_points[block_num]--;
@@ -691,9 +735,18 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
       if(bullet_id == TANK_BULLET) {
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
-      } else {
+      }
+      if(bullet_id == ALIEN_BULLET_0){
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped();
+        globals_alien_bullet_stopped_0();
+      }
+      if(bullet_id == ALIEN_BULLET_1){
+        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        globals_alien_bullet_stopped_1();
+      }
+      if(bullet_id == ALIEN_BULLET_2){
+        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        globals_alien_bullet_stopped_2();
       }
       bunker_set[bunker_num].block_hit_points[block_num]--;
     }
@@ -702,9 +755,18 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
       if(bullet_id == TANK_BULLET) {
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
-      } else {
+      }
+      if(bullet_id == ALIEN_BULLET_0){
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped();
+        globals_alien_bullet_stopped_0();
+      }
+      if(bullet_id == ALIEN_BULLET_1){
+        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        globals_alien_bullet_stopped_1();
+      }
+      if(bullet_id == ALIEN_BULLET_2){
+        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        globals_alien_bullet_stopped_2();
       }
       bunker_set[bunker_num].block_hit_points[block_num]--;
     }
@@ -713,9 +775,18 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
       if(bullet_id == TANK_BULLET) {
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
-      } else {
+      }
+      if(bullet_id == ALIEN_BULLET_0){
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped();
+        globals_alien_bullet_stopped_0();
+      }
+      if(bullet_id == ALIEN_BULLET_1){
+        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        globals_alien_bullet_stopped_1();
+      }
+      if(bullet_id == ALIEN_BULLET_2){
+        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        globals_alien_bullet_stopped_2();
       }
       bunker_set[bunker_num].block_hit_points[block_num]--;
     }
@@ -726,9 +797,18 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
       if(bullet_id == TANK_BULLET) {
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
-      } else {
+      }
+      if(bullet_id == ALIEN_BULLET_0){
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped();
+        globals_alien_bullet_stopped_0();
+      }
+      if(bullet_id == ALIEN_BULLET_1){
+        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        globals_alien_bullet_stopped_1();
+      }
+      if(bullet_id == ALIEN_BULLET_2){
+        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        globals_alien_bullet_stopped_2();
       }
       bunker_set[bunker_num].block_hit_points[block_num]--;
     }
@@ -737,9 +817,18 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
       if(bullet_id == TANK_BULLET) {
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
-      } else {
+      }
+      if(bullet_id == ALIEN_BULLET_0){
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped();
+        globals_alien_bullet_stopped_0();
+      }
+      if(bullet_id == ALIEN_BULLET_1){
+        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        globals_alien_bullet_stopped_1();
+      }
+      if(bullet_id == ALIEN_BULLET_2){
+        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        globals_alien_bullet_stopped_2();
       }
       bunker_set[bunker_num].block_hit_points[block_num]--;
     }
@@ -748,9 +837,18 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
       if(bullet_id == TANK_BULLET) {
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
-      } else {
+      }
+      if(bullet_id == ALIEN_BULLET_0){
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped();
+        globals_alien_bullet_stopped_0();
+      }
+      if(bullet_id == ALIEN_BULLET_1){
+        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        globals_alien_bullet_stopped_1();
+      }
+      if(bullet_id == ALIEN_BULLET_2){
+        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        globals_alien_bullet_stopped_2();
       }
       bunker_set[bunker_num].block_hit_points[block_num]--;
     }
@@ -759,9 +857,18 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
       if(bullet_id == TANK_BULLET) {
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
-      } else {
+      }
+      if(bullet_id == ALIEN_BULLET_0){
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped();
+        globals_alien_bullet_stopped_0();
+      }
+      if(bullet_id == ALIEN_BULLET_1){
+        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        globals_alien_bullet_stopped_1();
+      }
+      if(bullet_id == ALIEN_BULLET_2){
+        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        globals_alien_bullet_stopped_2();
       }
       bunker_set[bunker_num].block_hit_points[block_num]--;
     }
@@ -772,9 +879,18 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
       if(bullet_id == TANK_BULLET) {
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
-      } else {
+      }
+      if(bullet_id == ALIEN_BULLET_0){
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped();
+        globals_alien_bullet_stopped_0();
+      }
+      if(bullet_id == ALIEN_BULLET_1){
+        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        globals_alien_bullet_stopped_1();
+      }
+      if(bullet_id == ALIEN_BULLET_2){
+        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        globals_alien_bullet_stopped_2();
       }
       bunker_set[bunker_num].block_hit_points[block_num]--;
     }
@@ -785,9 +901,18 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
       if(bullet_id == TANK_BULLET) {
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
-      } else {
+      }
+      if(bullet_id == ALIEN_BULLET_0){
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped();
+        globals_alien_bullet_stopped_0();
+      }
+      if(bullet_id == ALIEN_BULLET_1){
+        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        globals_alien_bullet_stopped_1();
+      }
+      if(bullet_id == ALIEN_BULLET_2){
+        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        globals_alien_bullet_stopped_2();
       }
       bunker_set[bunker_num].block_hit_points[block_num]--;
     }
@@ -799,9 +924,18 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
       if(bullet_id == TANK_BULLET) {
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
-      } else {
+      }
+      if(bullet_id == ALIEN_BULLET_0){
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped();
+        globals_alien_bullet_stopped_0();
+      }
+      if(bullet_id == ALIEN_BULLET_1){
+        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        globals_alien_bullet_stopped_1();
+      }
+      if(bullet_id == ALIEN_BULLET_2){
+        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        globals_alien_bullet_stopped_2();
       }
       bunker_set[bunker_num].block_hit_points[block_num]--;
     }
@@ -810,9 +944,18 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
       if(bullet_id == TANK_BULLET) {
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
-      } else {
+      }
+      if(bullet_id == ALIEN_BULLET_0){
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped();
+        globals_alien_bullet_stopped_0();
+      }
+      if(bullet_id == ALIEN_BULLET_1){
+        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        globals_alien_bullet_stopped_1();
+      }
+      if(bullet_id == ALIEN_BULLET_2){
+        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        globals_alien_bullet_stopped_2();
       }
       bunker_set[bunker_num].block_hit_points[block_num]--;
     }
@@ -821,9 +964,18 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
       if(bullet_id == TANK_BULLET) {
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
-      } else {
+      }
+      if(bullet_id == ALIEN_BULLET_0){
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped();
+        globals_alien_bullet_stopped_0();
+      }
+      if(bullet_id == ALIEN_BULLET_1){
+        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        globals_alien_bullet_stopped_1();
+      }
+      if(bullet_id == ALIEN_BULLET_2){
+        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        globals_alien_bullet_stopped_2();
       }
       bunker_set[bunker_num].block_hit_points[block_num]--;
     }
@@ -832,9 +984,18 @@ void image_render_check_bunker_block(uint16_t bunker_num, uint16_t block_num, ui
       if(bullet_id == TANK_BULLET) {
         sprites_render_buffer(tankbullet_gone_1x7,SPRITES_TANK_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
         globals_tank_bullet_stopped();
-      } else {
+      }
+      if(bullet_id == ALIEN_BULLET_0){
         sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-        globals_alien_bullet_stopped();
+        globals_alien_bullet_stopped_0();
+      }
+      if(bullet_id == ALIEN_BULLET_1){
+        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        globals_alien_bullet_stopped_1();
+      }
+      if(bullet_id == ALIEN_BULLET_2){
+        sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+        globals_alien_bullet_stopped_2();
       }
       bunker_set[bunker_num].block_hit_points[block_num]--;
     }
@@ -942,32 +1103,84 @@ void image_render_move_tank_bullet() {
   }
 }
 
-// moves the tank bullet up the screen
-void image_render_move_alien_bullet(){
-  uint32_t current_pos = globals_get_alien_bullet_position(); // fetches current bullet position
-  globals_set_alien_bullet_position(current_pos+(BULLET_MOVEMENT_ONE_PIXELS)); // sets the new bullet position moving up the screen
-  current_pos = globals_get_alien_bullet_position(); // fetch the updated bullet position
-  sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-  if(current_pos > (BOTTOM_LEFT_CORNER_OF_SCREEN)) { // if the bullet reaches the top of the screen, delete the bullet
-    globals_set_alien_bullet_position(current_pos+(BULLET_MOVEMENT_ONE_PIXELS)); // sets the new bullet position moving up the screen
-    current_pos = globals_get_alien_bullet_position(); // fetch the updated bullet position
-    sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
-    globals_alien_bullet_stopped();
+void image_render_move_alien_bullet_0(){
+  uint32_t current_pos_0 = globals_get_alien_bullet_position_0(); // fetches current bullet position
+  globals_set_alien_bullet_position_0(current_pos_0+(BULLET_MOVEMENT_ONE_PIXELS)); // sets the new bullet position moving up the screen
+  current_pos_0 = globals_get_alien_bullet_position_0(); // fetch the updated bullet position
+  sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_0,ALIEN_SIZE,white);
+  if(current_pos_0 > (BOTTOM_LEFT_CORNER_OF_SCREEN)) { // if the bullet reaches the top of the screen, delete the bullet
+    globals_set_alien_bullet_position_0(current_pos_0+(BULLET_MOVEMENT_ONE_PIXELS)); // sets the new bullet position moving up the screen
+    current_pos_0 = globals_get_alien_bullet_position_0(); // fetch the updated bullet position
+    sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_0,ALIEN_SIZE,white);
+    globals_alien_bullet_stopped_0();
   }
   else { // if the bullet hasn't hit anything or reached the top of the screen, move it up
-    globals_set_alien_bullet_position(current_pos+(BULLET_MOVEMENT_ONE_PIXELS)); // sets the new bullet position moving up the screen
-    current_pos = globals_get_alien_bullet_position(); // fetch the updated bullet position
-    if(odd){
-      sprites_render_buffer(alienbullet2_up_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+    globals_set_alien_bullet_position_0(current_pos_0+(BULLET_MOVEMENT_ONE_PIXELS)); // sets the new bullet position moving up the screen
+    current_pos_0 = globals_get_alien_bullet_position_0(); // fetch the updated bullet position
+    if(odd_0){
+      sprites_render_buffer(alienbullet2_up_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_0,ALIEN_SIZE,white);
     }
     else{
-      sprites_render_buffer(alienbullet2_down_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos,ALIEN_SIZE,white);
+      sprites_render_buffer(alienbullet2_down_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_0,ALIEN_SIZE,white);
     }
     /* check for saucer location */
-    image_render_check_for_tank(current_pos);
-    image_render_check_for_bunker(current_pos, ALIEN_BULLET);
+    image_render_check_for_tank(current_pos_0);
+    image_render_check_for_bunker(current_pos_0, ALIEN_BULLET_0);
   }
-  odd = ~odd;
+  odd_0 = ~odd_0;
+}
+void image_render_move_alien_bullet_1(){
+  uint32_t current_pos_1 = globals_get_alien_bullet_position_1(); // fetches current bullet position
+  globals_set_alien_bullet_position_1(current_pos_1+(BULLET_MOVEMENT_ONE_PIXELS)); // sets the new bullet position moving up the screen
+  current_pos_1 = globals_get_alien_bullet_position_1(); // fetch the updated bullet position
+  sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_1,ALIEN_SIZE,green);
+  if(current_pos_1 > (BOTTOM_LEFT_CORNER_OF_SCREEN)) { // if the bullet reaches the top of the screen, delete the bullet
+    globals_set_alien_bullet_position_1(current_pos_1+(BULLET_MOVEMENT_ONE_PIXELS)); // sets the new bullet position moving up the screen
+    current_pos_1 = globals_get_alien_bullet_position_1(); // fetch the updated bullet position
+    sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_1,ALIEN_SIZE,green);
+    globals_alien_bullet_stopped_1();
+  }
+  else { // if the bullet hasn't hit anything or reached the top of the screen, move it up
+    globals_set_alien_bullet_position_1(current_pos_1+(BULLET_MOVEMENT_ONE_PIXELS)); // sets the new bullet position moving up the screen
+    current_pos_1 = globals_get_alien_bullet_position_1(); // fetch the updated bullet position
+    if(odd_1){
+      sprites_render_buffer(alienbullet2_up_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_1,ALIEN_SIZE,green);
+    }
+    else{
+      sprites_render_buffer(alienbullet2_down_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_1,ALIEN_SIZE,green);
+    }
+    /* check for saucer location */
+    image_render_check_for_tank(current_pos_1);
+    image_render_check_for_bunker(current_pos_1, ALIEN_BULLET_1);
+  }
+  odd_1 = ~odd_1;
+}
+// moves the tank bullet up the screen
+void image_render_move_alien_bullet_2(){
+  uint32_t current_pos_2 = globals_get_alien_bullet_position_2(); // fetches current bullet position
+  globals_set_alien_bullet_position_2(current_pos_2+(BULLET_MOVEMENT_ONE_PIXELS)); // sets the new bullet position moving up the screen
+  current_pos_2 = globals_get_alien_bullet_position_2(); // fetch the updated bullet position
+  sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_2,ALIEN_SIZE,pink);
+  if(current_pos_2 > (BOTTOM_LEFT_CORNER_OF_SCREEN)) { // if the bullet reaches the top of the screen, delete the bullet
+    globals_set_alien_bullet_position_2(current_pos_2+(BULLET_MOVEMENT_ONE_PIXELS)); // sets the new bullet position moving up the screen
+    current_pos_2 = globals_get_alien_bullet_position_2(); // fetch the updated bullet position
+    sprites_render_buffer(alienbullet2_gone_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_2,ALIEN_SIZE,pink);
+    globals_alien_bullet_stopped_2();
+  }
+  else { // if the bullet hasn't hit anything or reached the top of the screen, move it up
+    globals_set_alien_bullet_position_2(current_pos_2+(BULLET_MOVEMENT_ONE_PIXELS)); // sets the new bullet position moving up the screen
+    current_pos_2 = globals_get_alien_bullet_position_2(); // fetch the updated bullet position
+    if(odd_2){
+      sprites_render_buffer(alienbullet2_up_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_2,ALIEN_SIZE,pink);
+    }
+    else{
+      sprites_render_buffer(alienbullet2_down_3x7,SPRITES_ALIEN_BULLET_WIDTH,SPRITES_BULLET_HEIGHT,current_pos_2,ALIEN_SIZE,pink);
+    }
+    /* check for saucer location */
+    image_render_check_for_tank(current_pos_2);
+    image_render_check_for_bunker(current_pos_2, ALIEN_BULLET_2);
+  }
+  odd_2 = ~odd_2;
 }
 
 // moves the saucer around the screen
@@ -1120,25 +1333,86 @@ void image_render_move_alien_block() {
 }
 
 // aliens fire bullets
-void image_render_alien_fire_bullet(){
-  total_shooters = 0;
+void image_render_alien_fire_bullet_0(){
+  total_shooters_0 = 0;
   /* Intializes random number generator */
   srand(time(0));
   for(int32_t k = 0; k < ELEVEN_COLUMNS; k++){
     for(int32_t i = 0; i < FIVE_ROWS; i++){
       if(alien_block[(k+((ROW_COUNTER-i)*ELEVEN_COLUMNS))].alive){
         alien_block[(k+((ROW_COUNTER-i)*ELEVEN_COLUMNS))].shooter = ALIEN_SHOOTING;
-        total_shooters++;
+        total_shooters_0++;
         i = FIVE_ROWS;
       }
     }
   }
+  //printf("%d \r\n" ,total_shooters);
   /* Print 1 random numbers from 0 to 10 */
-  uint32_t temp = rand() % total_shooters;
+  uint32_t temp_0 = rand() % total_shooters_0;
+  //printf("shooter row %d \r\n" ,temp);
   for(uint32_t j = 0; j < (ALIEN_BLOCK_SIZE); j++){
-    if(alien_block[j].shooter && temp > 0){
-      current_shooter = alien_block[j].current_location + SPRITES_CHARACTER_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE + IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*RANDOM_SHOOTER;
-      temp--;
+    if(alien_block[j].shooter){
+      if (temp_0 == 0){
+        current_shooter_0 = alien_block[j].current_location + IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE*SPRITES_CHARACTER_WIDTH+640*3*SPRITES_CHARACTER_HEIGHT*ALIEN_SIZE*ALIEN_SIZE; //+ SPRITES_CHARACTER_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE + IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*RANDOM_SHOOTER;
+
+      }
+      temp_0--;
+    }
+  }
+}
+// aliens fire bullets
+void image_render_alien_fire_bullet_1(){
+  total_shooters_1 = 0;
+  /* Intializes random number generator */
+  srand(time(0)+1);
+  for(int32_t k = 0; k < ELEVEN_COLUMNS; k++){
+    for(int32_t i = 0; i < FIVE_ROWS; i++){
+      if(alien_block[(k+((ROW_COUNTER-i)*ELEVEN_COLUMNS))].alive){
+        alien_block[(k+((ROW_COUNTER-i)*ELEVEN_COLUMNS))].shooter = ALIEN_SHOOTING;
+        total_shooters_1++;
+        i = FIVE_ROWS;
+      }
+    }
+  }
+  //printf("%d \r\n" ,total_shooters);
+  /* Print 1 random numbers from 0 to 10 */
+  uint32_t temp_1 = rand() % total_shooters_1;
+  //printf("shooter row %d \r\n" ,temp);
+  for(uint32_t j = 0; j < (ALIEN_BLOCK_SIZE); j++){
+    if(alien_block[j].shooter){
+      if (temp_1 == 0){
+        current_shooter_1 = alien_block[j].current_location + IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE*SPRITES_CHARACTER_WIDTH+640*3*SPRITES_CHARACTER_HEIGHT*ALIEN_SIZE*ALIEN_SIZE; //+ SPRITES_CHARACTER_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE + IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*RANDOM_SHOOTER;
+
+      }
+      temp_1--;
+    }
+  }
+}
+// aliens fire bullets
+void image_render_alien_fire_bullet_2(){
+  total_shooters_2 = 0;
+  /* Intializes random number generator */
+  srand(time(0)+2);
+  for(int32_t k = 0; k < ELEVEN_COLUMNS; k++){
+    for(int32_t i = 0; i < FIVE_ROWS; i++){
+      if(alien_block[(k+((ROW_COUNTER-i)*ELEVEN_COLUMNS))].alive){
+        alien_block[(k+((ROW_COUNTER-i)*ELEVEN_COLUMNS))].shooter = ALIEN_SHOOTING;
+        total_shooters_2++;
+        i = FIVE_ROWS;
+      }
+    }
+  }
+  //printf("%d \r\n" ,total_shooters);
+  /* Print 1 random numbers from 0 to 10 */
+  uint32_t temp_2 = rand() % total_shooters_2;
+  //printf("shooter row %d \r\n" ,temp);
+  for(uint32_t j = 0; j < (ALIEN_BLOCK_SIZE); j++){
+    if(alien_block[j].shooter){
+      if (temp_2 == 0){
+        current_shooter_2 = alien_block[j].current_location + IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE*SPRITES_CHARACTER_WIDTH+640*3*SPRITES_CHARACTER_HEIGHT*ALIEN_SIZE*ALIEN_SIZE; //+ SPRITES_CHARACTER_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE + IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*RANDOM_SHOOTER;
+
+      }
+      temp_2--;
     }
   }
 }
