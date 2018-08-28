@@ -2,8 +2,8 @@
 #include <stdio.h>
 
 /********************************** macros ***********************************/
-#define SPRITES_SAUCER_WIDTH 16
-#define SPRITES_SAUCER_HEIGHT 7
+#define SPRITES_SAUCER_WIDTH 18
+#define SPRITES_SAUCER_HEIGHT 9
 #define SPRITES_ALIEN_EXPLOSION_WIDTH 12
 #define SPRITES_ALIEN_EXPLOSION_HEIGHT 10
 //#define SPRITES_ALIEN_WIDTH 12
@@ -1023,4 +1023,4 @@ static const uint32_t ll_14x10[] =
 // color : desired color of the image
 void sprites_render_image(const uint32_t image[], uint32_t width, uint32_t height, uint32_t starting_location, uint32_t scaling_factor, const void *color);
 
-void sprites_render_buffer(const uint32_t image[], uint32_t width, uint32_t height, uint32_t starting_location, uint32_t scaling_factor, const void *color);
+void sprites_render_buffer(const uint32_t image[], uint32_t width, uint32_t height, uint32_t starting_location, uint32_t scaling_factor, uint32_t color[3]);

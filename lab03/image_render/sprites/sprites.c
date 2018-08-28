@@ -39,10 +39,10 @@ void sprites_render_image(const uint32_t image[], uint32_t width, uint32_t heigh
   }
 }
 
-void sprites_render_buffer(const uint32_t image[], uint32_t width, uint32_t height, uint32_t starting_location, uint32_t scaling_factor, const void *color) {
-  char color_image[2250]; // 450*5 base sprite times a max scaler of 5
-  if (scaling_factor>5){
-    scaling_factor=5;
+void sprites_render_buffer(const uint32_t image[], uint32_t width, uint32_t height, uint32_t starting_location, uint32_t scaling_factor, uint32_t color[3]) {
+  char color_image[24*18*3*8]; // 450*8 base sprite times a max scaler of 8
+  if (scaling_factor > 8) {
+    scaling_factor = 8;
   }
   uint32_t j = 0;
 
@@ -53,9 +53,9 @@ void sprites_render_buffer(const uint32_t image[], uint32_t width, uint32_t heig
           uint32_t temp = (w+(h*width));
           //printf("%zu \r\n" , temp);
           if(image[temp] == 1){
-            color_image[j++] = 0xFF;
-            color_image[j++] = 0xFF;
-            color_image[j++] = 0xFF;
+            color_image[j++] = color[0];
+            color_image[j++] = color[1];
+            color_image[j++] = color[2];
           }
           else{
             color_image[j++] = 0x00;

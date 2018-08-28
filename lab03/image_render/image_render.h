@@ -65,6 +65,8 @@ void image_render_print_start_screen();
 // move : direction of movement
 void image_render_tank(uint32_t move, uint16_t dir);
 
+void image_render_saucer();
+
 
 // moves the alien block around the screen
 void image_render_move_alien_block();
