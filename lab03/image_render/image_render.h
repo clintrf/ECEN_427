@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
+// from image_render.h
 #define IMAGE_RENDER_ALIEN_PIXEL_TOTAL 12*8
 #define IMAGE_RENDER_ALIEN_ROW 5
 #define IMAGE_RENDER_ALIEN_COLUMN 11
@@ -12,6 +13,7 @@
 // #define IMAGE_RENDER_ALIEN_MOVING_LEFT 2
 // #define IMAGE_RENDER_ALIEN_MOVING_DOWN 3
 // #define IMAGE_RENDER_ALIEN_SHOT 4
+
 
 // a struct containing the data for an individual alien
 typedef struct Alien Alien;

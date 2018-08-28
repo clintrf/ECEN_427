@@ -1,5 +1,10 @@
 #include <stdio.h>
 #include <stdint.h>
+
+#ifndef GLOBALS_C
+#include "globals/globals.c"
+#endif
+
 #include "image_render.h"
 #include "image_render/sprites/sprites.h"
 #include "image_render/score_board/score_board.h"
@@ -8,18 +13,7 @@
 #include "uioFolder/button_uio.h"
 
 /*********************************** macros ***********************************/
-#define BOUNCE 6000000 /* value of the ticks to seconds */
-#define BTN_0_MASK 0x1 /* mask for button 0 */
-#define BTN_1_MASK 0x2 /* mask for button 1 */
-#define BTN_2_MASK 0x4 /* mask for button 2 */
-#define BUFFER_SPACE 10
-#define LETTER_A 11
-#define CHAR_ARRAY_MAX 36
-#define BYTES_PER_PIXEL 3
-#define POSITION_ONE 0
-#define POSITION_TWO 1
-#define POSITION_THREE 2
-#define MAX_COUNTER 3
+
 
 /*********************************** globals ***********************************/
 char white_t[BYTES_PER_PIXEL] = {0xFF, 0xFF, 0xFF};
@@ -119,8 +113,8 @@ int main() {
   intc_init(INTC_GPIO_FILE_PATH); // intializes interrupts
   button_uio_init(BUTTON_UIO_GPIO_FILE_PATH); // initializes buttons
   image_render_init(); // initializes image making abilities
-  image_render_test_image(); // print out a test image
-
+  //image_render_test_image(); // print out a test image
+  image_render_create_alien_block();
   // bulk of state machine programming
   while(1) {
     /* need to run this each time that we block, because this function will unblock */

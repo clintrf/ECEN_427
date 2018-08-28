@@ -1,1 +1,2 @@
-#include "image_render.h"
+#include <stdio.h>
+#include <stdint.h>

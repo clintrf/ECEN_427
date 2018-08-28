@@ -11,6 +11,7 @@ set(CMAKE_MAKEFILE_DEPENDS
   "CMakeFiles/3.5.1/CMakeCXXCompiler.cmake"
   "CMakeFiles/3.5.1/CMakeSystem.cmake"
   "CMakeLists.txt"
+  "globals/CMakeLists.txt"
   "image_render/CMakeLists.txt"
   "image_render/hdmi/CMakeLists.txt"
   "image_render/score_board/CMakeLists.txt"
@@ -49,6 +50,7 @@ set(CMAKE_MAKEFILE_PRODUCTS
   "image_render/score_board/CMakeFiles/CMakeDirectoryInformation.cmake"
   "intcFolder/CMakeFiles/CMakeDirectoryInformation.cmake"
   "uioFolder/CMakeFiles/CMakeDirectoryInformation.cmake"
+  "globals/CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:
@@ -61,4 +63,5 @@ set(CMAKE_DEPEND_INFO_FILES
   "intcFolder/CMakeFiles/intc.dir/DependInfo.cmake"
   "uioFolder/CMakeFiles/swtch.dir/DependInfo.cmake"
   "uioFolder/CMakeFiles/btn.dir/DependInfo.cmake"
+  "globals/CMakeFiles/global.dir/DependInfo.cmake"
   )

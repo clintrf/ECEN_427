@@ -20,3 +20,6 @@
 /home/xilinx/ECEN_427/lab03/uioFolder/CMakeFiles/rebuild_cache.dir
 /home/xilinx/ECEN_427/lab03/uioFolder/CMakeFiles/swtch.dir
 /home/xilinx/ECEN_427/lab03/uioFolder/CMakeFiles/btn.dir
+/home/xilinx/ECEN_427/lab03/globals/CMakeFiles/edit_cache.dir
+/home/xilinx/ECEN_427/lab03/globals/CMakeFiles/rebuild_cache.dir
+/home/xilinx/ECEN_427/lab03/globals/CMakeFiles/global.dir

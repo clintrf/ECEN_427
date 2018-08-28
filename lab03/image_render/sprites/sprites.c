@@ -1,6 +1,10 @@
 #include "sprites.h"
 #include "../hdmi/hdmi.h"
 
+#ifndef GLOBALS_C
+#include "../../globals/globals.c"
+#endif
+
 char black_image[3] = {0x00, 0x00, 0x00};
 
 // prints an image to the screen
@@ -10,6 +14,8 @@ char black_image[3] = {0x00, 0x00, 0x00};
 // starting_location : top left pixel of the character
 // scaling_factor : scale of the figure. must be int. size >= 1. place 1 for normal image
 // color : desired color of the image
+
+
 void sprites_render_image(const uint32_t image[], uint32_t width, uint32_t height, uint32_t starting_location, uint32_t scaling_factor, const void *color) {
   hdmi_set_offset(starting_location); // bring the screen cursor to the top left corner of where we will write
   uint32_t current_start_line = starting_location; // set the current line to the same location

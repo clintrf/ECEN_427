@@ -2,6 +2,10 @@
 #include "../sprites/sprites.h"
 #include "../hdmi/hdmi.h"
 
+#ifndef GLOBALS_C
+#include "../../globals/globals.c"
+#endif
+
 /********************************** macros ***********************************/
 #define TEN_THOUSAND_SCALE 10000
 #define THOUSAND_SCALE 1000

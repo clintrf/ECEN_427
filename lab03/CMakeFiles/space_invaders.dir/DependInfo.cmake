@@ -13,6 +13,7 @@ set(CMAKE_C_TARGET_INCLUDE_PATH
   "image_render"
   "intcFolder"
   "uioFolder"
+  "globals"
   )
 
 # Targets to which this target links.
@@ -20,6 +21,7 @@ set(CMAKE_TARGET_LINKED_INFO_FILES
   "/home/xilinx/ECEN_427/lab03/image_render/CMakeFiles/render.dir/DependInfo.cmake"
   "/home/xilinx/ECEN_427/lab03/intcFolder/CMakeFiles/intc.dir/DependInfo.cmake"
   "/home/xilinx/ECEN_427/lab03/uioFolder/CMakeFiles/btn.dir/DependInfo.cmake"
+  "/home/xilinx/ECEN_427/lab03/globals/CMakeFiles/global.dir/DependInfo.cmake"
   "/home/xilinx/ECEN_427/lab03/image_render/hdmi/CMakeFiles/hdmi.dir/DependInfo.cmake"
   "/home/xilinx/ECEN_427/lab03/image_render/sprites/CMakeFiles/sprites.dir/DependInfo.cmake"
   "/home/xilinx/ECEN_427/lab03/image_render/score_board/CMakeFiles/score_board.dir/DependInfo.cmake"

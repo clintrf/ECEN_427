@@ -1,0 +1,2 @@
+/usr/bin/ar qc libglobal.a  CMakeFiles/global.dir/globals.c.o
+/usr/bin/ranlib libglobal.a

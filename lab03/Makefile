@@ -214,6 +214,19 @@ btn/fast:
 	$(MAKE) -f uioFolder/CMakeFiles/btn.dir/build.make uioFolder/CMakeFiles/btn.dir/build
 .PHONY : btn/fast
 
+#=============================================================================
+# Target rules for targets named global
+
+# Build rule for target.
+global: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 global
+.PHONY : global
+
+# fast build rule for target.
+global/fast:
+	$(MAKE) -f globals/CMakeFiles/global.dir/build.make globals/CMakeFiles/global.dir/build
+.PHONY : global/fast
+
 main.o: main.c.o
 
 .PHONY : main.o
@@ -257,6 +270,7 @@ help:
 	@echo "... intc"
 	@echo "... swtch"
 	@echo "... btn"
+	@echo "... global"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
