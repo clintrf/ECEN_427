@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 // from image_render.h
-#define IMAGE_RENDER_ALIEN_PIXEL_TOTAL 12*8
+#define IMAGE_RENDER_ALIEN_PIXEL_TOTAL 14*10
 #define IMAGE_RENDER_ALIEN_ROW 5
 #define IMAGE_RENDER_ALIEN_COLUMN 11
 #define IMAGE_RENDER_ALIEN_OUT 1
