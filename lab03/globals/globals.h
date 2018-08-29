@@ -2,7 +2,7 @@
 #include <stdint.h>
 
 /********************************** macros ***********************************/
-#define GLOBALS_SAUCER_ROW_START_LOCATION (15+(640*3)*20)
+#define GLOBALS_SAUCER_ROW_START_LOCATION (15+(640*3)*20)                       // indicated where the saucer should start from
 
 /********************************* functions *********************************/
 
