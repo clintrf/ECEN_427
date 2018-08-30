@@ -6,10 +6,16 @@
 #include <linux/kdev_t.h>
 #include <linux/types.h>
 #include <linux/fs.h>
-#include <stdbool.h>
-
 #include <linux/err.h>
 #include <linux/string.h>
+#include <linux/platform_device.h>
+#include <linux/of.h>
+#include <linux/of_address.h>
+#include <linux/irq.h>
+#include <linux/io.h>
+#include <linux/irqdomain.h>
+#include <linux/interrupt.h>
+#include <stdbool.h>
 
 /*********************************** macros *********************************/
 MODULE_LICENSE("GPL");
@@ -35,8 +41,12 @@ MODULE_DESCRIPTION("ECEn 427 Audio Driver");
 #define I2S_STATUS_REG_NEW_AUDIO_SAMPLE 21
 #define FIRST_MINOR 0
 #define NUM_OF_CONTIGUOUS_DEVS 1
+#define FIRST_RESOURCE 0
+#define SECOND_RESOURCE 1
 #define INIT_SUCCESS 0
 #define INIT_ERR -1
+#define PROBE_SUCCESS 0
+#define PROBE_ERR -1
 
 //#define platform_register_drivers(drivers, count) //cf (change)
 
@@ -64,14 +74,16 @@ static ssize_t audio_read(struct file *f, char *buf, size_t len, loff_t *off) {
 
 static ssize_t audio_write(struct file *f, const char *buf, size_t len,
     loff_t *off) {
-  printk(KERN_INFO "Driver: write()\n");
+  printk(KERN_INFO "Driv linux/config.her: write()\n");
   return len;
 }
 
+static int audio_probe(struct platform_device *pdev);
+static int audio_remove(struct platform_device * pdev);
+
 /*********************************** structs *********************************/
 // struct containing the audio_device data
-typedef struct audio_device audio_device;
-static struct audio_device {
+ typedef struct audio_device {
     int minor_num;                      // Device minor number
     struct cdev cdev;                   // Character device structure
     struct platform_device * pdev;      // Platform device pointer
@@ -81,7 +93,7 @@ static struct audio_device {
     u32 mem_size;                       // Allocated mem space size
     u32* virt_addr;                     // Virtual address
     // Add any items to this that you need
-};
+} audio_dev;
 
 // struct containing the file operations data
 static struct file_operations audio_fops = {
@@ -93,10 +105,11 @@ static struct file_operations audio_fops = {
 };
 
 // Link between the hardware and its driver
-static struct of_device_id audio_of_match[] __devinitdata = {
-  { .compatible = "ecen427_audio_codec", },
+static struct of_device_id audio_of_match[] = {
+  { .compatible = "byu,ecen427-audio_codec", },
   {}
 };
+MODULE_DEVICE_TABLE(of, audio_of_match);
 
 // struct containing the platform driver
 static struct platform_driver audio_platform_driver = {
@@ -106,17 +119,18 @@ static struct platform_driver audio_platform_driver = {
     .name = MODULE_NAME,
     .owner = THIS_MODULE,
     .of_match_table = audio_of_match,
-  },
+  }
 };
 
 /****************************** global variables ****************************/
-static audio_device dev; // global audio device
-static platform_device pdev; // global platform device
+static audio_dev dev; // global audio device
+// static struct platform_device *pdev; // global platform device
 static bool audio_probe_called_once = false; // makes audio_probe call once
 static dev_t dev_nums; // contains major and minor numbers
 static struct class *audio;
-static device *device;
+static struct device *device;
 static struct cdev cdev; // character device for the driver
+struct resource *res; // Device Resource Structure
 
 /********************************** functions ********************************/
 // This is called when Linux loads your driver
@@ -125,14 +139,12 @@ static int audio_init(void) {
   pr_info("%s: Initializing Audio Driver!\n", MODULE_NAME);
   // Get a major number for the driver -- alloc_chrdev_region; // pg. 45, LDD3.
   int err = alloc_chrdev_region(&dev_nums,FIRST_MINOR,NUM_OF_CONTIGUOUS_DEVS,MODULE_NAME);
-  if(err != 0) { // failure doing region allocation
+  if(err < INIT_SUCCESS) { // failure doing region allocation
     pr_info("Failure allocating major/minor numbers!\n");
     return INIT_ERR;
   }
-  int major_num = MAJOR(dev_nums); // returns the major number of a dev_t type
   int minor_num = MINOR(dev_nums); // returns the minor number of a dev_t type
   dev.minor_num = minor_num;
-  
   // Create a device class. -- class_create()
   audio = class_create(THIS_MODULE,MODULE_NAME);
   if(audio == NULL) { // failed to create the class, undo allocation
@@ -141,25 +153,20 @@ static int audio_init(void) {
     return INIT_ERR;
   }
   // Register the driver as a platform driver -- platform_driver_register
-  pdev = platform_driver_register(&audio_platform_driver);
-  if(pdev == NULL) { // failed to create the class, undo allocation
+  err = platform_driver_register(&audio_platform_driver);
+  if(err < INIT_SUCCESS) { // failed to register the platform driver, undo all the things
     pr_info("Failure registering platform driver!\nUnregistering...\n");
     class_destroy(audio);
     unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
     return INIT_ERR;
   }
-  dev.pdev = &pdev;
-
-  // If any of the above functions fail, return an appropriate linux error code, and make sure
-  // you reverse any function calls that were successful.
-
   return INIT_SUCCESS;
 }
 
 // This is called when Linux unloads your driver
 static void audio_exit(void) {
   // platform_driver_unregister
-  platform_unregister_drivers(&audio_platform_driver); //cf
+  platform_driver_unregister(&audio_platform_driver);
   // class_unregister and class_destroy
   //class_unregister(&audio);
   class_destroy(audio);
@@ -168,43 +175,59 @@ static void audio_exit(void) {
   return;
 }
 
+irqreturn_t short_probing(int irq, void *dev_id, struct pt_regs *regs)
+{
+    return IRQ_HANDLED;
+}
+
 // Called by kernel when a platform device is detected that matches the 'compatible' name of this driver.
-// returns :
+// returns : an int signalling a successful probe or some kind of error
 static int audio_probe(struct platform_device *pdev) {
+  if(audio_probe_called_once == true) {
+    pr_info("Already called probe() once...\n");
+    return PROBE_SUCCESS;
+  }
   // Initialize the character device structure (cdev_init)
   cdev_init(&cdev,&audio_fops);
-  dev.cdev = cdev;
   // Register the character device with Linux (cdev_add)
   int err = cdev_add(&cdev,dev_nums,NUM_OF_CONTIGUOUS_DEVS);
-  if(err < INIT_SUCCESS) { // if err is negative, the device has NOT been added
+  if(err < PROBE_SUCCESS) { // if err is negative, the device has NOT been added
     pr_info("Failure registering the cdev!\nDestroying...\n");
-    // platform_driver_unregister
+    platform_driver_unregister(&audio_platform_driver);
     class_destroy(audio);
     unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
-    return INIT_ERR;
+    return PROBE_ERR;
   }
-  // Create a device file in /dev so that the character device can be accessed from user space (device_create).
-  device = device_create(audio,NULL,dev_nums,NULL,MODULE_NAME)
+  dev.cdev = cdev;
+  // Create a device file in /dev so that the character device can be accessed from user space
+  device = device_create(audio,NULL,dev_nums,NULL,MODULE_NAME);
   if(device == NULL) {
     pr_info("Failure creating device!\nUnregistering and destroying...\n");
-    // platform_driver_unregister
+    platform_driver_unregister(&audio_platform_driver);
     // do something with cdev??
     class_destroy(audio);
     unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
-    return INIT_ERR;
+    return PROBE_ERR;
   }
   dev.dev = device;
   // Get the physical device address from the device tree -- platform_get_resource
+  res = platform_get_resource(pdev,IORESOURCE_MEM,FIRST_RESOURCE);
   // Reserve the memory region -- request_mem_region
+  dev.mem_size = (res->end)-(res->start)+1;
   // Get a (virtual memory) pointer to the device -- ioremap
-
+  dev.virt_addr = ioremap(res->start,dev.mem_size);
   // Get the IRQ number from the device tree -- platform_get_resource
+  res = platform_get_resource(pdev,IORESOURCE_IRQ,FIRST_RESOURCE);
+  uint32_t irq_num = res->start;
   // Register your interrupt service routine -- request_irq
+  uint64_t irqflags = IRQF_SHARED | IRQF_NO_SUSPEND;
+  // ERROR HERE : for some reason we cannot get this function pointer to work
+  uint32_t irq_err = request_irq(irq_num,short_probing,irqflags,MODULE_NAME,NULL); // device id??
 
   // If any of the above functions fail, return an appropriate linux error code, and make sure
   // you reverse any function calls that were successful.
   audio_probe_called_once = true;
-  return INIT_SUCCESS;
+  return PROBE_SUCCESS;
 }
 
 // removes the audio_device by unloaded and unmapping it, destroys device

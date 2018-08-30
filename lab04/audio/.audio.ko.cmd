@@ -1,1 +1,1 @@
-cmd_/auto/fsg/daxypoo/ECEN_427/lab04/audio/audio.ko := ld -r -m elf_x86_64  -z max-page-size=0x200000 -T ./scripts/module-common.lds  --build-id  -o /auto/fsg/daxypoo/ECEN_427/lab04/audio/audio.ko /auto/fsg/daxypoo/ECEN_427/lab04/audio/audio.o /auto/fsg/daxypoo/ECEN_427/lab04/audio/audio.mod.o ;  true
+cmd_/home/xilinx/ECEN_427/lab04/audio/audio.ko := ld -EL -r  -T ./scripts/module-common.lds --build-id  -o /home/xilinx/ECEN_427/lab04/audio/audio.ko /home/xilinx/ECEN_427/lab04/audio/audio.o /home/xilinx/ECEN_427/lab04/audio/audio.mod.o ;  true
