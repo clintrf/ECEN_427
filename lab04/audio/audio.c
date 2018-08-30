@@ -13,9 +13,11 @@
 #include <linux/of_address.h>
 #include <linux/irq.h>
 #include <linux/io.h>
+#include <linux/ioport.h>
 #include <linux/irqdomain.h>
 #include <linux/interrupt.h>
 #include <stdbool.h>
+#include <asm/io.h>
 
 /*********************************** macros *********************************/
 MODULE_LICENSE("GPL");
@@ -57,21 +59,41 @@ static void audio_exit(void);
 module_init(audio_init);
 module_exit(audio_exit);
 
+// open function for files in the kernel
+// i :
+// f : the file to open
+// returns an int indicating success or failure
 static int audio_open(struct inode *i, struct file *f) {
   printk(KERN_INFO "Driver: open()\n");
   return INIT_SUCCESS;
 }
 
+// open function for files in the kernel
+// i :
+// f : the file to close
+// returns an int indicating success or failure
 static int audio_release(struct inode *i, struct file *f) {
   printk(KERN_INFO "Driver: close()\n");
   return INIT_SUCCESS;
 }
 
+// reads a certain amount of bytes from a buffer
+// f : the file to read from
+// buf : the buffer to read from
+// len : the length
+// off : offset
+// returns
 static ssize_t audio_read(struct file *f, char *buf, size_t len, loff_t *off) {
   printk(KERN_INFO "Driver: read()\n");
   return INIT_SUCCESS;
 }
 
+// reads a certain amount of bytes from a buffer
+// f : the file to write to
+// buf : the buffer to write to
+// len : the length
+// off : offset
+// returns
 static ssize_t audio_write(struct file *f, const char *buf, size_t len,
     loff_t *off) {
   printk(KERN_INFO "Driv linux/config.her: write()\n");
@@ -131,9 +153,11 @@ static struct class *audio;
 static struct device *device;
 static struct cdev cdev; // character device for the driver
 struct resource *res; // Device Resource Structure
+struct resource *res_mem; // Device Resource Structure
+struct resource *res_irq; // Device Resource Structure
 
 /********************************** functions ********************************/
-// This is called when Linux loads your driver
+// This is called when Linux loadrite (buffer);s your driver
 // returns : an int signalling a successful initialization or some kind of error
 static int audio_init(void) {
   pr_info("%s: Initializing Audio Driver!\n", MODULE_NAME);
@@ -160,30 +184,37 @@ static int audio_init(void) {
     unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
     return INIT_ERR;
   }
+  pr_info("%s:Audio Driver initialization success!\n", MODULE_NAME);
   return INIT_SUCCESS;
 }
 
 // This is called when Linux unloads your driver
 static void audio_exit(void) {
-  // platform_driver_unregister
-  platform_driver_unregister(&audio_platform_driver);
-  // class_unregister and class_destroy
-  //class_unregister(&audio);
-  class_destroy(audio);
-  // unregister_chrdev_region
-  unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
+  pr_info("%s: Exiting Audio Driver!\n", MODULE_NAME);
+  platform_driver_unregister(&audio_platform_driver); // platform_driver_unregister
+  // class_unregister(&audio); // class_unregister
+  class_destroy(audio); // class_destroy
+  unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS); // unregister_chrdev_region
+  pr_info("%s: Finish Exit Audio Driver!\n", MODULE_NAME);
   return;
 }
 
-irqreturn_t short_probing(int irq, void *dev_id, struct pt_regs *regs)
+// function that handles the irq
+// irq : irq number
+// dev_id : the device id
+// returns a flag stating if the irq was handled properly
+static irqreturn_t short_probing(int irq, void *dev_id)
 {
-    return IRQ_HANDLED;
+  pr_info("Calling the irq_short_probe!\nSuccess...\n");
+  return IRQ_HANDLED;
 }
 
 // Called by kernel when a platform device is detected that matches the 'compatible' name of this driver.
+// pdev : platform device which to probe
 // returns : an int signalling a successful probe or some kind of error
 static int audio_probe(struct platform_device *pdev) {
-  if(audio_probe_called_once == true) {
+  pr_info("%s:Probing Audio Driver!\n", MODULE_NAME);
+  if(audio_probe_called_once == true) { // we only want to call this function once
     pr_info("Already called probe() once...\n");
     return PROBE_SUCCESS;
   }
@@ -199,43 +230,87 @@ static int audio_probe(struct platform_device *pdev) {
     return PROBE_ERR;
   }
   dev.cdev = cdev;
+
   // Create a device file in /dev so that the character device can be accessed from user space
   device = device_create(audio,NULL,dev_nums,NULL,MODULE_NAME);
-  if(device == NULL) {
+  if(device == NULL) { // if the device returns null, then we hit an error
     pr_info("Failure creating device!\nUnregistering and destroying...\n");
+    cdev_del(&cdev);
     platform_driver_unregister(&audio_platform_driver);
-    // do something with cdev??
     class_destroy(audio);
     unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
     return PROBE_ERR;
   }
   dev.dev = device;
+
   // Get the physical device address from the device tree -- platform_get_resource
   res = platform_get_resource(pdev,IORESOURCE_MEM,FIRST_RESOURCE);
-  // Reserve the memory region -- request_mem_region
-  dev.mem_size = (res->end)-(res->start)+1;
-  // Get a (virtual memory) pointer to the device -- ioremap
-  dev.virt_addr = ioremap(res->start,dev.mem_size);
-  // Get the IRQ number from the device tree -- platform_get_resource
-  res = platform_get_resource(pdev,IORESOURCE_IRQ,FIRST_RESOURCE);
-  uint32_t irq_num = res->start;
-  // Register your interrupt service routine -- request_irq
-  uint64_t irqflags = IRQF_SHARED | IRQF_NO_SUSPEND;
-  // ERROR HERE : for some reason we cannot get this function pointer to work
-  uint32_t irq_err = request_irq(irq_num,short_probing,irqflags,MODULE_NAME,NULL); // device id??
+  if(res == NULL){
+    pr_info("Failure Getting Resources 01!\nUnregistering and destroying...\n");
+    device_destroy(audio,dev_nums); // device_destroy
+    cdev_del(&cdev);
+    platform_driver_unregister(&audio_platform_driver);
+    class_destroy(audio);
+    unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
+    return PROBE_ERR;
+  }
+  dev.phys_addr = res->start;
 
-  // If any of the above functions fail, return an appropriate linux error code, and make sure
-  // you reverse any function calls that were successful.
-  audio_probe_called_once = true;
+  dev.mem_size = (res->end)-(res->start)+1;
+  res_mem = request_mem_region(dev.phys_addr,dev.mem_size,MODULE_NAME); // Reserve the memory region -- request_mem_region
+  if(res_mem == NULL) {
+    pr_info("Failure Requesting Memory Region!\nUnregistering and destroying...\n");
+    device_destroy(audio,dev_nums); // device_destroy
+    cdev_del(&cdev);
+    platform_driver_unregister(&audio_platform_driver);
+    class_destroy(audio);
+    unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
+  }
+  // Get a (virtual memory) pointer to the device -- ioremap
+  dev.virt_addr = ioremap(dev.phys_addr,dev.mem_size);
+
+
+  // Get the IRQ number from the device tree -- platform_get_resource
+  res_irq = platform_get_resource(pdev,IORESOURCE_IRQ,FIRST_RESOURCE);
+  uint32_t irq_num = res_irq->start;
+  if(res_irq == NULL){
+    pr_info("Failure Getting Resources 02!\nUnregistering and destroying...\n");
+    release_mem_region(dev.phys_addr,dev.mem_size); // release_mem_region
+    device_destroy(audio,dev_nums); // device_destroy
+    cdev_del(&cdev);
+    platform_driver_unregister(&audio_platform_driver);
+    class_destroy(audio);
+    unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
+    return PROBE_ERR;
+  }
+  dev.pdev = pdev;
+
+  // Register your interrupt service routine -- request_irq
+  int irq_err = request_irq(irq_num,short_probing,0,MODULE_NAME,NULL);
+  if(irq_err < PROBE_SUCCESS) { // failed to register the platform driver, undo all the things
+    pr_info("Failure calling the request_irq !\nUnregistering...\n");
+    release_mem_region(dev.phys_addr,dev.mem_size); // release_mem_region
+    device_destroy(audio,dev_nums); // device_destroy
+    cdev_del(&cdev);
+    platform_driver_unregister(&audio_platform_driver);
+    class_destroy(audio);
+    unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
+    return PROBE_ERR;
+  }
+
+  audio_probe_called_once = true; // makes certain we don't run probe twice
+  pr_info("%s:Audio Driver probing success!\n", MODULE_NAME);
   return PROBE_SUCCESS;
 }
 
 // removes the audio_device by unloaded and unmapping it, destroys device
 // returns : an int signalling success or failure
 static int audio_remove(struct platform_device * pdev) {
-  // iounmap
-  // release_mem_region
-  // device_destroy
-  // cdev_del
+  pr_info("%s: Removing Audio Driver!\n", MODULE_NAME);
+  ioport_unmap(dev.virt_addr); // iounmap
+  release_mem_region(dev.phys_addr,dev.mem_size); // release_mem_region
+  device_destroy(audio,dev_nums); // device_destroy
+  cdev_del(&cdev); // cdev_del
+  pr_info("%s: Removing Audio Driver success!\n", MODULE_NAME);
   return 0;
 }
