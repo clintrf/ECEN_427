@@ -19,6 +19,10 @@
 #define AUDIO_DRIVER_READ_ERROR -1
 #define SUBCHUNK2SIZE 40
 #define DATA_OFFSET 44
+#define FOUR_BITS 4
+#define PCM_8_SHIFT 16
+#define PCM_16_SHIFT 16
+#define PCM_24_SHIFT 24
 
 //ADAU audio controller parameters
 #define _AUDIO_ADAU1761_H_
@@ -90,14 +94,30 @@ enum audio_adau1761_regs {
 
 /********************************** structs **********************************/
 // struct containing the header and data of audio
-typedef struct audio_data_file {
-  const char * head;
-  uint32_t total_size;
+// typedef struct audio_data_file {
+//   const char * head;
+//   uint32_t total_size;
+//   const char * data;
+//   uint32_t[] sample;
+//   uint32_t data_size;
+// } audio_data;
 
-  const char * data;
-  uint32_t data_size;
-} audio_data;
-
+ typedef struct audio_data{
+   char riff[FOUR_BITS]; // RIFF string
+   int overall_size; // overall size of file in bytes
+   char wave[FOUR_BITS]; // WAVE string
+   char fmt_chunk_marker[FOUR_BITS]; // fmt string with trailing null char
+   int length_of_fmt; // length of the format data
+   int format_type; // format type. 1-PCM, 3- IEEE float, 6 - 8bit A law, 7 - 8bit mu law
+   int channels; // no.of channels
+   int sample_rate;  // sampling rate (blocks per second)
+   int byterate; // SampleRate * NumChannels * BitsPerSample/8
+   int block_align; // NumChannels * BitsPerSample/8
+   int bits_per_sample; // bits per sample, 8- 8bits, 16- 16 bits etc
+   char data_chunk_header[FOUR_BITS]; // DATA string or FLLR string
+   int data_size; // NumSamples * NumChannels * BitsPerSample/8 - size of the next chunk that will be read
+ }audio_data_header;
+ struct audio_data audio_data_info;
 /**************************** function prototypes *****************************/
 // Initializes the driver (opens UIO file and calls mmap)
 // devDevice: The file path to the uio dev file
@@ -122,7 +142,7 @@ int16_t audio_driver_read(int32_t len);
 // Call to get the audio header and data out of the data data_array
 // index : the audio sound numbersd
 // return : audio_data struct that contains the data buffer and the size of the index
-audio_data audio_driver_get_data_array(uint32_t index);
+audio_data_header audio_driver_get_data_array(uint32_t index);
 
 /******************************************************************************
  * Function to write 8 bits to one of the registers from the audio
