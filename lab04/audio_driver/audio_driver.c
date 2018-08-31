@@ -113,10 +113,10 @@ void audio_driver_import_audio(char fileName[], uint16_t index) {
   data.data_size = data.total_size-(DATA_OFFSET/2);
   printf("Total Size: %zu\n", data.data_size);
   data.data = rawbuffer+DATA_OFFSET;
-  data_array[index] = data;
+
   /* Save copy of Raw buffer by converting from char to int */
   sampleBuf = (unsigned short int*) data.head;
-  unsigned short int * dataCheck = (unsigned short int *) data.data;
+  unsigned long int * dataCheck = (unsigned short int *) data.data;
   size_t j = 0;
   /* Used to print out the data in ASCII (checks for correct transfer) */
   for (size_t i = 0; i < (data.total_size - data.data_size) ; i++) {
@@ -125,10 +125,13 @@ void audio_driver_import_audio(char fileName[], uint16_t index) {
   }
   printf("\r\n\n\n");
   j = 44;
-  for(size_t i = 0; i < (data.data_size)/2; i++) {
-    printf("Data at Index %zu: %c\n",j++,(dataCheck[i]&0x00ff));
-    printf("Data at Index %zu: %c\n",j++, (dataCheck[i]&0xff00)>>8);
+  for(size_t i = 0; i < (44/*data.data_size*/)/2; i++) {
+    dataCheck[i] = (dataCheck[i])<<16;
+    printf("Data at Index %zu: %x, %x\n",j++,(dataCheck[i]&0x00ff0000),dataCheck[i]);
+    printf("Data at Index %zu: %x, %x\n",j++, (dataCheck[i]&0xff000000)>>8,dataCheck[i]);
+
   }
+  data_array[index] = data;
 
 }
 

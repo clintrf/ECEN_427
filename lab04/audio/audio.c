@@ -184,9 +184,9 @@ static irqreturn_t irq_isr(int irq_loc, void *dev_id)
   /* END LIST OF QUESTIONS */
 
   pr_info("Calling the irq_isr!\n");
-  int16_t iic_index = 0;
-  int16_t uio_index = 1;
-  void * uio_ptr = setUIO(uio_index, audio_mmap_size);
+  //int16_t iic_index = 0;
+  //int16_t uio_index = 1;
+  //void * uio_ptr = setUIO(uio_index, audio_mmap_size);
   // Read the sample from the input
   //DataR1 = *((volatile int *)(((uint8_t *)uio_ptr) + I2S_STATUS_REG + 1));
   //DataR2 = *((volatile int *)(((uint8_t *)uio_ptr) + I2S_STATUS_REG + 2));
