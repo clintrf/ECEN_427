@@ -37,3 +37,6 @@ void audio_driver_write(const char *buf, int32_t len);
 // len : the amount of bytes to read into the buffer
 // returns a value with the type of success pending
 int16_t audio_driver_read(int32_t len);
+
+
+void audio_driver_import_audio(char fileName[], uint16_t index);

@@ -12,22 +12,23 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/mman.h>
+#include <stdlib.h>
 #include "audio_driver.h"
 #include <err.h>
 
 /*********************************** macros **********************************/
 #define AUDIO_DRIVER_MMAP_SIZE 0x1000 /* size of memory to allocate */
 #define END_OF_READ_FILE 0
-#define SOUND_FILE_HOME
-#define INVADER_DIE_AUDIO SOUND_FILE_HOME+"/invader_die.wav"
-#define LASER_AUDIO SOUND_FILE_HOME+"/laser.wav"
-#define PLAYER_DIE_AUDIO SOUND_FILE_HOME+"/player_die.wav"
-#define UFO_AUDIO SOUND_FILE_HOME+"/ufo.wav"
-#define UFO_DIE_AUDIO SOUND_FILE_HOME+"/ufo_die.wav"
-#define WALK1_AUDIO SOUND_FILE_HOME+"/walk1.wav"
-#define WALK2_AUDIO SOUND_FILE_HOME+"/walk2.wav"
-#define WALK3_AUDIO SOUND_FILE_HOME+"/walk3.wav"
-#define WALK4_AUDIO SOUND_FILE_HOME+"/walk4.wav"
+#define SOUND_FILE_HOME "soundfolder" // location of all our sound folder
+#define INVADER_DIE_AUDIO SOUND_FILE_HOME "/invader_die.wav"
+#define LASER_AUDIO SOUND_FILE_HOME "/laser.wav"
+#define PLAYER_DIE_AUDIO SOUND_FILE_HOME "/player_die.wav"
+#define UFO_AUDIO SOUND_FILE_HOME "/ufo.wav"
+#define UFO_DIE_AUDIO SOUND_FILE_HOME "/ufo_die.wav"
+#define WALK1_AUDIO SOUND_FILE_HOME "/walk1.wav"
+#define WALK2_AUDIO SOUND_FILE_HOME "/walk2.wav"
+#define WALK3_AUDIO SOUND_FILE_HOME "/walk3.wav"
+#define WALK4_AUDIO SOUND_FILE_HOME "/walk4.wav"
 
 /********************************** globals **********************************/
 static int fd; /* this is a file descriptor that describes the UIO device */
@@ -39,7 +40,7 @@ uint32_t data_array[9];
 
 
 /******************************** prototypes *********************************/
-void audio_driver_import_audio(char fileName[]);
+void audio_driver_import_audio(char fileName[],uint16_t index);
 
 /********************************* functions *********************************/
 // Initializes the driver (opens UIO file and calls mmap)
@@ -60,7 +61,7 @@ int32_t audio_driver_init(char devDevice[]) {
     return AUDIO_DRIVER_ERROR;
   }
 
-  audio_driver_import_audio(INVADER_DIE_AUDIO , 0);
+  audio_driver_import_audio(INVADER_DIE_AUDIO, 0);
   //audio_driver_import_audio(LASER_AUDIO, 1);
   //audio_driver_import_audio(PLAYER_DIE_AUDIO);
   //audio_driver_import_audio(UFO_AUDIO);
@@ -99,9 +100,9 @@ void audio_driver_import_audio(char fileName[], uint16_t index) {
     errx(1, "Did not read entire file");
   }
   sampleBuf = (unsigned short int*)rawbuffer;
-
+  uint32_t data;
   for (size_t i = 0, j = bytesRead / sizeof(unsigned short int); i < j; i++) {
-      uint32_t data; = sampleBuf[i];
+      data = sampleBuf[i];
   }
   data_array[index] = data;
 
@@ -127,7 +128,8 @@ void audio_driver_exit() {
 // len : the amount of bytes to read into the buffer
 // returns a value with the type of success pending
 int16_t audio_driver_read(int32_t len) {
-  int32_t count = read(fd,&buf,len);
+  char rdbuf[len];
+  int32_t count = read(fd,&rdbuf,len);
   if(count == len) { // optimal case success
     return AUDIO_DRIVER_READ_OPTIMAL_SUCCESS;
   }

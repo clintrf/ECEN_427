@@ -17,8 +17,12 @@ fcntl.h
 -
 sys/mman.h
 -
+stdlib.h
+-
 audio_driver.h
 /home/xilinx/ECEN_427/lab04/audio_driver/audio_driver.h
+err.h
+-
 
 /home/xilinx/ECEN_427/lab04/audio_driver/audio_driver.h
 stdint.h
