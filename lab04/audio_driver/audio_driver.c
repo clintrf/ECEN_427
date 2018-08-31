@@ -36,12 +36,6 @@
 #define WALK3_AUDIO SOUND_FILE_HOME "/walk3.wav"
 #define WALK4_AUDIO SOUND_FILE_HOME "/walk4.wav"
 
-/********************************** structs **********************************/
-// struct containing the header and data of audio
-typedef struct audio_data_file {
-  uint32_t size;
-  uint32_t * data;
-} audio_data;
 
 /********************************** globals **********************************/
 static int fd; /* this is a file descriptor that describes the UIO device */
@@ -106,15 +100,26 @@ void audio_driver_import_audio(char fileName[], uint16_t index) {
 
   bytesRead = fread((void*)rawbuffer, 1, sizeOfFile, fp);                       // Write to raw buffer
   if(bytesRead != sizeOfFile){ errx(1, "Did not read entire file"); }           // Error check if buffer was written to
-  sampleBuf = (unsigned short int*)rawbuffer;                                   // Save copy of Raw buffer
+
   audio_data data;
-  data.size = bytesRead / sizeof(unsigned short int);
-  //uint32_t * data;
-  for (size_t i = 0; i < data.size; i++) {  // Loop through data and
-      data.data[i] = sampleBuf[i];
-      printf("Data at Index %zu: %zu\n",i,sampleBuf[i]);
-  }
+  data.total_size = bytesRead / sizeof(unsigned short int);
+  data.head = rawbuffer;
+  data.data_size = data.total_size - DATA_OFFSET;
+  data.data = rawbuffer + DATA_OFFSET*BITS_PER_BYTE;
   data_array[index] = data;
+
+  sampleBuf = (unsigned short int*)rawbuffer;                                   // Save copy of Raw buffer by converting from char to int
+  //uint32_t * dataTemp;
+  size_t j = 0;
+  for (size_t i = 0; i < (data.total_size - data.data_size) ; i++) {  // Loop through data and
+       //dataTemp = sampleBuf[i];
+
+      printf("Data at Index %zu: %c\n",j, (sampleBuf[i]&0x00ff));
+      j++;
+      printf("Data at Index %zu: %c\n",j, (sampleBuf[i]&0xff00)>>8);
+      j++;
+  }
+
 }
 
 // Called to exit the driver (unmap and close UIO file)
@@ -150,6 +155,13 @@ int16_t audio_driver_read(int32_t len) {
   else { // some kind of error occured if the number is negative
     return AUDIO_DRIVER_READ_ERROR;
   }
+}
+
+// Call to get the audio header and data out of the data data_array
+// index : the audio sound numbersd
+// return : audio_data struct that contains the data buffer and the size of the index
+audio_data get_data_array(uint32_t index){
+  return data_array[index];
 }
 
 /******************************************************************************
@@ -279,6 +291,9 @@ void config_audio_codec(int iic_index) {
     // Mute left and right channels output; enable them when output is needed
     write_audio_reg(R29_PLAYBACK_HEADPHONE_LEFT_VOLUME_CONTROL, 0xE5, iic_fd);
     write_audio_reg(R30_PLAYBACK_HEADPHONE_RIGHT_VOLUME_CONTROL, 0xE5, iic_fd);
+
+    // Re enable muted audio.
+
     // Enable play back right and left channels
     write_audio_reg(R35_PLAYBACK_POWER_MANAGEMENT, 0x03, iic_fd);
     // Enable DAC for both channels

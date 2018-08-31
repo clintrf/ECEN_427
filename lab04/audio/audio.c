@@ -21,6 +21,8 @@
 #include <asm/io.h>
 #include <asm/uaccess.h>
 
+//#include "uio.h"
+
 /*********************************** macros *********************************/
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Dax Eckles & Clint Frandsen");
@@ -145,27 +147,27 @@ static ssize_t audio_read(struct file *f, char *buf, size_t len, loff_t *off) {
 static ssize_t audio_write(struct file *f, const char *buf, size_t len,
     loff_t *off) {
   printk(KERN_INFO "Driver: write()\n");
-  // // ----Immediately disable interrupts from the audio core.
-  // disable_irq_nosync(irq_num);
-  // // ----Free the buffer used to store the old sound sample (if applicable) (kfree)
-  // if(fifo_data_buffer != NULL) { // check if there is anything inside the fifo data_buffer
-  //     kfree(fifo_data_buffer);
-  // }
-  // // ------allocate a buffer for the new clip (kmalloc).
-  // fifo_data_buffer = kmalloc(len, GFP_KERNEL);
-  // if (!fifo_data_buffer) {
-  //   printk(KERN_INFO "kmalloc error\n");/* the allocation failed - handle appropriately */
-  //   kfree(fifo_data_buffer);
-  //   return 0;
-  // }
-  // // ----Copy the audio data from userspace to your newly allocated buffer (including
-  // // ------safety checks on the userspace pointer) - LDD page 64.
-  // uint32_t bytes_written = copy_from_user(fifo_data_buffer,buf,len);
-  // if(bytes_written < 0 ){
-  //   printk(KERN_INFO "audio write error\n");
-  // }
-  // // ----Make sure the audio core has interrupts enabled.
-  // enable_irq(irq_num);
+  // ----Immediately disable interrupts from the audio core.
+  disable_irq_nosync(irq_num);
+  // ----Free the buffer used to store the old sound sample (if applicable) (kfree)
+  if(fifo_data_buffer != NULL) { // check if there is anything inside the fifo data_buffer
+      kfree(fifo_data_buffer);
+  }
+  // ------allocate a buffer for the new clip (kmalloc).
+  fifo_data_buffer = kmalloc(len, GFP_KERNEL);
+  if (!fifo_data_buffer) {
+    printk(KERN_INFO "kmalloc error\n");/* the allocation failed - handle appropriately */
+    kfree(fifo_data_buffer);
+    return 0;
+  }
+  // ----Copy the audio data from userspace to your newly allocated buffer (including
+  // ------safety checks on the userspace pointer) - LDD page 64.
+  uint32_t bytes_written = copy_from_user(fifo_data_buffer,buf,len);
+  if(bytes_written < 0 ){
+    printk(KERN_INFO "audio write error\n");
+  }
+  // ----Make sure the audio core has interrupts enabled.
+  enable_irq(irq_num);
   return 0;
 }
 
@@ -176,9 +178,17 @@ static ssize_t audio_write(struct file *f, const char *buf, size_t len,
 static irqreturn_t irq_isr(int irq_loc, void *dev_id)
 {
   pr_info("Calling the irq_isr!\n");
+  //uio_ptr = setUIO(uio_index, audio_mmap_size);
+  // Read the sample from the input
+  //DataR1 = *((volatile int *)(((uint8_t *)uio_ptr) + I2S_STATUS_REG + 1));
+  //DataR2 = *((volatile int *)(((uint8_t *)uio_ptr) + I2S_STATUS_REG + 2));
+  //...
+
   // read(struct file *filp, char __user *buff,    size_t count, loff_t *offp);
   // TX_DATACOUNT_L
+
   // Determine how much free space is in the audio FIFOs
+  //TX_DATACOUNT_L
   // fill them up with the next audio samples to be played.
   // Once end of the audio clip is reached, disable interrupts
   disable_irq_nosync(irq_loc);

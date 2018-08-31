@@ -17,6 +17,10 @@
 #define AUDIO_DRIVER_PARTIAL_DATA_TRANSFER 2
 #define AUDIO_DRIVER_REACHED_EOF 3
 #define AUDIO_DRIVER_READ_ERROR -1
+#define BITS_PER_BYTE 8
+#define SUBCHUNK2SIZE 40
+#define DATA_OFFSET 44
+
 //ADAU audio controller parameters
 #define _AUDIO_ADAU1761_H_
 // Slave address for the ADAU audio controller 8
@@ -85,6 +89,15 @@ enum audio_adau1761_regs {
     R66_CLOCK_ENABLE_1                              = 0xFA
 };
 
+/********************************** structs **********************************/
+// struct containing the header and data of audio
+typedef struct audio_data_file {
+  const char * head;
+  uint32_t total_size;
+  
+  const char * data;
+  uint32_t data_size;
+} audio_data;
 
 /**************************** function prototypes *****************************/
 // Initializes the driver (opens UIO file and calls mmap)
@@ -106,6 +119,11 @@ void audio_driver_write(const char *buf, int32_t len);
 // len : the amount of bytes to read into the buffer
 // returns a value with the type of success pending
 int16_t audio_driver_read(int32_t len);
+
+// Call to get the audio header and data out of the data data_array
+// index : the audio sound numbersd
+// return : audio_data struct that contains the data buffer and the size of the index
+audio_data get_data_array(uint32_t index);
 
 /******************************************************************************
  * Function to write 8 bits to one of the registers from the audio
