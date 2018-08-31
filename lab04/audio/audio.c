@@ -16,6 +16,7 @@
 #include <linux/ioport.h>
 #include <linux/irqdomain.h>
 #include <linux/interrupt.h>
+#include <linux/slab.h>
 #include <stdbool.h>
 #include <asm/io.h>
 #include <asm/uaccess.h>
@@ -53,6 +54,21 @@ MODULE_DESCRIPTION("ECEn 427 Audio Driver");
 #define INTERRUPTS_ON 0x1
 #define INTERRUPTS_OFF 0x0
 
+
+/****************************** global variables ****************************/
+static audio_dev dev; // global audio device
+static bool audio_probe_called_once = false; // makes audio_probe call once
+static dev_t dev_nums; // contains major and minor numbers
+static struct class *audio;
+static struct device *device;
+static struct cdev cdev; // character device for the driver
+struct resource *res; // Device Resource Structure
+struct resource *res_mem; // Device Resource Structure
+struct resource *res_irq; // Device Resource Structure
+unsigned int irq_num; // contains the irq number for interrupt handling
+bool sound_playing;
+const char *fifo_data_buffer = NULL;
+
 /**************************** function definitions ***************************/
 static int audio_init(void);
 static void audio_exit(void);
@@ -65,11 +81,15 @@ module_exit(audio_exit);
 // buf : the buffer to place the read values into
 // len : the number of bytes to read
 // off : indicates the file position the user is accessing
-// returns a value (0,1) one means audio is being played, zero means no audio
+// returns how many bytes were read
 static ssize_t audio_read(struct file *f, char *buf, size_t len, loff_t *off) {
   printk(KERN_INFO "Driver: read()\n");
   // unsigned long copy_to_user(void *to,const void *from,unsigned long count);
-  return INIT_SUCCESS;
+  uint32_t bytes_read = read(f,byf,len, loff_t *offp);
+  if(bytes_read < 0 ){
+    printk(KERN_INFO "audio read error\n");
+  }
+  return bytes_read;
 }
 
 // reads a certain amount of bytes from a buffer
@@ -77,19 +97,32 @@ static ssize_t audio_read(struct file *f, char *buf, size_t len, loff_t *off) {
 // buf : accepts a signed 32 bit buffer containing an audio clip
 // len : the number of bytes to write
 // off : indicates the file position the user is accessing
-// returns a value stating whether the write was a success or not
+// returns how many bytes were written
 static ssize_t audio_write(struct file *f, const char *buf, size_t len,
     loff_t *off) {
   printk(KERN_INFO "Driver: write()\n");
-  // whenever we call write, we will immediately stop playing whatever is
-  // currently playing and play the new one passed in as buf
-  // Immediately disable interrupts from the audio core.
-  // Free the buffer used to store the old sound sample (if applicable) (kfree)
-  // allocate a buffer for the new clip (kmalloc).
-  // Copy the audio data from userspace to your newly allocated buffer (including
-  // safety checks on the userspace pointer) - LDD page 64.
-  // Make sure the audio core has interrupts enabled.
-  return len;
+  // ----Immediately disable interrupts from the audio core.
+  disable_irq_nosync(irq);
+  // ----Free the buffer used to store the old sound sample (if applicable) (kfree)
+  if(fifo_data_buffer != NULL) { // check if there is anything inside the fifo data_buffer
+      kfree(fifo_data_buffer);
+  }
+  // ------allocate a buffer for the new clip (kmalloc).
+  fifo_data_buffer = kmalloc(len, GFP_KERNEL);
+  if (!p){
+    printk(KERN_INFO "kmalloc error\n");/* the allocation failed - handle appropriately */
+    kfree(fifo_data_buffer);
+    return ;
+  }
+  // ----Copy the audio data from userspace to your newly allocated buffer (including
+  // ------safety checks on the userspace pointer) - LDD page 64.
+  uint32_t bytes_written = copy_from_user(fifo_data_buffer,buf,len);
+  if(bytes_written < 0 ){
+    printk(KERN_INFO "audio write error\n");
+  }
+  // ----Make sure the audio core has interrupts enabled.
+  enable_irq(irq_num);
+  return bytes_written;
 }
 
 // function that handles the irq
@@ -99,6 +132,8 @@ static ssize_t audio_write(struct file *f, const char *buf, size_t len,
 static irqreturn_t irq_isr(int irq, void *dev_id)
 {
   pr_info("Calling the irq_isr!\n");
+  read(struct file *filp, char __user *buff,    size_t count, loff_t *offp);
+  TX_DATACOUNT_L
   // Determine how much free space is in the audio FIFOs
   // fill them up with the next audio samples to be played.
   // Once end of the audio clip is reached, disable interrupts
@@ -147,23 +182,15 @@ static struct platform_driver audio_platform_driver = {
   }
 };
 
-/****************************** global variables ****************************/
-static audio_dev dev; // global audio device
-static bool audio_probe_called_once = false; // makes audio_probe call once
-static dev_t dev_nums; // contains major and minor numbers
-static struct class *audio;
-static struct device *device;
-static struct cdev cdev; // character device for the driver
-struct resource *res; // Device Resource Structure
-struct resource *res_mem; // Device Resource Structure
-struct resource *res_irq; // Device Resource Structure
-unsigned int irq_num; // contains the irq number for interrupt handling
 
 /********************************** functions ********************************/
 // This is called when Linux loadrite (buffer);s your driver
 // returns : an int signalling a successful initialization or an error
 static int audio_init(void) {
   pr_info("%s: Initializing Audio Driver!\n", MODULE_NAME);
+
+  sound_playing = 0; // flag to indicate that a sound it playing
+
   // Get a major number for the driver -- alloc_chrdev_region; // pg. 45, LDD3.
   int err = alloc_chrdev_region(&dev_nums,FIRST_MINOR,NUM_OF_CONTIGUOUS_DEVS,
     MODULE_NAME);
