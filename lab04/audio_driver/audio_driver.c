@@ -176,76 +176,99 @@ void audio_driver_import_audio(char fileName[], uint16_t index) {
   printf("Size of each sample:%ld bytes\n", size_of_each_sample);
   // read each sample from data chunk if PCM//
   if (audio_data_info.format_type == 1) { // PCM
+    /*Seth Code, */
+    long i =0;
+    char data_buffer[size_of_each_sample];
+    long bytes_in_each_channel = (size_of_each_sample / audio_data_info.channels);
+    int data_in_channel = 0;
+    for (i =1; i <= num_samples; i++) {
+      if (bytes_in_each_channel == 4) {
+          data_in_channel =   data_buffer[0] |
+                              (data_buffer[1]<<8) |
+                              (data_buffer[2]<<16) |
+                              (data_buffer[3]<<24);
+      }
+      else if (bytes_in_each_channel == 2) {
+          data_in_channel = data_buffer[0] |
+                            (data_buffer[1] << 8);
+      }
+      else if (bytes_in_each_channel == 1) {
+          data_in_channel = data_buffer[0];
+      }
+      printf("%d ", data_in_channel);
+    }
+    /*End of seth code*/
+    
     printf("Dump sample data? Y/N?");
     char c = 'n';
     scanf("%c", &c);
     if (c == 'Y' || c == 'y') {
-        long i =0;
-        char data_buffer[size_of_each_sample];
-        int  size_is_correct = 1;
-        // make sure that the bytes-per-sample is completely divisible by num.of channels
-        long bytes_in_each_channel = (size_of_each_sample / audio_data_info.channels);
-        if ((bytes_in_each_channel  * audio_data_info.channels) != size_of_each_sample) {
-            printf("Error: %ld x %ud <> %ld\n", bytes_in_each_channel, audio_data_info.channels, size_of_each_sample);
-            size_is_correct = 0;
-        }
-        if (size_is_correct) {
-                    // the valid amplitude range for values based on the bits per sample
-            long low_limit = 0l;
-            long high_limit = 0l;
-            switch (audio_data_info.bits_per_sample) {
-                case 8:
-                    low_limit = -128;
-                    high_limit = 127;
-                    break;
-                case 16:
-                    low_limit = -32768;
-                    high_limit = 32767;
-                    break;
-                case 32:
-                    low_limit = -2147483648;
-                    high_limit = 2147483647;
-                    break;
-            }
-            printf("\n\n.Valid range for data values : %ld to %ld \n", low_limit, high_limit);
-            for (i =1; i <= num_samples; i++) {
-                printf("==========Sample %ld / %ld=============\n", i, num_samples);
-                read = fread(data_buffer, sizeof(data_buffer), 1, fp);
-                if (read == 1) {
-                    // dump the data read
-                    unsigned int  xchannels = 0;
-                    int data_in_channel = 0;
-            for (xchannels = 0; xchannels < audio_data_info.channels; xchannels ++ ) {
-                        printf("Channel#%d : ", (xchannels+1));
-                        // convert data from little endian to big endian based on bytes in each channel sample
-                        if (bytes_in_each_channel == 4) {
-                            data_in_channel =   data_buffer[0] |
-                                                (data_buffer[1]<<8) |
-                                                (data_buffer[2]<<16) |
-                                                (data_buffer[3]<<24);
-                        }
-                        else if (bytes_in_each_channel == 2) {
-                            data_in_channel = data_buffer[0] |
-                                              (data_buffer[1] << 8);
-                        }
-                        else if (bytes_in_each_channel == 1) {
-                            data_in_channel = data_buffer[0];
-                        }
-                        printf("%d ", data_in_channel);
-                        // check if value was in range
-                        if (data_in_channel < low_limit || data_in_channel > high_limit)
-                            printf("**value out of range\n");
-
-                        printf(" | ");
-                    }
-                    printf("\n");
-                }
-                else {
-                    printf("Error reading file. %d bytes\n", read);
-                    break;
-                }
-            } //    for (i =1; i <= num_samples; i++) {
-        } //    if (size_is_correct) {
+        // long i =0;
+        // char data_buffer[size_of_each_sample];
+        // int  size_is_correct = 1;
+        // // make sure that the bytes-per-sample is completely divisible by num.of channels
+        // long bytes_in_each_channel = (size_of_each_sample / audio_data_info.channels);
+        // if ((bytes_in_each_channel  * audio_data_info.channels) != size_of_each_sample) {
+        //     printf("Error: %ld x %ud <> %ld\n", bytes_in_each_channel, audio_data_info.channels, size_of_each_sample);
+        //     size_is_correct = 0;
+        // }
+        // if (size_is_correct) {
+        //             // the valid amplitude range for values based on the bits per sample
+        //     long low_limit = 0l;
+        //     long high_limit = 0l;
+        //     switch (audio_data_info.bits_per_sample) {
+        //         case 8:
+        //             low_limit = -128;
+        //             high_limit = 127;
+        //             break;
+        //         case 16:
+        //             low_limit = -32768;
+        //             high_limit = 32767;
+        //             break;
+        //         case 32:
+        //             low_limit = -2147483648;
+        //             high_limit = 2147483647;
+        //             break;
+        //     }
+        //     printf("\n\n.Valid range for data values : %ld to %ld \n", low_limit, high_limit);
+        //     for (i =1; i <= num_samples; i++) {
+        //         printf("==========Sample %ld / %ld=============\n", i, num_samples);
+        //         read = fread(data_buffer, sizeof(data_buffer), 1, fp);
+        //         if (read == 1) {
+        //             // dump the data read
+        //             unsigned int  xchannels = 0;
+        //             int data_in_channel = 0;
+        //     for (xchannels = 0; xchannels < audio_data_info.channels; xchannels ++ ) {
+        //                 printf("Channel#%d : ", (xchannels+1));
+        //                 // convert data from little endian to big endian based on bytes in each channel sample
+        //                 if (bytes_in_each_channel == 4) {
+        //                     data_in_channel =   data_buffer[0] |
+        //                                         (data_buffer[1]<<8) |
+        //                                         (data_buffer[2]<<16) |
+        //                                         (data_buffer[3]<<24);
+        //                 }
+        //                 else if (bytes_in_each_channel == 2) {
+        //                     data_in_channel = data_buffer[0] |
+        //                                       (data_buffer[1] << 8);
+        //                 }
+        //                 else if (bytes_in_each_channel == 1) {
+        //                     data_in_channel = data_buffer[0];
+        //                 }
+        //                 printf("%d ", data_in_channel);
+        //                 // check if value was in range
+        //                 if (data_in_channel < low_limit || data_in_channel > high_limit)
+        //                     printf("**value out of range\n");
+        //
+        //                 printf(" | ");
+        //             }
+        //             printf("\n");
+        //         }
+        //         else {
+        //             printf("Error reading file. %d bytes\n", read);
+        //             break;
+        //         }
+        //     } //    for (i =1; i <= num_samples; i++) {
+        // } //    if (size_is_correct) {
      } // if (c == 'Y' || c == 'y') {
 
   } //  if (header.format_type == 1) {
