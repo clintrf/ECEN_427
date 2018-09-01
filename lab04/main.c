@@ -18,7 +18,6 @@ int main() {
   {
     printf("number of samples for for array[%d]: %d\n",i,sound_data_array[i].num_samples);
   }
-
   audio_driver_read(len);
   audio_driver_exit();
 }
