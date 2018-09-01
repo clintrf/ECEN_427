@@ -178,31 +178,31 @@ void audio_driver_import_audio(char fileName[], uint16_t index) {
   if (audio_data_info.format_type == 1) { // PCM
     /*Seth Code, */
     long i =0;
-    char data_buffer[size_of_each_sample];
-    long bytes_in_each_channel = (size_of_each_sample / audio_data_info.channels);
-    int data_in_channel = 0;
+    uint32_t data_buffer[num_samples];
+    uint16_t tmp_union=0x0000;
+    char data_buffer2[2];
+    //long bytes_in_each_channel = (size_of_each_sample / audio_data_info.channels);
+    //int data_in_channel = 0;
     for (i =1; i <= num_samples; i++) {
-      if (bytes_in_each_channel == 4) {
-          data_in_channel =   data_buffer[0] |
-                              (data_buffer[1]<<8) |
-                              (data_buffer[2]<<16) |
-                              (data_buffer[3]<<24);
-      }
-      else if (bytes_in_each_channel == 2) {
-          data_in_channel = data_buffer[0] |
-                            (data_buffer[1] << 8);
-      }
-      else if (bytes_in_each_channel == 1) {
-          data_in_channel = data_buffer[0];
-      }
-      printf("%d ", data_in_channel);
+      read = fread(data_buffer2, sizeof(data_buffer2), 1, fp);
+      // printf("%c %c\n", data_buffer2[0], data_buffer2[1]);
+      // printf("%u %u\n", data_buffer2[0], data_buffer2[1]);
+      // printf("%x %x\n", data_buffer2[0], data_buffer2[1]);
+      tmp_union=data_buffer2[0]<<8;
+      //printf("tempUnion: %x\n", tmp_union);
+      tmp_union=tmp_union|data_buffer2[1];
+      //printf("tempUnion: %x\n", tmp_union);
+      data_buffer[i]=tmp_union;
+      //printf("%d ", data_in_channel);
+      printf("data_buffer at index %d: %x\n",i,data_buffer[i]);
+      //printf("\tdata_in_channel at index %zu: %c\n",i,data_in_channel);
     }
     /*End of seth code*/
-    
-    printf("Dump sample data? Y/N?");
-    char c = 'n';
-    scanf("%c", &c);
-    if (c == 'Y' || c == 'y') {
+
+    // printf("Dump sample data? Y/N?");
+    // char c = 'n';
+    // scanf("%c", &c);
+    // if (c == 'Y' || c == 'y') {
         // long i =0;
         // char data_buffer[size_of_each_sample];
         // int  size_is_correct = 1;
@@ -269,7 +269,7 @@ void audio_driver_import_audio(char fileName[], uint16_t index) {
         //         }
         //     } //    for (i =1; i <= num_samples; i++) {
         // } //    if (size_is_correct) {
-     } // if (c == 'Y' || c == 'y') {
+     //} // if (c == 'Y' || c == 'y') {
 
   } //  if (header.format_type == 1) {
   // fseek(fp, 0L, SEEK_END); // Run though the entire file
