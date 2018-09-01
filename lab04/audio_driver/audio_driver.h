@@ -20,7 +20,7 @@
 #define SUBCHUNK2SIZE 40
 #define DATA_OFFSET 44
 #define FOUR_BITS 4
-#define PCM_8_SHIFT 16
+#define PCM_8_SHIFT 8
 #define PCM_16_SHIFT 16
 #define PCM_24_SHIFT 24
 
@@ -94,15 +94,7 @@ enum audio_adau1761_regs {
 
 /********************************** structs **********************************/
 // struct containing the header and data of audio
-// typedef struct audio_data_file {
-//   const char * head;
-//   uint32_t total_size;
-//   const char * data;
-//   uint32_t[] sample;
-//   uint32_t data_size;
-// } audio_data;
-
- typedef struct audio_data{
+typedef struct audio_data{
    char riff[FOUR_BITS]; // RIFF string
    int overall_size; // overall size of file in bytes
    char wave[FOUR_BITS]; // WAVE string
@@ -116,8 +108,12 @@ enum audio_adau1761_regs {
    int bits_per_sample; // bits per sample, 8- 8bits, 16- 16 bits etc
    char data_chunk_header[FOUR_BITS]; // DATA string or FLLR string
    int data_size; // NumSamples * NumChannels * BitsPerSample/8 - size of the next chunk that will be read
+   uint32_t num_samples;
+   uint32_t * sound_data;
  }audio_data_header;
  struct audio_data audio_data_info;
+
+ audio_data_header  sound_data_array[9];
 /**************************** function prototypes *****************************/
 // Initializes the driver (opens UIO file and calls mmap)
 // devDevice: The file path to the uio dev file

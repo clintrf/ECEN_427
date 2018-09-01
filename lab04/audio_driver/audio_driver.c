@@ -36,11 +36,21 @@
 #define WALK3_AUDIO SOUND_FILE_HOME "/walk3.wav"
 #define WALK4_AUDIO SOUND_FILE_HOME "/walk4.wav"
 #define BITSPERBYTE 8
+#define ERR 1
+#define FILE_NAME_LENGTH 52
+#define TWO_CHARACTERS 2
+#define FOUR_CHARACTERS 4
+#define READ_ONE_INDEX_POS 1
+#define INDEX_ZERO 0
+#define INDEX_ONE 1
+#define INDEX_TWO 2
+#define INDEX_THREE 3
+#define BYTES_PER_KILOBYTE 1024
 
 /********************************** globals **********************************/
 static int fd; /* this is a file descriptor that describes the UIO device */
 static uint16_t off = 0;
-audio_data_header  data_array[9];
+audio_data_header sound_data_array[9];
 
 
 /******************************** prototypes *********************************/
@@ -61,14 +71,14 @@ int32_t audio_driver_init(char devDevice[]) {
     return AUDIO_DRIVER_ERROR;
   }
   audio_driver_import_audio(INVADER_DIE_AUDIO, 0);
-  //audio_driver_import_audio(LASER_AUDIO, 1);
-  //audio_driver_import_audio(PLAYER_DIE_AUDIO);
-  //audio_driver_import_audio(UFO_AUDIO);
-  //audio_driver_import_audio(UFO_DIE_AUDIO);
-  //audio_driver_import_audio(WALK1_AUDIO);
-  //audio_driver_import_audio(WALK2_AUDIO);
-  //audio_driver_import_audio(WALK3_AUDIO);
-  //audio_driver_import_audio(WALK4_AUDIO);
+  // audio_driver_import_audio(LASER_AUDIO, 1);
+  // audio_driver_import_audio(PLAYER_DIE_AUDIO,2);
+  // audio_driver_import_audio(UFO_AUDIO,3);
+  // audio_driver_import_audio(UFO_DIE_AUDIO,4);
+  // audio_driver_import_audio(WALK1_AUDIO,5);
+  // audio_driver_import_audio(WALK2_AUDIO,6);
+  // audio_driver_import_audio(WALK3_AUDIO,7);
+  // audio_driver_import_audio(WALK4_AUDIO,8);
   return AUDIO_DRIVER_SUCCESS;
 }
 
@@ -77,15 +87,16 @@ int32_t audio_driver_init(char devDevice[]) {
 // index : the index within data_array to place the imported and converted file
 void audio_driver_import_audio(char fileName[], uint16_t index) {
   printf("Print Audio Function\n");
-  size_t sizeOfFile = 0;
-  char* rawbuffer = 0;
-  unsigned short int* sampleBuf = 0;
-  size_t bytesRead = 0;
+  // size_t sizeOfFile = 0;
+  // char* rawbuffer = 0;
+  // unsigned short int* sampleBuf = 0;
+  // size_t bytesRead = 0;
+
   /* Error checking for getting file name */
-  if (!fileName) { errx(1, "Filename not specified"); }
+  if (!fileName) { errx(ERR, "Filename not specified"); }
   else { /* If we are getting a fileName, we want to print the name */
     printf("File Name: ");
-    for(int i = 0; i < 52; i++) {
+    for(int i = 0; i < FILE_NAME_LENGTH; i++) {
       printf("%c",fileName[i]);
     }
     printf("\r\n");
@@ -93,110 +104,130 @@ void audio_driver_import_audio(char fileName[], uint16_t index) {
   /* Open the file given */
   FILE* fp = fopen(fileName, "r");
   /* Error check if File was correctly opened */
-  if (!fp) { errx(1, "Filename not opened"); }
-  int read=0;
-  char buffer4[4];
-  char buffer2[2];
-  //read the header parts of .wav fileName
-  read=fread(audio_data_info.riff,sizeof(audio_data_info.riff),1,fp);
-  printf("(1-4): %s \n", audio_data_info.riff);
-  read =fread(buffer4,sizeof(buffer4),1,fp);
-  printf("%u %u %u %u\n", buffer4[0], buffer4[1], buffer4[2], buffer4[3]);
-  //convert little endian to big endian 4 byte int
-  audio_data_info.overall_size=buffer4[0]|(buffer4[1]<<PCM_8_SHIFT)|
-                               (buffer4[2]<<PCM_16_SHIFT)|(buffer4[3]<<PCM_24_SHIFT);
+  if (!fp) { errx(ERR, "Filename not opened"); }
+  /* values used to grab information from the WAV files */
+  int read = 0; // use of int because fread returns int type
+  char buffer4[FOUR_CHARACTERS]; // used to grab information of 4 bytes length
+  char buffer2[TWO_CHARACTERS]; // used to grab information of 2 bytes length
+
+  /*** read the header parts of .wav fileName ***/
+  // grab the character array "riff"
+  read = fread(sound_data_array[index].riff,
+    sizeof(sound_data_array[index].riff),READ_ONE_INDEX_POS,fp);
+  printf("(1-4): %s \n", sound_data_array[index].riff);
+  // grab the Chunk Size (grabs in little Endian)
+  read = fread(buffer4,sizeof(buffer4),READ_ONE_INDEX_POS,fp);
+  // shift to big endian
+  sound_data_array[index].overall_size = buffer4[INDEX_ZERO] |
+                                        (buffer4[INDEX_ONE]<<PCM_8_SHIFT) |
+                                        (buffer4[INDEX_TWO]<<PCM_16_SHIFT) |
+                                        (buffer4[INDEX_THREE]<<PCM_24_SHIFT);
+  // print chunk size
   printf("(5-8) Overall size: bytes:%u, Kb:%u \n",
-      audio_data_info.overall_size, audio_data_info.overall_size/1024);
-  read=fread(audio_data_info.wave,sizeof(audio_data_info.wave),1,fp);
-  printf("(9-12) Wave marker: %s\n", audio_data_info.wave);
-  read=fread(audio_data_info.fmt_chunk_marker,sizeof(audio_data_info.fmt_chunk_marker),1,fp);
-  printf("(13-16) Fmt marker: %s\n", audio_data_info.fmt_chunk_marker);
-  read = fread(buffer4, sizeof(buffer4), 1, fp);
-	printf("%u %u %u %u\n", buffer4[0], buffer4[1], buffer4[2], buffer4[3]);
+    sound_data_array[index].overall_size,
+    sound_data_array[index].overall_size/BYTES_PER_KILOBYTE);
+  // grab wave formatting marker (should read WAVE)
+  read=fread(sound_data_array[index].wave,sizeof(sound_data_array[index].wave),
+    READ_ONE_INDEX_POS,fp);
+  printf("(9-12) Wave marker: %s\n", sound_data_array[index].wave);
+  // grab sub chunk id marker (should read fmt)
+  read=fread(sound_data_array[index].fmt_chunk_marker,
+    sizeof(sound_data_array[index].fmt_chunk_marker),READ_ONE_INDEX_POS,fp);
+  printf("(13-16) Fmt marker: %s\n", sound_data_array[index].fmt_chunk_marker);
+  // grab sub chunk 1 size (should be 16)
+  read = fread(buffer4, sizeof(buffer4),1,fp);
   // convert little endian to big endian 4 byte integer
-  audio_data_info.length_of_fmt = buffer4[0] |
-                            (buffer4[1] << PCM_8_SHIFT) |
-                            (buffer4[2] << PCM_16_SHIFT) |
-                            (buffer4[3] << PCM_24_SHIFT);
-  printf("(17-20) Length of Fmt header: %u \n", audio_data_info.length_of_fmt);
+  sound_data_array[index].length_of_fmt = buffer4[INDEX_ZERO] |
+                                        (buffer4[INDEX_ONE]<<PCM_8_SHIFT) |
+                                        (buffer4[INDEX_TWO]<<PCM_16_SHIFT) |
+                                        (buffer4[INDEX_THREE]<<PCM_24_SHIFT);
+  // print subchunk1size
+  printf("(17-20) Length of Fmt header: %u \n",
+    sound_data_array[index].length_of_fmt);
+  // read in audio format, should be 1 for PCM
   read = fread(buffer2, sizeof(buffer2), 1, fp);
-  printf("%u %u \n", buffer2[0], buffer2[1]);
-  audio_data_info.format_type = buffer2[0] | (buffer2[1] << 8);
+  sound_data_array[index].format_type = buffer2[0] | (buffer2[1] << 8);
   char format_name[10] = "";
-  if (audio_data_info.format_type == 1)
+  if (sound_data_array[index].format_type == 1)
    strcpy(format_name,"PCM");
-  else if (audio_data_info.format_type == 6)
+  else if (sound_data_array[index].format_type == 6)
     strcpy(format_name, "A-law");
-  else if (audio_data_info.format_type == 7)
+  else if (sound_data_array[index].format_type == 7)
     strcpy(format_name, "Mu-law");
-  printf("(21-22) Format type: %u %s \n", audio_data_info.format_type, format_name);
+  printf("(21-22) Format type: %u %s \n", sound_data_array[index].format_type, format_name);
   read = fread(buffer2, sizeof(buffer2), 1, fp);
   printf("%u %u \n", buffer2[0], buffer2[1]);
-  audio_data_info.channels = buffer2[0] | (buffer2[1] << 8);
-  printf("(23-24) Channels: %u \n", audio_data_info.channels);
+  sound_data_array[index].channels = buffer2[0] | (buffer2[1] << 8);
+  printf("(23-24) Channels: %u \n", sound_data_array[index].channels);
   read = fread(buffer4, sizeof(buffer4), 1, fp);
   printf("%u %u %u %u\n", buffer4[0], buffer4[1], buffer4[2], buffer4[3]);
-  audio_data_info.sample_rate = buffer4[0] |
+  sound_data_array[index].sample_rate = buffer4[0] |
                       (buffer4[1] << 8) |
                       (buffer4[2] << 16) |
                       (buffer4[3] << 24);
-  printf("(25-28) Sample rate: %u\n", audio_data_info.sample_rate);
+  printf("(25-28) Sample rate: %u\n", sound_data_array[index].sample_rate);
   read = fread(buffer4, sizeof(buffer4), 1, fp);
   printf("%u %u %u %u\n", buffer4[0], buffer4[1], buffer4[2], buffer4[3]);
-  audio_data_info.byterate  = buffer4[0] |
+  sound_data_array[index].byterate  = buffer4[0] |
                     (buffer4[1] << 8) |
                     (buffer4[2] << 16) |
                     (buffer4[3] << 24);
   printf("(29-32) Byte Rate: %u , Bit Rate:%u\n",
-  audio_data_info.byterate, audio_data_info.byterate*8);
+  sound_data_array[index].byterate, sound_data_array[index].byterate*8);
   read = fread(buffer2, sizeof(buffer2), 1, fp);
   printf("%u %u \n", buffer2[0], buffer2[1]);
-  audio_data_info.block_align = buffer2[0] |
+  sound_data_array[index].block_align = buffer2[0] |
                     (buffer2[1] << 8);
-  printf("(33-34) Block Alignment: %u \n", audio_data_info.block_align);
+  printf("(33-34) Block Alignment: %u \n", sound_data_array[index].block_align);
   read = fread(buffer2, sizeof(buffer2), 1, fp);
   printf("%u %u \n", buffer2[0], buffer2[1]);
-  audio_data_info.bits_per_sample = buffer2[0] |
+  sound_data_array[index].bits_per_sample = buffer2[0] |
                     (buffer2[1] << 8);
-  printf("(35-36) Bits per sample: %u \n", audio_data_info.bits_per_sample);
-  read = fread(audio_data_info.data_chunk_header, sizeof(audio_data_info.data_chunk_header), 1, fp);
-  printf("(37-40) Data Marker: %s \n", audio_data_info.data_chunk_header);
+  printf("(35-36) Bits per sample: %u \n", sound_data_array[index].bits_per_sample);
+  read = fread(sound_data_array[index].data_chunk_header, sizeof(sound_data_array[index].data_chunk_header), 1, fp);
+  printf("(37-40) Data Marker: %s \n", sound_data_array[index].data_chunk_header);
   read = fread(buffer4, sizeof(buffer4), 1, fp);
   printf("%u %u %u %u\n", buffer4[0], buffer4[1], buffer4[2], buffer4[3]);
-  audio_data_info.data_size = buffer4[0] |
+  sound_data_array[index].data_size = buffer4[0] |
                 (buffer4[1] << 8) |
                 (buffer4[2] << 16) |
                 (buffer4[3] << 24 );
-  printf("(41-44) Size of data chunk: %u \n", audio_data_info.data_size);
+  printf("(41-44) Size of data chunk: %u \n", sound_data_array[index].data_size);
   // calculate no.of samples
-  uint32_t num_samples = (8 * audio_data_info.data_size) /
-                         (audio_data_info.channels * audio_data_info.bits_per_sample);
-  printf("Number of samples:%lu \n", num_samples);
-  uint32_t size_of_each_sample = (audio_data_info.channels * audio_data_info.bits_per_sample) / 8;
+  sound_data_array[index].num_samples = (8 * sound_data_array[index].data_size) /
+                         (sound_data_array[index].channels * sound_data_array[index].bits_per_sample);
+  printf("Number of samples:%lu \n", sound_data_array[index].num_samples);
+  uint32_t size_of_each_sample = (sound_data_array[index].channels * sound_data_array[index].bits_per_sample) / 8;
   printf("Size of each sample:%ld bytes\n", size_of_each_sample);
+  printf("------------------------------------------------\n\r");
   // read each sample from data chunk if PCM//
-  if (audio_data_info.format_type == 1) { // PCM
+  if (sound_data_array[index].format_type == 1) { // PCM
     /*Seth Code, */
     long i =0;
-    uint32_t data_buffer[num_samples];
+    uint32_t data_buffer;
     uint16_t tmp_union=0x0000;
     char data_buffer2[2];
     //long bytes_in_each_channel = (size_of_each_sample / audio_data_info.channels);
     //int data_in_channel = 0;
-    for (i =1; i <= num_samples; i++) {
+    sound_data_array[index].sound_data =
+      (*uint32_t) malloc(sizeof(uint32_t)*sound_data_array[index].num_samples);
+    for (i=0; i <= sound_data_array[index].num_samples; i++) {
       read = fread(data_buffer2, sizeof(data_buffer2), 1, fp);
       // printf("%c %c\n", data_buffer2[0], data_buffer2[1]);
       // printf("%u %u\n", data_buffer2[0], data_buffer2[1]);
       // printf("%x %x\n", data_buffer2[0], data_buffer2[1]);
-      tmp_union=data_buffer2[0]<<8;
+      tmp_union=data_buffer2[0]<<PCM_8_SHIFT;
       //printf("tempUnion: %x\n", tmp_union);
       tmp_union=tmp_union|data_buffer2[1];
       //printf("tempUnion: %x\n", tmp_union);
-      data_buffer[i]=tmp_union;
+      data_buffer=(uint32_t)tmp_union;
+      sound_data_array[index].sound_data+(i*sizeof(uint32_t)) = data_buffer;
       //printf("%d ", data_in_channel);
-      printf("data_buffer at index %d: %x\n",i,data_buffer[i]);
+    //printf("data_buffer at index %d: %x\n",i,data_buffer[i]);
       //printf("\tdata_in_channel at index %zu: %c\n",i,data_in_channel);
     }
+
+    //sound_data_array=data_buffer;// hand data buffer array off to data array
     /*End of seth code*/
 
     // printf("Dump sample data? Y/N?");
@@ -359,7 +390,7 @@ int16_t audio_driver_read(int32_t len) {
 // index : the audio sound numbersd
 // return : audio_data struct that contains the data buffer and the size of the index
 audio_data_header audio_driver_get_data_array(uint32_t index){
-  return data_array[index];
+  return sound_data_array[index];
 }
 
 /******************************************************************************
