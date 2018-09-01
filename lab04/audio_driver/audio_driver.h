@@ -23,6 +23,7 @@
 #define PCM_8_SHIFT 8
 #define PCM_16_SHIFT 16
 #define PCM_24_SHIFT 24
+#define AUDIO_DRIVER_NUM_SAMPLE_FILES 9
 
 //ADAU audio controller parameters
 #define _AUDIO_ADAU1761_H_
@@ -100,20 +101,19 @@ typedef struct audio_data{
    char wave[FOUR_BITS]; // WAVE string
    char fmt_chunk_marker[FOUR_BITS]; // fmt string with trailing null char
    int length_of_fmt; // length of the format data
-   int format_type; // format type. 1-PCM, 3- IEEE float, 6 - 8bit A law, 7 - 8bit mu law
+   int format_type; // format type.
    int channels; // no.of channels
    int sample_rate;  // sampling rate (blocks per second)
-   int byterate; // SampleRate * NumChannels * BitsPerSample/8
+   int byte_rate; // SampleRate * NumChannels * BitsPerSample/8
    int block_align; // NumChannels * BitsPerSample/8
    int bits_per_sample; // bits per sample, 8- 8bits, 16- 16 bits etc
    char data_chunk_header[FOUR_BITS]; // DATA string or FLLR string
-   int data_size; // NumSamples * NumChannels * BitsPerSample/8 - size of the next chunk that will be read
+   int data_size; // NumSamples * NumChannels * BitsPerSample/8 - ChunkSize2
    uint32_t num_samples;
    uint32_t * sound_data;
  }audio_data_header;
  struct audio_data audio_data_info;
 
- audio_data_header  sound_data_array[9];
 /**************************** function prototypes *****************************/
 // Initializes the driver (opens UIO file and calls mmap)
 // devDevice: The file path to the uio dev file

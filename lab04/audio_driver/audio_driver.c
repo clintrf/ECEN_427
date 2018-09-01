@@ -50,12 +50,11 @@
 #define PCM_FORMAT 1
 #define A_LAW_FORMAT 6
 #define MU_LAW_FORMAT 7
-#define NUM_SAMPLE_FILES 9
 
 /********************************** globals **********************************/
 static int fd; /* this is a file descriptor that describes the UIO device */
 static uint16_t off = 0;
-audio_data_header sound_data_array[NUM_SAMPLE_FILES];
+audio_data_header sound_data_array[AUDIO_DRIVER_NUM_SAMPLE_FILES];
 
 
 /******************************** prototypes *********************************/
@@ -175,12 +174,12 @@ void audio_driver_import_audio(char fileName[], uint16_t index) {
   printf("(25-28) Sample rate: %u\n", sound_data_array[index].sample_rate);
   // grab the byte rate
   read = fread(buffer4,sizeof(buffer4),READ_ONE_INDEX_POS,fp);
-  sound_data_array[index].byterate  = buffer4[INDEX_ZERO] |
+  sound_data_array[index].byte_rate  = buffer4[INDEX_ZERO] |
                                       (buffer4[INDEX_ONE]<<PCM_8_SHIFT) |
                                       (buffer4[INDEX_TWO]<<PCM_16_SHIFT) |
                                       (buffer4[INDEX_THREE]<<PCM_24_SHIFT);
   // print the byte rate
-  printf("(29-32) Byte Rate: %u\n", sound_data_array[index].byterate);
+  printf("(29-32) Byte Rate: %u\n", sound_data_array[index].byte_rate);
   // grab the block alignment, should be 2
   read = fread(buffer2,sizeof(buffer2),READ_ONE_INDEX_POS,fp);
   sound_data_array[index].block_align = buffer2[INDEX_ZERO] |
@@ -246,7 +245,7 @@ void audio_driver_import_audio(char fileName[], uint16_t index) {
 
 // Called to exit the driver (unmap and close UIO file)
 void audio_driver_exit() {
-  for(uint16_t i = 0; i < NUM_SAMPLE_FILES; i++) {
+  for(uint16_t i = 0; i < AUDIO_DRIVER_NUM_SAMPLE_FILES; i++) {
     free(sound_data_array[i].sound_data);
     sound_data_array[i].sound_data = 0;
   }
