@@ -21,11 +21,9 @@
 #include <asm/io.h>
 #include <asm/uaccess.h>
 
-//#include "uio.h"
-
 /*********************************** macros *********************************/
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Dax Eckles & Clint Frandsen");
+MODULE_AUTHOR("Seth Becerra, Dax Eckles & Clint Frandsen");
 MODULE_DESCRIPTION("ECEn 427 Audio Driver");
 
 #define MODULE_NAME "audio"
@@ -53,8 +51,10 @@ MODULE_DESCRIPTION("ECEn 427 Audio Driver");
 #define INIT_ERR -1
 #define PROBE_SUCCESS 0
 #define PROBE_ERR -1
+#define REMOVE_SUCCESS 0
 #define INTERRUPTS_ON 0x1
 #define INTERRUPTS_OFF 0x0
+#define ZERO_BYTES_WRITTEN 0
 
 /********************************* prototypes ********************************/
 static ssize_t audio_read(struct file *f, char *buf, size_t len, loff_t *off);
@@ -108,12 +108,12 @@ static dev_t dev_nums; // contains major and minor numbers
 static struct class *audio;
 static struct device *device;
 static struct cdev cdev; // character device for the driver
-struct resource *res; // Device Resource Structure
-struct resource *res_mem; // Device Resource Structure
-struct resource *res_irq; // Device Resource Structure
-unsigned int irq_num; // contains the irq number for interrupt handling
-bool sound_playing;
-const char *fifo_data_buffer = NULL;
+static struct resource *res; // Device Resource Structure
+static struct resource *res_mem; // Device Resource Structure
+static struct resource *res_irq; // Device Resource Structure
+static unsigned int irq_num; // contains the irq number
+// static bool sound_playing; // do we need this?
+static void *fifo_data_buffer = NULL;
 
 /***************************** kernel definitions ****************************/
 static int audio_init(void);
@@ -146,27 +146,32 @@ static ssize_t audio_read(struct file *f, char *buf, size_t len, loff_t *off) {
 // returns how many bytes were written
 static ssize_t audio_write(struct file *f, const char *buf, size_t len,
     loff_t *off) {
-  printk(KERN_INFO "Driver: write()\n");
-  // ----Immediately disable interrupts from the audio core.
+  printk(KERN_INFO "Driver: Write()\n");
+  // Immediately disable interrupts from the audio core.
   disable_irq_nosync(irq_num);
-  // ----Free the buffer used to store the old sound sample (if applicable) (kfree)
-  if(fifo_data_buffer != NULL) { // check if there is anything inside the fifo data_buffer
+  // Free the buffer used to store the old sound sample if applicable
+  if(fifo_data_buffer != NULL) { // check if there is anything inside the fifo
       kfree(fifo_data_buffer);
+      printk("Write: Needed to free FIFO before continuing...\n");
+      fifo_data_buffer = NULL;
   }
-  // ------allocate a buffer for the new clip (kmalloc).
+  else {
+    printk("Write: First iteration, did not free FIFO.\n");
+  }
+  // allocate a buffer for the new clip (kmalloc).
   fifo_data_buffer = kmalloc(len, GFP_KERNEL);
-  if (!fifo_data_buffer) {
-    printk(KERN_INFO "kmalloc error\n");/* the allocation failed - handle appropriately */
+  if (!fifo_data_buffer) { // allocation failed, need to free pointers
+    printk(KERN_INFO "kmalloc Error\n");
     kfree(fifo_data_buffer);
-    return 0;
+    return ZERO_BYTES_WRITTEN; // zero bytes were written, the write failed.
   }
-  // ----Copy the audio data from userspace to your newly allocated buffer (including
-  // ------safety checks on the userspace pointer) - LDD page 64.
+  // Copy the audio data from userspace to your newly allocated buffer
+  // (including safety checks on the userspace pointer) - LDD page 64.
   uint32_t bytes_written = copy_from_user(fifo_data_buffer,buf,len);
-  if(bytes_written < 0 ){
-    printk(KERN_INFO "audio write error\n");
+  if(bytes_written < ZERO_BYTES_WRITTEN){
+    printk(KERN_INFO "Audio Write Error\n");
   }
-  // ----Make sure the audio core has interrupts enabled.
+  // Make sure the audio core has interrupts enabled.
   enable_irq(irq_num);
   return 0;
 }
@@ -180,19 +185,21 @@ static irqreturn_t irq_isr(int irq_loc, void *dev_id)
   /* LIST OF QUESTIONS */
   // 1. How to access the I2S Status Register (check for space)
   // 2. How to write information to the FIFOs
-  // 3. Covert 16 bit WAV file to 24 bit PCM & then to 32 bit to pass into write()
   /* END LIST OF QUESTIONS */
 
   pr_info("Calling the irq_isr!\n");
   //int16_t iic_index = 0;
   //int16_t uio_index = 1;
   //void * uio_ptr = setUIO(uio_index, audio_mmap_size);
+
+  // Determine how much free space is in the audio FIFOs
+  // fill them up with the next audio samples to be played.
+
   // Read the sample from the input
   //DataR1 = *((volatile int *)(((uint8_t *)uio_ptr) + I2S_STATUS_REG + 1));
   //DataR2 = *((volatile int *)(((uint8_t *)uio_ptr) + I2S_STATUS_REG + 2));
   // read(struct file *filp, char __user *buff,    size_t count, loff_t *offp);
-  // Determine how much free space is in the audio FIFOs
-  // fill them up with the next audio samples to be played.
+
   // Once end of the audio clip is reached, disable interrupts
   disable_irq_nosync(irq_loc);
   return IRQ_HANDLED;
@@ -203,9 +210,7 @@ static irqreturn_t irq_isr(int irq_loc, void *dev_id)
 // returns : an int signalling a successful initialization or an error
 static int audio_init(void) {
   pr_info("%s: Initializing Audio Driver!\n", MODULE_NAME);
-
-  sound_playing = 0; // flag to indicate that a sound it playing
-
+  // sound_playing = false; // flag to indicate that a sound it playing
   // Get a major number for the driver -- alloc_chrdev_region; // pg. 45, LDD3.
   int err = alloc_chrdev_region(&dev_nums,FIRST_MINOR,NUM_OF_CONTIGUOUS_DEVS,
     MODULE_NAME);
@@ -345,11 +350,11 @@ static int audio_probe(struct platform_device *pdev) {
 // returns : an int signalling success or failure
 static int audio_remove(struct platform_device * pdev) {
   pr_info("%s: Removing Audio Driver!\n", MODULE_NAME);
-  free_irq(irq_num,NULL);
+  free_irq(irq_num,NULL); // free the irq to allow interrupts to continue
   ioport_unmap(dev.virt_addr); // iounmap
   release_mem_region(dev.phys_addr,dev.mem_size); // release_mem_region
   device_destroy(audio,dev_nums); // device_destroy
   cdev_del(&cdev); // cdev_del
   pr_info("%s: Removing Audio Driver success!\n", MODULE_NAME);
-  return 0;
+  return REMOVE_SUCCESS;
 }

@@ -24,6 +24,8 @@
 #define PCM_16_SHIFT 16
 #define PCM_24_SHIFT 24
 #define AUDIO_DRIVER_NUM_SAMPLE_FILES 9
+#define AUDIO_DRIVER_WRITE_FAILED -1
+#define AUDIO_DRIVER_WRITE_SUCCESS 0
 
 //ADAU audio controller parameters
 #define _AUDIO_ADAU1761_H_
@@ -109,8 +111,8 @@ typedef struct audio_data{ // 48 bytes for the struct itself
    uint16_t bits_per_sample; // bits per sample, 8- 8bits, 16- 16 bits etc
    char data_chunk_header[FOUR_BITS]; // DATA string or FLLR string
    uint32_t data_size; // NumSamples*NumChannels*(BitsPerSample/8)-ChunkSize2
-   uint32_t num_samples;
-   uint32_t * sound_data;
+   uint32_t num_samples; // the number of samples inside the file
+   uint32_t * sound_data; // a pointer to the start of the data
  }audio_data_header;
  struct audio_data audio_data_info;
 
@@ -130,7 +132,8 @@ void audio_driver_exit();
 // Called to write to the audio driver
 // len : amount of bytes to write to the driver
 // buf : the buffer to be passed into the kernel (contains audio data)
-void audio_driver_write(const char *buf, int32_t len);
+// returns an int indicating a success or failure
+ int16_t audio_driver_write(uint32_t *buf, int32_t len);
 
 // Called to read to the audio driver
 // len : the amount of bytes to read into the buffer

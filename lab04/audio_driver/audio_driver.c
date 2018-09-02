@@ -1,9 +1,13 @@
 /*
-* Interrupt Driver
-* Initializes interrupts
+* Audio Driver
+* Used to parse through .wav files, convert the data to 32 bits and
+* subsequently send them into the audio kernel driver to be played through
+* the xilinx PINQ board. Several pieces of code were used from the xilinx
+* depository found at https://github.com/Xilinx/PYNQ/blob/master/pynq/lib/
+* _pynq/_audio/audio_adau1761.cpp
 *
 * ECEn 427
-* Clint Frandsen, Dax Eckles
+* Clint Frandsen, Dax Eckles, Seth Becerra
 * BYU 2019
 */
 
@@ -53,7 +57,7 @@
 #define MU_LAW_FORMAT 7
 
 /********************************** globals **********************************/
-static int fd; /* this is a file descriptor that describes the UIO device */
+static uint32_t fd; // this is a file descriptor that describes the UIO device
 static uint16_t off = 0;
 // audio_data_header sound_data_array[AUDIO_DRIVER_NUM_SAMPLE_FILES];
 
@@ -108,7 +112,7 @@ void audio_driver_import_audio(char fileName[], uint16_t index) {
   /* Error check if File was correctly opened */
   if (!fp) { errx(ERR, "Filename not opened"); }
   /* values used to grab information from the WAV files */
-  int read = 0; // use of int because fread returns int type
+  uint32_t read = 0; // will be used to read the information from the file
   char buffer4[FOUR_CHARACTERS]; // used to grab information of 4 bytes length
   char buffer2[TWO_CHARACTERS]; // used to grab information of 2 bytes length
 
@@ -222,9 +226,8 @@ void audio_driver_import_audio(char fileName[], uint16_t index) {
     uint16_t tmp_union; // 16 bit storage point
     char sample_extract[TWO_CHARACTERS]; // extracts 16 bits of data at a time
     // dynamically allocate space for the data in the file
-    /****************we're hitting a seg fault between checkpoints 2 & 3, but on the third iteration****************/
-     sound_data_array[index].sound_data =
-      (uint32_t*)malloc(sizeof(uint32_t)*(sound_data_array[index].num_samples+1));
+     sound_data_array[index].sound_data = (uint32_t*)malloc(sizeof(uint32_t)*
+      (sound_data_array[index].num_samples+1));
     // check and make sure malloc returned a valid value (address)
     if(sound_data_array[index].sound_data != NULL) {
       printf("******malloc success***\n\r");
@@ -264,11 +267,13 @@ void audio_driver_exit() {
 // Called to write to the audio driver
 // len : amount of bytes to write to the driver
 // buf : the buffer to be passed into the kernel (contains audio data)
- void audio_driver_write(const char *buf, int32_t len) {
-   if(buf == NULL) {
-     return;
+// returns an int indicating a success or failure
+ int16_t audio_driver_write(uint32_t *buf, int32_t len) {
+   if(buf == NULL) { // if the buffer is empty, return an error
+     return AUDIO_DRIVER_WRITE_FAILED;
    }
-  write(fd,buf,len);
+  write(fd,buf,len); // call write in the audio driver in kernel space
+  return AUDIO_DRIVER_WRITE_SUCCESS;
 }
 
 // Called to read to the audio driver
@@ -297,6 +302,8 @@ int16_t audio_driver_read(int32_t len) {
 audio_data_header audio_driver_get_data_array(uint32_t index){
   return sound_data_array[index];
 }
+
+/*********** The following functions were not created by our team ************/
 
 /*****************************************************************************
  * Function to write 8 bits to one of the registers from the audio
