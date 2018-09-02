@@ -95,26 +95,28 @@ enum audio_adau1761_regs {
 
 /********************************** structs **********************************/
 // struct containing the header and data of audio
-typedef struct audio_data{
+typedef struct audio_data{ // 48 bytes for the struct itself
    char riff[FOUR_BITS]; // RIFF string
-   int overall_size; // overall size of file in bytes
+   uint32_t overall_size; // overall size of file in bytes
    char wave[FOUR_BITS]; // WAVE string
    char fmt_chunk_marker[FOUR_BITS]; // fmt string with trailing null char
-   int length_of_fmt; // length of the format data
-   int format_type; // format type.
-   int channels; // no.of channels
-   int sample_rate;  // sampling rate (blocks per second)
-   int byte_rate; // SampleRate * NumChannels * BitsPerSample/8
-   int block_align; // NumChannels * BitsPerSample/8
-   int bits_per_sample; // bits per sample, 8- 8bits, 16- 16 bits etc
+   uint16_t length_of_fmt; // length of the format data
+   uint16_t format_type; // format type.
+   uint16_t channels; // no.of channels
+   uint16_t sample_rate;  // sampling rate (blocks per second)
+   uint32_t byte_rate; // SampleRate * NumChannels * BitsPerSample/8
+   uint16_t block_align; // NumChannels * BitsPerSample/8
+   uint16_t bits_per_sample; // bits per sample, 8- 8bits, 16- 16 bits etc
    char data_chunk_header[FOUR_BITS]; // DATA string or FLLR string
-   int data_size; // NumSamples * NumChannels * BitsPerSample/8 - ChunkSize2
+   uint32_t data_size; // NumSamples*NumChannels*(BitsPerSample/8)-ChunkSize2
    uint32_t num_samples;
    uint32_t * sound_data;
  }audio_data_header;
  struct audio_data audio_data_info;
 
-/**************************** function prototypes *****************************/
+// array of sound data
+audio_data_header sound_data_array[AUDIO_DRIVER_NUM_SAMPLE_FILES];
+/**************************** function prototypes ****************************/
 // Initializes the driver (opens UIO file and calls mmap)
 // devDevice: The file path to the uio dev file
 // Returns: A negative error code on error, INTC_SUCCESS otherwise
@@ -136,8 +138,8 @@ void audio_driver_write(const char *buf, int32_t len);
 int16_t audio_driver_read(int32_t len);
 
 // Call to get the audio header and data out of the data data_array
-// index : the audio sound numbersd
-// return : audio_data struct that contains the data buffer and the size of the index
+// index : the audio sound index (each one contains a different sound)
+// return : audio_data struct that contains the data buffer
 audio_data_header audio_driver_get_data_array(uint32_t index);
 
 /******************************************************************************

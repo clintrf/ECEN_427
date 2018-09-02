@@ -36,6 +36,7 @@
 #define WALK3_AUDIO SOUND_FILE_HOME "/walk3.wav"
 #define WALK4_AUDIO SOUND_FILE_HOME "/walk4.wav"
 #define BITS_PER_BYTE 8
+#define SUCCESSFUL_CLOSE 0
 #define ERR 1
 #define FILE_NAME_LENGTH 52
 #define TWO_CHARACTERS 2
@@ -54,7 +55,7 @@
 /********************************** globals **********************************/
 static int fd; /* this is a file descriptor that describes the UIO device */
 static uint16_t off = 0;
-audio_data_header sound_data_array[AUDIO_DRIVER_NUM_SAMPLE_FILES];
+// audio_data_header sound_data_array[AUDIO_DRIVER_NUM_SAMPLE_FILES];
 
 
 /******************************** prototypes *********************************/
@@ -75,14 +76,23 @@ int32_t audio_driver_init(char devDevice[]) {
     return AUDIO_DRIVER_ERROR;
   }
   audio_driver_import_audio(INVADER_DIE_AUDIO,0);
+  printf("INVADER_DIE_AUDIO imported\n\n\r");
   audio_driver_import_audio(LASER_AUDIO,1);
+  printf("LASER_AUDIO imported\n\n\r");
   audio_driver_import_audio(PLAYER_DIE_AUDIO,2);
+  printf("PLAYER_DIE_AUDIO imported\n\n\r");
   audio_driver_import_audio(UFO_AUDIO,3);
+  printf("UFO_AUDIO imported\n\n\r");
   audio_driver_import_audio(UFO_DIE_AUDIO,4);
+  printf("UFO_DIE_AUDIO imported\n\n\r");
   audio_driver_import_audio(WALK1_AUDIO,5);
+  printf("WALK1_AUDIO imported\n\n\r");
   audio_driver_import_audio(WALK2_AUDIO,6);
+  printf("WALK2_AUDIO imported\n\n\r");
   audio_driver_import_audio(WALK3_AUDIO,7);
+  printf("WALK3_AUDIO imported\n\n\r");
   audio_driver_import_audio(WALK4_AUDIO,8);
+  printf("WALK4_AUDIO imported\n\n\r");
   return AUDIO_DRIVER_SUCCESS;
 }
 
@@ -93,13 +103,6 @@ void audio_driver_import_audio(char fileName[], uint16_t index) {
   printf("Print Audio Function\n");
   /* Error checking for getting file name */
   if (!fileName) { errx(ERR, "Filename not specified"); }
-  else { /* If we are getting a fileName, we want to print the name */
-    printf("File Name: ");
-    for(int i = 0; i < FILE_NAME_LENGTH; i++) {
-      printf("%c",fileName[i]);
-    }
-    printf("\r\n");
-  }
   /* Open the file given */
   FILE* fp = fopen(fileName, "r");
   /* Error check if File was correctly opened */
@@ -209,37 +212,43 @@ void audio_driver_import_audio(char fileName[], uint16_t index) {
     (BITS_PER_BYTE*sound_data_array[index].data_size) /
     (sound_data_array[index].channels*sound_data_array[index].bits_per_sample);
   printf("Number of samples: %zu\n", sound_data_array[index].num_samples);
-  uint32_t size_of_each_sample = (sound_data_array[index].channels *
+  uint32_t size_of_each_sample = (sound_data_array[index].channels*
     sound_data_array[index].bits_per_sample)/BITS_PER_BYTE;
   printf("Size of each sample: %zu bytes\n", size_of_each_sample);
-  printf("------------------------------------------------\n\r");
   /*** read the data parts of .wav fileName ***/
   if (sound_data_array[index].format_type == PCM_FORMAT) {
-    printf("Checkpoint 1, Index is %zu\n",index);
+    // printf("Checkpoint 1, Index is %zu\n",index);
     uint32_t data_buffer; // 32 bit storage point
     uint16_t tmp_union; // 16 bit storage point
     char sample_extract[TWO_CHARACTERS]; // extracts 16 bits of data at a time
     // dynamically allocate space for the data in the file
     /****************we're hitting a seg fault between checkpoints 2 & 3, but on the third iteration****************/
-    printf("Checkpoint 2\n");
-    sound_data_array[index].sound_data =
-      (uint32_t*)malloc(sizeof(uint32_t)*sound_data_array[index].num_samples);
-    printf("Checkpoint 3\n");
+     sound_data_array[index].sound_data =
+      (uint32_t*)malloc(sizeof(uint32_t)*(sound_data_array[index].num_samples+1));
+    // check and make sure malloc returned a valid value (address)
+    if(sound_data_array[index].sound_data != NULL) {
+      printf("******malloc success***\n\r");
+    }
     // parse through each bit of data and load it into the data array
     for (uint32_t i = 0; i <= sound_data_array[index].num_samples; i++) {
       // reads 16 bits (one sample) from the data
       read = fread(sample_extract,sizeof(sample_extract),READ_ONE_INDEX_POS,fp);
-      // printf("Data at 1st spot in Sample Extract: %zu\n", sample_extract[INDEX_ZERO]);
-      // printf("Data at 2nd spot in Sample Extract: %zu\n", sample_extract[INDEX_ONE]);
       // puts the extracted samples into tmp_union
-      tmp_union = sample_extract[INDEX_ZERO]<<PCM_8_SHIFT;
-      tmp_union = tmp_union|sample_extract[INDEX_ONE];
+      /*little endian version*/
+        //tmp_union = sample_extract[INDEX_ZERO]<<PCM_8_SHIFT; // may be the correct version
+        //tmp_union = tmp_union|sample_extract[INDEX_ONE];
+      /*big endian version*/
+      tmp_union=sample_extract[INDEX_ONE]<<PCM_8_SHIFT;
+      tmp_union = tmp_union|sample_extract[INDEX_ZERO];
       // sign extend tmp_union out to 32 bits and put it in data_buffer
-      data_buffer = tmp_union<<PCM_16_SHIFT;
+      data_buffer = (uint32_t)tmp_union;//<<PCM_16_SHIFT;
       // move the information from data buffer into the sound_data array
       sound_data_array[index].sound_data[i] = data_buffer;
-      // printf("Data Inside Sound Data Index %zu: %zu\n", i, sound_data_array[index].sound_data[i]);
     }
+  }
+  uint16_t close_err = fclose(fp);
+  if(close_err != SUCCESSFUL_CLOSE) {
+    printf("Unable to close FILE* at index %zu",index);
   }
 }
 
@@ -283,13 +292,13 @@ int16_t audio_driver_read(int32_t len) {
 }
 
 // Call to get the audio header and data out of the data data_array
-// index : the audio sound numbersd
-// return : audio_data struct that contains the data buffer and the size of the index
+// index : the audio sound index (each one contains a different sound)
+// return : audio_data struct that contains the data buffer
 audio_data_header audio_driver_get_data_array(uint32_t index){
   return sound_data_array[index];
 }
 
-/******************************************************************************
+/*****************************************************************************
  * Function to write 8 bits to one of the registers from the audio
  * controller.
  * @param   u8RegAddr is the register address.
