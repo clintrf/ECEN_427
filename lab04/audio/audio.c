@@ -168,8 +168,7 @@ static ssize_t audio_write(struct file *f, const char *buf, size_t len,
   // (including safety checks on the userspace pointer) - LDD page 64.
   uint32_t bytes_written = copy_from_user(fifo_data_buffer,buf,len);
   /* check to see if fifo_data_buffer is receiving the information from buf */
-  printk("Write: Data in the FIFO is %zu", *(fifo_data_buffer);
-
+  printk("Write: Data in the FIFO is %zu", *(fifo_data_buffer));
   // check to see if we have written any bytesS
   if(bytes_written < ZERO_BYTES_WRITTEN){
     printk(KERN_INFO "Audio Write Error\n");
