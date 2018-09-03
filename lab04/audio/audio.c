@@ -175,7 +175,7 @@ static ssize_t audio_write(struct file *f, const char *buf, size_t len,
   }
   // Make sure the audio core has interrupts enabled.
   enable_irq(irq_num);
-  return 0;
+  return bytes_written;
 }
 
 // function that handles the irq
