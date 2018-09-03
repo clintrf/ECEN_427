@@ -54,7 +54,6 @@ MODULE_DESCRIPTION("ECEn 427 Audio Driver");
 #define INTERRUPTS_ON 0x1
 #define INTERRUPTS_OFF 0x0
 #define ZERO_BYTES_WRITTEN 0
-#define BYTES_PER_WORD 4
 
 /********************************* prototypes ********************************/
 static ssize_t audio_read(struct file *f, char *buf, size_t len, loff_t *off);
@@ -129,7 +128,7 @@ module_exit(audio_exit);
 // off : indicates the file position the user is accessing
 // return one byte of data (0 or 1) stating if an audio sample is being played
 static ssize_t audio_read(struct file *f, char *buf, size_t len, loff_t *off) {
-  pr_info("Driver: read()\n");
+  printk(KERN_INFO "Driver: read()\n");
   // unsigned long copy_to_user(void *to,const void *from,unsigned long count);
   // uint32_t bytes_read = read(f,buf,len,off);
   // if(bytes_read < 0 ){
@@ -146,22 +145,22 @@ static ssize_t audio_read(struct file *f, char *buf, size_t len, loff_t *off) {
 // returns how many bytes were written
 static ssize_t audio_write(struct file *f, const char *buf, size_t len,
     loff_t *off) {
-  pr_info("Driver: Write()\n");
+  printk(KERN_INFO "Driver: Write()\n");
   // Immediately disable interrupts from the audio core.
   disable_irq_nosync(irq_num);
   // Free the buffer used to store the old sound sample if applicable
   if(fifo_data_buffer != NULL) { // check if there is anything inside the fifo
       kfree(fifo_data_buffer);
-      pr_info("Write: Needed to free FIFO before continuing...\n");
+      printk("Write: Needed to free FIFO before continuing...\n");
       fifo_data_buffer = NULL;
   }
   else {
-    pr_info("Write: First iteration, did not free FIFO.\n");
+    printk("Write: First iteration, did not free FIFO.\n");
   }
   // allocate a buffer for the new clip (kmalloc).
   fifo_data_buffer = kmalloc(len, GFP_KERNEL);
   if (!fifo_data_buffer) { // allocation failed, need to free pointers
-    pr_info("kmalloc Error\n");
+    printk(KERN_INFO "kmalloc Error\n");
     kfree(fifo_data_buffer);
     return ZERO_BYTES_WRITTEN; // zero bytes were written, the write failed.
   }
@@ -169,17 +168,15 @@ static ssize_t audio_write(struct file *f, const char *buf, size_t len,
   // (including safety checks on the userspace pointer) - LDD page 64.
   uint32_t bytes_written = copy_from_user(fifo_data_buffer,buf,len);
   /* check to see if fifo_data_buffer is receiving the information from buf */
-  pr_info("Write: Data in the FIFO is %zu", *(fifo_data_buffer));
+  printk("Write: Data in the FIFO is %zu", *(fifo_data_buffer));
+
   // check to see if we have written any bytes
   if(bytes_written < ZERO_BYTES_WRITTEN){
-    pr_info("Audio Write Error\n");
+    printk(KERN_INFO "Audio Write Error\n");
   }
   // Make sure the audio core has interrupts enabled.
   enable_irq(irq_num);
-  // Print how many bytes were written to the fifo_data_buffer
-  pr_info("Write: %zu samples written into fifo_data_buffer",
-    (bytes_written/BYTES_PER_WORD));
-  return bytes_written;
+  return 0;
 }
 
 // function that handles the irq
@@ -190,10 +187,10 @@ static irqreturn_t irq_isr(int irq_loc, void *dev_id) {
   pr_info("IRQ_ISR: Calling the irq_isr!\n");
   uint8_t DataL,  DataR;
  // Determine how much free space is in the audio FIFOs
- DataL = ((ioread32((dev.virt_addr)+I2S_STATUS_REG_OFFSET))&TX_DATACOUNT_L_MASK)>>11;
- pr_info("IRQ_ISR: Amount of information in Left FIFO is %zu\n",DataL);
- DataR = ((ioread32((dev.virt_addr)+I2S_STATUS_REG_OFFSET))&TX_DATACOUNT_R_MASK)>>1;
- pr_info("IRQ_ISR: Amount of information in Right FIFO is %zu\n",DataR);
+ DataL = (ioread32((dev.virt_addr)+I2S_STATUS_REG_OFFSET))&TX_DATACOUNT_L_MASK>>11;
+ printk("IRQ_ISR: Amount of information in Left FIFO is %zu\n",DataL);
+ DataR = (ioread32((dev.virt_addr)+I2S_STATUS_REG_OFFSET))&TX_DATACOUNT_R_MASK>>1;
+ printk("IRQ_ISR: Amount of information in Right FIFO is %zu\n",DataR);
  // if less than 25% full or something, fill it
  // fill them up with the next audio samples to be played.
  iowrite32(*(fifo_data_buffer),(dev.virt_addr)+I2S_DATA_RX_L_REG_OFFSET);
