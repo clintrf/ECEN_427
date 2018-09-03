@@ -39,8 +39,8 @@ MODULE_DESCRIPTION("ECEn 427 Audio Driver");
  * [21] : each time a new audio sample is available, this is 1, must be cleared
 */
 #define I2S_STATUS_REG_OFFSET 4
-// #define TX_DATACOUNT_L_MASK 2095104 // 0x00000000000111111111100000000000
-// #define TX_DATACOUNT_R_MASK 2046     //0x00000000000000000000011111111110
+#define TX_DATACOUNT_L_MASK 2095104 // 0x00000000000111111111100000000000
+#define TX_DATACOUNT_R_MASK 2046     //0x00000000000000000000011111111110
 // i2s register above
 #define FIRST_MINOR 0
 #define NUM_OF_CONTIGUOUS_DEVS 1
@@ -112,7 +112,7 @@ static struct resource *res_mem; // Device Resource Structure
 static struct resource *res_irq; // Device Resource Structure
 static unsigned int irq_num; // contains the irq number
 // static bool sound_playing; // do we need this?
-static void *fifo_data_buffer = NULL;
+static uint32_t *fifo_data_buffer = NULL;
 
 /***************************** kernel definitions ****************************/
 static int audio_init(void);
@@ -168,7 +168,7 @@ static ssize_t audio_write(struct file *f, const char *buf, size_t len,
   // (including safety checks on the userspace pointer) - LDD page 64.
   uint32_t bytes_written = copy_from_user(fifo_data_buffer,buf,len);
   /* check to see if fifo_data_buffer is receiving the information from buf */
-  // printk("Write: Data in the FIFO is %zu", *(fifo_data_buffer));
+  printk("Write: Data in the FIFO is %zu", *(fifo_data_buffer));
 
   // check to see if we have written any bytes
   if(bytes_written < ZERO_BYTES_WRITTEN){
