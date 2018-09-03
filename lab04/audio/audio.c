@@ -185,12 +185,12 @@ static ssize_t audio_write(struct file *f, const char *buf, size_t len,
 // returns a flag stating if the irq was handled properly
 static irqreturn_t irq_isr(int irq_loc, void *dev_id) {
   pr_info("IRQ_ISR: Calling the irq_isr!\n");
- //  uint8_t DataL,  DataR;
+  uint8_t DataL,  DataR;
  // // Determine how much free space is in the audio FIFOs
- // DataL = (ioread32((dev.virt_addr)+I2S_STATUS_REG_OFFSET))&TX_DATACOUNT_L_MASK>>11;
- // printk("IRQ_ISR: Amount of information in Left FIFO is %zu\n",DataL);
- // DataR = (ioread32((dev.virt_addr)+I2S_STATUS_REG_OFFSET))&TX_DATACOUNT_R_MASK>>1;
- // printk("IRQ_ISR: Amount of information in Right FIFO is %zu\n",DataR);
+ DataL = ((ioread32((dev.virt_addr)+I2S_STATUS_REG_OFFSET))&TX_DATACOUNT_L_MASK)>>11;
+ printk("IRQ_ISR: Amount of information in Left FIFO is %zu\n",DataL);
+ DataR = ((ioread32((dev.virt_addr)+I2S_STATUS_REG_OFFSET))&TX_DATACOUNT_R_MASK)>>1;
+ printk("IRQ_ISR: Amount of information in Right FIFO is %zu\n",DataR);
  // // fill them up with the next audio samples to be played.
  // iowrite32(*(fifo_data_buffer),(dev.virt_addr)+I2S_DATA_RX_L_REG_OFFSET);
  // iowrite32(*(fifo_data_buffer),(dev.virt_addr)+I2S_DATA_RX_R_REG_OFFSET);
