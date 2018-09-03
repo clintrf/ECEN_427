@@ -39,10 +39,9 @@ MODULE_DESCRIPTION("ECEn 427 Audio Driver");
  * [21] : each time a new audio sample is available, this is 1, must be cleared
 */
 #define I2S_STATUS_REG_OFFSET 4
-#define I2S_STATUS_REG_INTERRUPT_CONTROL 0
-#define I2S_STATUS_REG_RIGHT_FIFO_VALUE 1
-#define I2S_STATUS_REG_LEFT_FIFO_VALUE 11
-#define I2S_STATUS_REG_NEW_AUDIO_SAMPLE 21
+#define TX_DATACOUNT_L_MASK 2095104 // 0x00000000000111111111100000000000
+#define TX_DATACOUNT_R_MASK 2046     //0x00000000000000000000011111111110
+// i2s register above
 #define FIRST_MINOR 0
 #define NUM_OF_CONTIGUOUS_DEVS 1
 #define FIRST_RESOURCE 0
@@ -113,7 +112,7 @@ static struct resource *res_mem; // Device Resource Structure
 static struct resource *res_irq; // Device Resource Structure
 static unsigned int irq_num; // contains the irq number
 // static bool sound_playing; // do we need this?
-static void *fifo_data_buffer = NULL;
+static uint32_t *fifo_data_buffer = NULL;
 
 /***************************** kernel definitions ****************************/
 static int audio_init(void);
@@ -168,6 +167,10 @@ static ssize_t audio_write(struct file *f, const char *buf, size_t len,
   // Copy the audio data from userspace to your newly allocated buffer
   // (including safety checks on the userspace pointer) - LDD page 64.
   uint32_t bytes_written = copy_from_user(fifo_data_buffer,buf,len);
+  /* check to see if fifo_data_buffer is receiving the information from buf */
+  printk("Write: Data in the FIFO is %zu", *(fifo_data_buffer);
+
+  // check to see if we have written any bytesS
   if(bytes_written < ZERO_BYTES_WRITTEN){
     printk(KERN_INFO "Audio Write Error\n");
   }
@@ -180,26 +183,18 @@ static ssize_t audio_write(struct file *f, const char *buf, size_t len,
 // irq : irq number
 // dev_id : the device id
 // returns a flag stating if the irq was handled properly
-static irqreturn_t irq_isr(int irq_loc, void *dev_id)
-{
-  /* LIST OF QUESTIONS */
-  // 1. How to access the I2S Status Register (check for space)
-  // 2. How to write information to the FIFOs
-  /* END LIST OF QUESTIONS */
-
-  pr_info("Calling the irq_isr!\n");
-  //int16_t iic_index = 0;
-  //int16_t uio_index = 1;
-  //void * uio_ptr = setUIO(uio_index, audio_mmap_size);
-
-  // Determine how much free space is in the audio FIFOs
-  // fill them up with the next audio samples to be played.
-
-  // Read the sample from the input
-  //DataR1 = *((volatile int *)(((uint8_t *)uio_ptr) + I2S_STATUS_REG + 1));
-  //DataR2 = *((volatile int *)(((uint8_t *)uio_ptr) + I2S_STATUS_REG + 2));
-  // read(struct file *filp, char __user *buff,    size_t count, loff_t *offp);
-
+static irqreturn_t irq_isr(int irq_loc, void *dev_id) {
+  pr_info("IRQ_ISR: Calling the irq_isr!\n");
+  uint8_t DataL,  DataR;
+ // Determine how much free space is in the audio FIFOs
+ DataL = (ioread32((dev.virt_addr)+I2S_STATUS_REG_OFFSET))&TX_DATACOUNT_L_MASK>>11;
+ printk("IRQ_ISR: Amount of information in Left FIFO is %zu\n",DataL);
+ DataR = (ioread32((dev.virt_addr)+I2S_STATUS_REG_OFFSET))&TX_DATACOUNT_R_MASK>>1;
+ printk("IRQ_ISR: Amount of information in Right FIFO is %zu\n",DataR);
+ // if less than 25% full or something, fill it
+ // fill them up with the next audio samples to be played.
+ iowrite32(*(fifo_data_buffer),(dev.virt_addr)+I2S_DATA_RX_L_REG_OFFSET);
+ iowrite32(*(fifo_data_buffer),(dev.virt_addr)+I2S_DATA_RX_R_REG_OFFSET);
   // Once end of the audio clip is reached, disable interrupts
   disable_irq_nosync(irq_loc);
   return IRQ_HANDLED;
