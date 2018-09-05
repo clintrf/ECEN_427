@@ -256,9 +256,10 @@ void audio_driver_exit() {
 }
 
 // Called to read to the audio driver
-// len : the amount of bytes to read into the buffer
-// returns a value with the type of success pending
-int16_t audio_driver_read(uint32_t *buf, int32 len) {
+// buf : the current file being written to
+// len : length of the file beoing written to
+// returns whether a sound is being played (1) or not (0)
+int32_t audio_driver_read(uint32_t *buf, uint32_t len) {
   printf("Reached audio_driver_read()\n");
   int32_t count = read(fd,buf,len);
   if(count == 1) { // optimal case success

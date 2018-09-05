@@ -136,9 +136,10 @@ void audio_driver_exit();
  int16_t audio_driver_write(uint32_t *buf, int32_t len);
 
 // Called to read to the audio driver
-// len : the amount of bytes to read into the buffer
-// returns a value with the type of success pending
-int16_t audio_driver_read(int32_t len);
+// buf : the current file being written to
+// len : length of the file beoing written to
+// returns whether a sound is being played (1) or not (0)
+int32_t audio_driver_read(uint32_t *buf, uint32_t len);
 
 // Call to get the audio header and data out of the data data_array
 // index : the audio sound index (each one contains a different sound)

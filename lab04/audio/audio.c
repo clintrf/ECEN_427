@@ -371,7 +371,6 @@ static int audio_probe(struct platform_device *pdev) {
   enable_irq(irq_num);
   // Register your interrupt service routine -- request_irq
   int irq_err = request_irq(irq_num,irq_isr,0,MODULE_NAME,NULL);
-  init_isr=false;
   if(irq_err < PROBE_SUCCESS) { // failed to register the platform driver
     pr_info("Failure calling the request_irq !\nRollback changes...\\n");
     release_mem_region(dev.phys_addr,dev.mem_size); // release_mem_region

@@ -33,15 +33,16 @@ int main() {
 
   int i = 0;
   while(1) {
-    int stuff = read(audio_driver_get_data_array(i).sound_data,audio_driver_get_data_array(i).num_samples);
+    int stuff = audio_driver_read(audio_driver_get_data_array(i).sound_data,audio_driver_get_data_array(i).num_samples);
     if(!stuff) {
-      write(audio_driver_get_data_array(i).sound_data,audio_driver_get_data_array(i).num_samples);
+      sleep(3);
+      audio_driver_write(audio_driver_get_data_array(i).sound_data,audio_driver_get_data_array(i).num_samples);
       i++;
       if(i > 8) {
         i = 0;
       }
     }
-    printf("Current Index: %zu",i);
+    printf("Current Index: %zu\n",i);
   }
 
   printf("\t invader_die audio sound played\n\r");
