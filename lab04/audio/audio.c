@@ -118,7 +118,7 @@ static struct resource *res_mem; // Device Resource Structure
 static struct resource *res_irq; // Device Resource Structure
 static unsigned int irq_num; // contains the irq number
 static u32 *fifo_data_buffer = NULL;
-static unsigned int buf_len = 0;
+static unsigned long buf_len = 0;
 static bool init_isr= true;
 /***************************** kernel definitions ****************************/
 static int audio_init(void);
@@ -166,7 +166,7 @@ static ssize_t audio_write(struct file *f, const char *buf, size_t len,
     printk("Write: First iteration, did not free FIFO.\n");
   }
   // allocate a buffer for the new clip (kmalloc).
-  fifo_data_buffer = kmalloc(len, GFP_KERNEL);
+  fifo_data_buffer = kmalloc((len)*4, GFP_KERNEL);
   fifo_data_buffer_alloc = true;
   if (!fifo_data_buffer) { // allocation failed, need to free pointers
     printk(KERN_INFO "kmalloc Error\n");
@@ -177,7 +177,7 @@ static ssize_t audio_write(struct file *f, const char *buf, size_t len,
 
   // Copy the audio data from userspace to your newly allocated buffer
   // (including safety checks on the userspace pointer) - LDD page 64.
-  unsigned int bytes_written = copy_from_user(fifo_data_buffer,buf,len);
+  unsigned int bytes_written = copy_from_user(fifo_data_buffer,buf,(len)*4);
 
   // check to see if we have written any bytes
   if(bytes_written < ZERO_BYTES_WRITTEN){

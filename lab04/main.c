@@ -21,7 +21,7 @@ int main() {
   audio_driver_init(AUDIO_DRIVER_GPIO_FILE_PATH);
   printf("\t\t***done initing all audio files***\n\r");
 
-  struct audio_data copy = audio_driver_get_data_array(0);
+  struct audio_data copy = audio_driver_get_data_array(2);
 
   FILE *fpp;
   fpp = fopen("/home/xilinx/ECEN_427/lab04/t.txt", "w");
@@ -31,7 +31,7 @@ int main() {
   }
   fclose(fpp);
 
-  audio_driver_write(audio_driver_get_data_array(0).sound_data,audio_driver_get_data_array(0).num_samples);
+  audio_driver_write(audio_driver_get_data_array(2).sound_data,audio_driver_get_data_array(2).num_samples);
 
   printf("\t invader_die audio sound played\n\r");
   // exit from the audio driver and free up allocated memory
