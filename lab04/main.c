@@ -20,10 +20,6 @@ int main() {
   audio_driver_write((audio_driver_get_data_array(0)).sound_data,
     audio_driver_get_data_array(0).data_size);
   printf("\t invader_die audio sound played\n\r");
-  // audio_driver_write((audio_driver_get_data_array(0)).sound_data,
-  //   audio_driver_get_data_array(0).data_size);
-  // printf("\t invader_die audio sound played\n\r");
-  // audio_driver_read(len);
   // exit from the audio driver and free up allocated memory
   audio_driver_exit();
 }

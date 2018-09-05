@@ -39,6 +39,7 @@ MODULE_DESCRIPTION("ECEn 427 Audio Driver");
  * [21] : each time a new audio sample is available, this is 1, must be cleared
 */
 #define I2S_STATUS_REG_OFFSET 4
+#define I2S_LEFT_FIFO_STATUS 11
 #define TX_DATACOUNT_L_MASK 2095104 // 0x00000000000111111111100000000000
 #define TX_DATACOUNT_R_MASK 2046     //0x00000000000000000000011111111110
 // i2s register above
@@ -55,6 +56,7 @@ MODULE_DESCRIPTION("ECEn 427 Audio Driver");
 #define INTERRUPTS_ON 0x1
 #define ZERO_BYTES_WRITTEN 0
 #define FIFO_BUFFER_LIMIT 1023
+#define WRITE_ERR -1
 
 /********************************* prototypes ********************************/
 static ssize_t audio_read(struct file *f, char *buf, size_t len, loff_t *off);
@@ -114,7 +116,7 @@ static struct resource *res_mem; // Device Resource Structure
 static struct resource *res_irq; // Device Resource Structure
 static unsigned int irq_num; // contains the irq number
 // static bool sound_playing; // do we need this?
-static uint32_t *fifo_data_buffer = NULL;
+static unsigned int *fifo_data_buffer = NULL;
 static bool init_isr= true;
 /***************************** kernel definitions ****************************/
 static int audio_init(void);
@@ -168,19 +170,20 @@ static ssize_t audio_write(struct file *f, const char *buf, size_t len,
   }
   // Copy the audio data from userspace to your newly allocated buffer
   // (including safety checks on the userspace pointer) - LDD page 64.
-  uint32_t bytes_written = copy_from_user(fifo_data_buffer,buf,len);
+  unsigned int bytes_written = copy_from_user(fifo_data_buffer,buf,len);
   /* check to see if fifo_data_buffer is receiving the information from buf */
   printk("Write: Data in the FIFO is %zu", *(fifo_data_buffer));
 
   // check to see if we have written any bytes
   if(bytes_written < ZERO_BYTES_WRITTEN){
     printk(KERN_INFO "Audio Write Error\n");
+    return WRITE_ERR;
   }
   // Make sure the audio core has interrupts enabled.
   pr_info("IRQ_ISR: **Interrupts enabled!!\n");
   iowrite32(INTERRUPTS_ON,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
-  //enable_irq(irq_num);
-  return 0;
+  enable_irq(irq_num);
+  return bytes_written;
 }
 //
 // used to check if the fifos are full or not.
@@ -188,19 +191,19 @@ static ssize_t audio_write(struct file *f, const char *buf, size_t len,
 //
 static bool check_full(void)
 {
-  uint8_t DataL;
+
   bool isfull = false;
   // Determine how much free space is in the audio FIFOs
   // Only need to check 1 tx_data because they empty at the same time
-  DataL = ((ioread32((dev.virt_addr)+I2S_STATUS_REG_OFFSET))&TX_DATACOUNT_L_MASK)>>11;
+  unsigned int raw_dataL = ioread32((dev.virt_addr)+I2S_STATUS_REG_OFFSET);
+  unsigned int DataL = (raw_dataL&TX_DATACOUNT_L_MASK)>>I2S_LEFT_FIFO_STATUS;
   printk("IRQ_ISR: Amount of information in Left FIFO is %zu\n",DataL);
   // DataR = ((ioread32((dev.virt_addr)+I2S_STATUS_REG_OFFSET))&TX_DATACOUNT_R_MASK)>>1;
   // printk("IRQ_ISR: Amount of information in Right FIFO is %zu\n",DataR);
-  if(DataL < FIFO_BUFFER_LIMIT)//1024-1
-  {
+  if(DataL < FIFO_BUFFER_LIMIT) {
     isfull = false;
   }
-  else{
+  else {
     isfull = true;
     pr_info("IRQ_ISR: data_TX is full!\n");
   }
@@ -213,7 +216,7 @@ static bool check_full(void)
 static irqreturn_t irq_isr(int irq_loc, void *dev_id) {
   pr_info("IRQ_ISR: Calling the irq_isr!\n");
   // Determine how much free space is in the audio FIFOs
-  bool isFull=check_full();
+  bool isFull = check_full();
   // Once end of the audio clip is reached, disable interrupts
   if(!isFull) {
     pr_info("IRQ_ISR: data_TX is not full!\n");
