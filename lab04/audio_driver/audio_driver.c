@@ -252,6 +252,7 @@ void audio_driver_import_audio(char fileName[], uint16_t index) {
 
 // Called to exit the driver (unmap and close UIO file)
 void audio_driver_exit() {
+  printf("Reached audio_driver_exit()\n");
   for(uint16_t i = 0; i < AUDIO_DRIVER_NUM_SAMPLE_FILES; i++) {
     free(sound_data_array[i].sound_data);
     sound_data_array[i].sound_data = 0;
@@ -264,9 +265,11 @@ void audio_driver_exit() {
 // buf : the buffer to be passed into the kernel (contains audio data)
 // returns an int indicating a success or failure
  int16_t audio_driver_write(uint32_t *buf, int32_t len) {
-   if(buf == NULL) { // if the buffer is empty, return an error
-     return AUDIO_DRIVER_WRITE_FAILED;
-   }
+  printf("Reached audio_driver_write()\n");
+  if(buf == NULL) { // if the buffer is empty, return an error
+   printf("Buffer that was passed in was empty!\n")
+   return AUDIO_DRIVER_WRITE_FAILED;
+  }
   write(fd,buf,len); // call write in the audio driver in kernel space
   return AUDIO_DRIVER_WRITE_SUCCESS;
 }
@@ -275,18 +278,23 @@ void audio_driver_exit() {
 // len : the amount of bytes to read into the buffer
 // returns a value with the type of success pending
 int16_t audio_driver_read(int32_t len) {
+  printf("Reached audio_driver_read()\n");
   char rdbuf[len];
   int32_t count = read(fd,&rdbuf,len);
   if(count == len) { // optimal case success
+    printf("All bytes were read successfully!\n");
     return AUDIO_DRIVER_READ_OPTIMAL_SUCCESS;
   }
   else if(count > END_OF_READ_FILE) { // read parts of the data, but not all
+    printf("Some bytes (not all) were read successfully!\n");
     return AUDIO_DRIVER_PARTIAL_DATA_TRANSFER;
   }
   else if(count == END_OF_READ_FILE) { // reached EOF before any data was read
+    printf("Reached EOF before any bytes were read!\n");
     return AUDIO_DRIVER_REACHED_EOF;
   }
   else { // some kind of error occured if the number is negative
+    printf("Error accessing the read location or file!\n");
     return AUDIO_DRIVER_READ_ERROR;
   }
 }
