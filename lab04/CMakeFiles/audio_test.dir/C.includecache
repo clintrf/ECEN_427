@@ -29,4 +29,10 @@ audio_driver/audio_driver.h
 /home/xilinx/ECEN_427/lab04/audio_driver/audio_driver.h
 i2cps/i2cps.h
 /home/xilinx/ECEN_427/lab04/i2cps/i2cps.h
+unistd.h
+-
+stdio.h
+-
+limits.h
+-
 

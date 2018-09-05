@@ -152,6 +152,7 @@ static ssize_t audio_read(struct file *f, char *buf, size_t len, loff_t *off) {
 static ssize_t audio_write(struct file *f, const char *buf, size_t len,
     loff_t *off) {
   printk(KERN_INFO "Driver: Write()\n");
+
   buf_len = len;
   // Immediately disable interrupts from the audio core.
   iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
@@ -173,6 +174,7 @@ static ssize_t audio_write(struct file *f, const char *buf, size_t len,
     fifo_data_buffer_alloc = false;
     return ZERO_BYTES_WRITTEN; // zero bytes were written, the write failed.
   }
+
   // Copy the audio data from userspace to your newly allocated buffer
   // (including safety checks on the userspace pointer) - LDD page 64.
   unsigned int bytes_written = copy_from_user(fifo_data_buffer,buf,len);
@@ -198,16 +200,16 @@ static bool check_full(void) {
   // Only need to check 1 tx_data because they empty at the same time
   unsigned int raw_data = ioread32((dev.virt_addr)+I2S_STATUS_REG_OFFSET);
   unsigned int DataL = (raw_data&TX_DATACOUNT_L_MASK)>>I2S_LEFT_FIFO_STATUS;
-  printk("IRQ_ISR: Amount of information in Left FIFO is %zu\n",DataL);
+  //printk("IRQ_ISR: Amount of information in Left FIFO is %zu\n",DataL);
   unsigned int DataR = (raw_data&TX_DATACOUNT_R_MASK)>>I2S_RIGHT_FIFO_STATUS;
-  printk("IRQ_ISR: Amount of information in Right FIFO is %zu\n",DataR);
+  //printk("IRQ_ISR: Amount of information in Right FIFO is %zu\n",DataR);
 
   if(DataL < FIFO_BUFFER_LIMIT) { // check if the FIFO is not full
     isfull = false;
   }
   else { // check if the FIFO is full
     isfull = true;
-    pr_info("IRQ_ISR: data_TX is full!\n");
+    //pr_info("IRQ_ISR: data_TX is full!\n");
   }
   return isfull;
 }
@@ -231,7 +233,7 @@ static irqreturn_t irq_isr(int irq_loc, void *dev_id) {
     uint32_t i = 0;
     while(i < buf_len) { // go through the entire buffer
       if(!isFull) { // check to see if the FIFO is full or not
-        printk("Write: Data in the FIFO is %u", fifo_data_buffer[i]);
+        printk("IRQ_ISR: Data in the FIFO is %x", fifo_data_buffer[i]);
         iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
         iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_R_REG_OFFSET);
         i++;

@@ -59,8 +59,6 @@
 /********************************** globals **********************************/
 static uint32_t fd; // this is a file descriptor that describes the UIO device
 static uint16_t off = 0;
-// audio_data_header sound_data_array[AUDIO_DRIVER_NUM_SAMPLE_FILES];
-
 
 /******************************** prototypes *********************************/
 void audio_driver_import_audio(char fileName[], uint16_t index);
@@ -232,12 +230,28 @@ void audio_driver_exit() {
 // returns an int indicating a success or failure
  int16_t audio_driver_write(uint32_t *buf, int32_t len) {
   printf("Reached audio_driver_write()\n");
+  int iic_fd = setI2C(0, IIC_SLAVE_ADDR);
+
+  // Unmute left and right DAC, enable Mixer3 and Mixer4
+  write_audio_reg(R22_PLAYBACK_MIXER_LEFT_CONTROL_0, 0x21, iic_fd);
+  write_audio_reg(R24_PLAYBACK_MIXER_RIGHT_CONTROL_0, 0x41, iic_fd);
+  // Enable Left/Right Headphone out
+  write_audio_reg(R29_PLAYBACK_HEADPHONE_LEFT_VOLUME_CONTROL, 0xE7, iic_fd);
+  write_audio_reg(R30_PLAYBACK_HEADPHONE_RIGHT_VOLUME_CONTROL, 0xE7, iic_fd);
+
   if(buf == NULL) { // if the buffer is empty, return an error
    printf("Buffer that was passed in was empty!\n");
    return AUDIO_DRIVER_WRITE_FAILED;
   }
   printf("Size of the buffer passed in: %zu\n",len);
   write(fd,buf,len); // call write in the audio driver in kernel space
+
+  write_audio_reg(R22_PLAYBACK_MIXER_LEFT_CONTROL_0, 0x01, iic_fd);
+  write_audio_reg(R24_PLAYBACK_MIXER_RIGHT_CONTROL_0, 0x01, iic_fd);
+  // Mute left input to mixer3 (R23) and right input to mixer4 (R25)
+  write_audio_reg(R23_PLAYBACK_MIXER_LEFT_CONTROL_1, 0x00, iic_fd);
+  write_audio_reg(R25_PLAYBACK_MIXER_RIGHT_CONTROL_1, 0x00, iic_fd);
+
   return AUDIO_DRIVER_WRITE_SUCCESS;
 }
 
@@ -395,18 +409,14 @@ void config_audio_codec(int iic_index) {
     // Mute play back Mixer3 and Mixer4 and enable when output is required
     write_audio_reg(R22_PLAYBACK_MIXER_LEFT_CONTROL_0, 0x00, iic_fd);
     write_audio_reg(R24_PLAYBACK_MIXER_RIGHT_CONTROL_0, 0x00, iic_fd);
+
     // Mute left input to mixer3 (R23) and right input to mixer4 (R25)
     write_audio_reg(R23_PLAYBACK_MIXER_LEFT_CONTROL_1, 0x00, iic_fd);
     write_audio_reg(R25_PLAYBACK_MIXER_RIGHT_CONTROL_1, 0x00, iic_fd);
+
     // Mute left and right channels output; enable them when output is needed
     write_audio_reg(R29_PLAYBACK_HEADPHONE_LEFT_VOLUME_CONTROL, 0xE5, iic_fd);
     write_audio_reg(R30_PLAYBACK_HEADPHONE_RIGHT_VOLUME_CONTROL, 0xE5, iic_fd);
-
-    /* ADDED CODE TO THIS FUNCTION (Clint's fault entirely)*/
-    // Re enable muted audio.
-    write_audio_reg(R29_PLAYBACK_HEADPHONE_LEFT_VOLUME_CONTROL, 0xE7, iic_fd);
-    write_audio_reg(R30_PLAYBACK_HEADPHONE_RIGHT_VOLUME_CONTROL, 0xE7, iic_fd);
-    /* END ADDED CODE TO THIS FUNCTION */
 
     // Enable play back right and left channels
     write_audio_reg(R35_PLAYBACK_POWER_MANAGEMENT, 0x03, iic_fd);
@@ -416,9 +426,19 @@ void config_audio_codec(int iic_index) {
     write_audio_reg(R58_SERIAL_INPUT_ROUTE_CONTROL, 0x01, iic_fd);
     // Set SDATA_Out to ADC
     write_audio_reg(R59_SERIAL_OUTPUT_ROUTE_CONTROL, 0x01, iic_fd);
+
     // Enable DSP and DSP Run
     write_audio_reg(R61_DSP_ENABLE, 0x01, iic_fd);
     write_audio_reg(R62_DSP_RUN, 0x01, iic_fd);
+
+
+    // Unmute left and right DAC, enable Mixer3 and Mixer4
+    write_audio_reg(R22_PLAYBACK_MIXER_LEFT_CONTROL_0, 0x21, iic_fd);
+    write_audio_reg(R24_PLAYBACK_MIXER_RIGHT_CONTROL_0, 0x41, iic_fd);
+    // Enable Left/Right Headphone out
+    write_audio_reg(R29_PLAYBACK_HEADPHONE_LEFT_VOLUME_CONTROL, 0xE7, iic_fd);
+    write_audio_reg(R30_PLAYBACK_HEADPHONE_RIGHT_VOLUME_CONTROL, 0xE7, iic_fd);
+
     /*
      * Enable Digital Clock Generator 0 and 1.
      * Generator 0 generates sample rates for the ADCs, DACs, and DSP.

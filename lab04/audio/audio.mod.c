@@ -43,8 +43,8 @@ __attribute__((section("__versions"))) = {
 	{ 0x2ab3cc9d, __VMLINUX_SYMBOL_STR(__release_region) },
 	{ 0xfc39e32f, __VMLINUX_SYMBOL_STR(ioport_unmap) },
 	{ 0xf20dabd8, __VMLINUX_SYMBOL_STR(free_irq) },
-	{ 0xefd6cf06, __VMLINUX_SYMBOL_STR(__aeabi_unwind_cpp_pr0) },
 	{ 0x27e1a049, __VMLINUX_SYMBOL_STR(printk) },
+	{ 0xefd6cf06, __VMLINUX_SYMBOL_STR(__aeabi_unwind_cpp_pr0) },
 };
 
 static const char __module_depends[]
