@@ -270,6 +270,7 @@ void audio_driver_exit() {
    printf("Buffer that was passed in was empty!\n");
    return AUDIO_DRIVER_WRITE_FAILED;
   }
+  printf("Buffer is of length %zu!\r\n", len);
   write(fd,buf,len); // call write in the audio driver in kernel space
   return AUDIO_DRIVER_WRITE_SUCCESS;
 }
