@@ -118,6 +118,7 @@ static struct resource *res_mem; // Device Resource Structure
 static struct resource *res_irq; // Device Resource Structure
 static unsigned int irq_num; // contains the irq number
 static u32 *fifo_data_buffer = NULL;
+static unsigned int buf_len = 0;
 static bool init_isr= true;
 /***************************** kernel definitions ****************************/
 static int audio_init(void);
@@ -151,6 +152,7 @@ static ssize_t audio_read(struct file *f, char *buf, size_t len, loff_t *off) {
 static ssize_t audio_write(struct file *f, const char *buf, size_t len,
     loff_t *off) {
   printk(KERN_INFO "Driver: Write()\n");
+  buf_len = len;
   // Immediately disable interrupts from the audio core.
   iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
   // Free the buffer used to store the old sound sample if applicable
@@ -174,8 +176,6 @@ static ssize_t audio_write(struct file *f, const char *buf, size_t len,
   // Copy the audio data from userspace to your newly allocated buffer
   // (including safety checks on the userspace pointer) - LDD page 64.
   unsigned int bytes_written = copy_from_user(fifo_data_buffer,buf,len);
-  /* check to see if fifo_data_buffer is receiving the information from buf */
-  printk("Write: Data in the FIFO is %u", *(fifo_data_buffer));
 
   // check to see if we have written any bytes
   if(bytes_written < ZERO_BYTES_WRITTEN){
@@ -233,9 +233,19 @@ static irqreturn_t irq_isr(int irq_loc, void *dev_id) {
   }
 
   if(fifo_data_buffer_alloc) { // only write if space is allocated to the fifo
-    iowrite32(*fifo_data_buffer,(dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
-    iowrite32(*fifo_data_buffer,(dev.virt_addr)+I2S_DATA_TX_R_REG_OFFSET);
-    isFull = check_full();
+    for(uint32_t i = 0; i < 10; i++) { // iterate through all the buffer
+      if(!isFull) { // only write the information if the buffer is not full
+        printk("Write: Data in the FIFO is %u", *(fifo_data_buffer));
+        iowrite32(*fifo_data_buffer,(dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
+        unsigned int data_inL = ioread32((dev.virt_addr)+I2S_DATA_RX_L_REG_OFFSET);
+        printk("IRQ_ISR: Value of information in Left FIFO is %zu\n",data_inL);
+        iowrite32(*fifo_data_buffer,(dev.virt_addr)+I2S_DATA_TX_R_REG_OFFSET);
+        unsigned int data_inR = ioread32((dev.virt_addr)+I2S_DATA_RX_R_REG_OFFSET);
+        printk("IRQ_ISR: Value of information in Right FIFO is %zu\n",data_inR);
+        fifo_data_buffer++;
+        isFull = check_full();
+      }
+    }
   }
   // Once end of the audio clip is reached, disable interrupts
   iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
