@@ -51,14 +51,16 @@ MODULE_DESCRIPTION("ECEn 427 Audio Driver");
 #define PROBE_SUCCESS 0
 #define PROBE_ERR -1
 #define REMOVE_SUCCESS 0
-#define INTERRUPTS_ON 0x1
 #define INTERRUPTS_OFF 0x0
+#define INTERRUPTS_ON 0x1
 #define ZERO_BYTES_WRITTEN 0
+#define FIFO_BUFFER_LIMIT 1023
 
 /********************************* prototypes ********************************/
 static ssize_t audio_read(struct file *f, char *buf, size_t len, loff_t *off);
 static ssize_t audio_write(struct file *f, const char *buf, size_t len,
     loff_t *off);
+static bool check_full(void);// added by seth
 static int audio_probe(struct platform_device *pdev);
 static int audio_remove(struct platform_device * pdev);
 
@@ -113,7 +115,7 @@ static struct resource *res_irq; // Device Resource Structure
 static unsigned int irq_num; // contains the irq number
 // static bool sound_playing; // do we need this?
 static uint32_t *fifo_data_buffer = NULL;
-
+static bool init_isr= true;
 /***************************** kernel definitions ****************************/
 static int audio_init(void);
 static void audio_exit(void);
@@ -142,12 +144,12 @@ static ssize_t audio_read(struct file *f, char *buf, size_t len, loff_t *off) {
 // buf : accepts a signed 32 bit buffer containing an audio clip
 // len : the number of bytes to write
 // off : indicates the file position the user is accessing
-// returns how many bytes were written
+// returns how many byteirq_locs were written
 static ssize_t audio_write(struct file *f, const char *buf, size_t len,
     loff_t *off) {
   printk(KERN_INFO "Driver: Write()\n");
   // Immediately disable interrupts from the audio core.
-  disable_irq_nosync(irq_num);
+  iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
   // Free the buffer used to store the old sound sample if applicable
   if(fifo_data_buffer != NULL) { // check if there is anything inside the fifo
       kfree(fifo_data_buffer);
@@ -175,27 +177,60 @@ static ssize_t audio_write(struct file *f, const char *buf, size_t len,
     printk(KERN_INFO "Audio Write Error\n");
   }
   // Make sure the audio core has interrupts enabled.
+  pr_info("IRQ_ISR: **Interrupts enabled!!\n");
+  iowrite32(INTERRUPTS_ON,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
   enable_irq(irq_num);
   return 0;
 }
-
+//
+// used to check if the fifos are full or not.
+// returns true is the FIFO is full and false if there is space in it
+//
+static bool check_full(void)
+{
+  uint8_t DataL;
+  bool isfull = false;
+  // Determine how much free space is in the audio FIFOs
+  // Only need to check 1 tx_data because they empty at the same time
+  DataL = ((ioread32((dev.virt_addr)+I2S_STATUS_REG_OFFSET))&TX_DATACOUNT_L_MASK)>>11;
+  printk("IRQ_ISR: Amount of information in Left FIFO is %zu\n",DataL);
+  // DataR = ((ioread32((dev.virt_addr)+I2S_STATUS_REG_OFFSET))&TX_DATACOUNT_R_MASK)>>1;
+  // printk("IRQ_ISR: Amount of information in Right FIFO is %zu\n",DataR);
+  if(DataL < FIFO_BUFFER_LIMIT)//1024-1
+  {
+    isfull = false;
+  }
+  else{
+    isfull = true;
+    pr_info("IRQ_ISR: data_TX is full!\n");
+  }
+  return isfull;
+}
 // function that handles the irq
 // irq : irq number
 // dev_id : the device id
 // returns a flag stating if the irq was handled properly
 static irqreturn_t irq_isr(int irq_loc, void *dev_id) {
   pr_info("IRQ_ISR: Calling the irq_isr!\n");
-  uint8_t DataL,  DataR;
- // // Determine how much free space is in the audio FIFOs
- DataL = ((ioread32((dev.virt_addr)+I2S_STATUS_REG_OFFSET))&TX_DATACOUNT_L_MASK)>>11;
- printk("IRQ_ISR: Amount of information in Left FIFO is %zu\n",DataL);
- DataR = ((ioread32((dev.virt_addr)+I2S_STATUS_REG_OFFSET))&TX_DATACOUNT_R_MASK)>>1;
- printk("IRQ_ISR: Amount of information in Right FIFO is %zu\n",DataR);
- // // fill them up with the next audio samples to be played.
- // iowrite32(*(fifo_data_buffer),(dev.virt_addr)+I2S_DATA_RX_L_REG_OFFSET);
- // iowrite32(*(fifo_data_buffer),(dev.virt_addr)+I2S_DATA_RX_R_REG_OFFSET);
+  // Determine how much free space is in the audio FIFOs
+  bool isFull=check_full();
+
   // Once end of the audio clip is reached, disable interrupts
-  disable_irq_nosync(irq_loc);
+  if(!isFull) {
+    pr_info("IRQ_ISR: data_TX is not full!\n");
+  }
+  else {
+    pr_info("IRQ_ISR:** data_TX is full!\n");
+  }
+  // fill them up with the next audio samples to be played.
+  while(!isFull && !init_isr) {
+    iowrite32(*(fifo_data_buffer),(dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
+    iowrite32(*(fifo_data_buffer),(dev.virt_addr)+I2S_DATA_TX_R_REG_OFFSET);
+    fifo_data_buffer++; // move along the buffer to add in new sounds
+    isFull = check_full();
+  }
+  iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
+  init_isr=false;
   return IRQ_HANDLED;
 }
 
@@ -321,6 +356,7 @@ static int audio_probe(struct platform_device *pdev) {
   enable_irq(irq_num);
   // Register your interrupt service routine -- request_irq
   int irq_err = request_irq(irq_num,irq_isr,0,MODULE_NAME,NULL);
+  init_isr=false;
   if(irq_err < PROBE_SUCCESS) { // failed to register the platform driver
     pr_info("Failure calling the request_irq !\nRollback changes...\\n");
     release_mem_region(dev.phys_addr,dev.mem_size); // release_mem_region

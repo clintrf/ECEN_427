@@ -71,7 +71,7 @@ void audio_driver_import_audio(char fileName[], uint16_t index);
 // Returns: A negative error code on error, INTC_SUCCESS otherwise
 // This must be called before calling any other intc_* functions
 int32_t audio_driver_init(char devDevice[]) {
-  printf("Initializing Audio Driver\n");
+  ("Initializing Audio Driver\n");
   /* open the device */
   fd = open(devDevice, O_RDWR);
   /* if there is a problem, return an error */
@@ -96,7 +96,7 @@ int32_t audio_driver_init(char devDevice[]) {
   audio_driver_import_audio(WALK3_AUDIO,7);
   printf("WALK3_AUDIO imported\n\n\r");
   audio_driver_import_audio(WALK4_AUDIO,8);
-  printf("WALK4_AUDIO imported\n\n\r");
+  printf("WALK4_AUDIO imported\n\r");
   return AUDIO_DRIVER_SUCCESS;
 }
 
@@ -221,7 +221,6 @@ void audio_driver_import_audio(char fileName[], uint16_t index) {
   printf("Size of each sample: %zu bytes\n", size_of_each_sample);
   /*** read the data parts of .wav fileName ***/
   if (sound_data_array[index].format_type == PCM_FORMAT) {
-    // printf("Checkpoint 1, Index is %zu\n",index);
     uint32_t data_buffer; // 32 bit storage point
     uint16_t tmp_union; // 16 bit storage point
     char sample_extract[TWO_CHARACTERS]; // extracts 16 bits of data at a time
@@ -237,10 +236,6 @@ void audio_driver_import_audio(char fileName[], uint16_t index) {
       // reads 16 bits (one sample) from the data
       read = fread(sample_extract,sizeof(sample_extract),READ_ONE_INDEX_POS,fp);
       // puts the extracted samples into tmp_union
-      /*little endian version*/
-        //tmp_union = sample_extract[INDEX_ZERO]<<PCM_8_SHIFT; // may be the correct version
-        //tmp_union = tmp_union|sample_extract[INDEX_ONE];
-      /*big endian version*/
       tmp_union=sample_extract[INDEX_ONE]<<PCM_8_SHIFT;
       tmp_union = tmp_union|sample_extract[INDEX_ZERO];
       // sign extend tmp_union out to 32 bits and put it in data_buffer
