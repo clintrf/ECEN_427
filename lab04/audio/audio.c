@@ -40,8 +40,9 @@ MODULE_DESCRIPTION("ECEn 427 Audio Driver");
 */
 #define I2S_STATUS_REG_OFFSET 4
 #define I2S_LEFT_FIFO_STATUS 11
+#define I2S_RIGHT_FIFO_STATUS 1
 #define TX_DATACOUNT_L_MASK 2095104 // 0x00000000000111111111100000000000
-#define TX_DATACOUNT_R_MASK 2046     //0x00000000000000000000011111111110
+#define TX_DATACOUNT_R_MASK 2046    // 0x00000000000000000000011111111110
 // i2s register above
 #define FIRST_MINOR 0
 #define NUM_OF_CONTIGUOUS_DEVS 1
@@ -116,7 +117,7 @@ static struct resource *res_mem; // Device Resource Structure
 static struct resource *res_irq; // Device Resource Structure
 static unsigned int irq_num; // contains the irq number
 // static bool sound_playing; // do we need this?
-static unsigned int *fifo_data_buffer = NULL;
+static u32 *fifo_data_buffer = NULL;
 static bool init_isr= true;
 /***************************** kernel definitions ****************************/
 static int audio_init(void);
@@ -172,7 +173,7 @@ static ssize_t audio_write(struct file *f, const char *buf, size_t len,
   // (including safety checks on the userspace pointer) - LDD page 64.
   unsigned int bytes_written = copy_from_user(fifo_data_buffer,buf,len);
   /* check to see if fifo_data_buffer is receiving the information from buf */
-  printk("Write: Data in the FIFO is %zu", *(fifo_data_buffer));
+  printk("Write: Data in the FIFO is %u", *(fifo_data_buffer));
 
   // check to see if we have written any bytes
   if(bytes_written < ZERO_BYTES_WRITTEN){
@@ -180,7 +181,7 @@ static ssize_t audio_write(struct file *f, const char *buf, size_t len,
     return WRITE_ERR;
   }
   // Make sure the audio core has interrupts enabled.
-  pr_info("IRQ_ISR: **Interrupts enabled!!\n");
+  pr_info("IRQ_ISR: Interrupts enabled!!\n");
   iowrite32(INTERRUPTS_ON,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
   enable_irq(irq_num);
   return bytes_written;
@@ -195,11 +196,17 @@ static bool check_full(void)
   bool isfull = false;
   // Determine how much free space is in the audio FIFOs
   // Only need to check 1 tx_data because they empty at the same time
-  unsigned int raw_dataL = ioread32((dev.virt_addr)+I2S_STATUS_REG_OFFSET);
-  unsigned int DataL = (raw_dataL&TX_DATACOUNT_L_MASK)>>I2S_LEFT_FIFO_STATUS;
+  unsigned int raw_data = ioread32((dev.virt_addr)+I2S_STATUS_REG_OFFSET);
+  unsigned int data_inR = ioread32((dev.virt_addr)+I2S_DATA_RX_R_REG_OFFSET);
+  unsigned int data_inL = ioread32((dev.virt_addr)+I2S_DATA_RX_L_REG_OFFSET);
+  printk("IRQ_ISR: Raw data value in I2S Status Reg %zu\n",raw_data);
+  unsigned int DataL = (raw_data&TX_DATACOUNT_L_MASK)>>I2S_LEFT_FIFO_STATUS;
   printk("IRQ_ISR: Amount of information in Left FIFO is %zu\n",DataL);
-  // DataR = ((ioread32((dev.virt_addr)+I2S_STATUS_REG_OFFSET))&TX_DATACOUNT_R_MASK)>>1;
-  // printk("IRQ_ISR: Amount of information in Right FIFO is %zu\n",DataR);
+  printk("IRQ_ISR: Value of information in Left FIFO is %zu\n",data_inL);
+  unsigned int DataR = (raw_data&TX_DATACOUNT_R_MASK)>>I2S_RIGHT_FIFO_STATUS;
+  printk("IRQ_ISR: Amount of information in Right FIFO is %zu\n",DataR);
+  printk("IRQ_ISR: Value of information in Right FIFO is %zu\n",data_inR);
+
   if(DataL < FIFO_BUFFER_LIMIT) {
     isfull = false;
   }
@@ -222,14 +229,14 @@ static irqreturn_t irq_isr(int irq_loc, void *dev_id) {
     pr_info("IRQ_ISR: data_TX is not full!\n");
   }
   else {
-    pr_info("IRQ_ISR:** data_TX is full!\n");
+    pr_info("IRQ_ISR: data_TX is full!\n");
   }
   // fill them up with the next audio samples to be played.
   // while(!isFull && !init_isr) {
-  //   iowrite32(*(fifo_data_buffer),(dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
-  //   iowrite32(*(fifo_data_buffer),(dev.virt_addr)+I2S_DATA_TX_R_REG_OFFSET);
+    iowrite32(63281,(dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
+    iowrite32(63281,(dev.virt_addr)+I2S_DATA_TX_R_REG_OFFSET);
   //   fifo_data_buffer++; // move along the buffer to add in new sounds
-  //   isFull = check_full();
+    isFull = check_full();
   // }
   iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);// disable IRQ_ISR
   init_isr=false;
