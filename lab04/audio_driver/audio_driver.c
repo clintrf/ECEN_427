@@ -258,25 +258,16 @@ void audio_driver_exit() {
 // Called to read to the audio driver
 // len : the amount of bytes to read into the buffer
 // returns a value with the type of success pending
-int16_t audio_driver_read(int32_t len) {
+int16_t audio_driver_read(uint32_t *buf, int32 len) {
   printf("Reached audio_driver_read()\n");
-  char rdbuf[len];
-  int32_t count = read(fd,&rdbuf,len);
-  if(count == len) { // optimal case success
-    printf("All bytes were read successfully!\n");
-    return AUDIO_DRIVER_READ_OPTIMAL_SUCCESS;
-  }
-  else if(count > END_OF_READ_FILE) { // read parts of the data, but not all
-    printf("Some bytes (not all) were read successfully!\n");
-    return AUDIO_DRIVER_PARTIAL_DATA_TRANSFER;
-  }
-  else if(count == END_OF_READ_FILE) { // reached EOF before any data was read
-    printf("Reached EOF before any bytes were read!\n");
-    return AUDIO_DRIVER_REACHED_EOF;
+  int32_t count = read(fd,buf,len);
+  if(count == 1) { // optimal case success
+    printf("Sound is currently playing!\n");
+    return 1;
   }
   else { // some kind of error occured if the number is negative
-    printf("Error accessing the read location or file!\n");
-    return AUDIO_DRIVER_READ_ERROR;
+    printf("Sound is not currently playing!\n");
+    return 0;
   }
 }
 

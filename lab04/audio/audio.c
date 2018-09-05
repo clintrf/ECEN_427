@@ -58,12 +58,14 @@ MODULE_DESCRIPTION("ECEn 427 Audio Driver");
 #define ZERO_BYTES_WRITTEN 0
 #define FIFO_BUFFER_LIMIT 1023
 #define WRITE_ERR -1
+#define SOUND_NOT_PLAYING 0
+#define SOUND_PLAYING 1
 
 /********************************* prototypes ********************************/
 static ssize_t audio_read(struct file *f, char *buf, size_t len, loff_t *off);
 static ssize_t audio_write(struct file *f, const char *buf, size_t len,
     loff_t *off);
-static bool check_full(void);// added by seth
+static void check_full(void);// added by seth
 static int audio_probe(struct platform_device *pdev);
 static int audio_remove(struct platform_device * pdev);
 
@@ -119,7 +121,8 @@ static struct resource *res_irq; // Device Resource Structure
 static unsigned int irq_num; // contains the irq number
 static u32 *fifo_data_buffer = NULL;
 static unsigned long buf_len = 0;
-static bool init_isr= true;
+static bool isEmpty = false;
+static bool isFull = false;
 /***************************** kernel definitions ****************************/
 static int audio_init(void);
 static void audio_exit(void);
@@ -135,12 +138,9 @@ module_exit(audio_exit);
 // return one byte of data (0 or 1) stating if an audio sample is being played
 static ssize_t audio_read(struct file *f, char *buf, size_t len, loff_t *off) {
   printk(KERN_INFO "Driver: read()\n");
-  // unsigned long copy_to_user(void *to,const void *from,unsigned long count);
-  // uint32_t bytes_read = read(f,buf,len,off);
-  // if(bytes_read < 0 ){
-  //   printk(KERN_INFO "audio read error\n");
-  // }
-  return 0;
+  check_full();
+  if(isEmpty) { return SOUND_NOT_PLAYING; }
+  else { return SOUND_PLAYING; }
 }
 
 // reads a certain amount of bytes from a buffer
@@ -194,24 +194,26 @@ static ssize_t audio_write(struct file *f, const char *buf, size_t len,
 
 // used to check if the fifos are full or not.
 // returns true is the FIFO is full and false if there is space in it
-static bool check_full(void) {
-  bool isfull = false;
+static void check_full(void) {
+  isFull = false;
+  isEmpty = false;
   // Determine how much free space is in the audio FIFOs
   // Only need to check 1 tx_data because they empty at the same time
   unsigned int raw_data = ioread32((dev.virt_addr)+I2S_STATUS_REG_OFFSET);
   unsigned int DataL = (raw_data&TX_DATACOUNT_L_MASK)>>I2S_LEFT_FIFO_STATUS;
-  //printk("IRQ_ISR: Amount of information in Left FIFO is %zu\n",DataL);
-  unsigned int DataR = (raw_data&TX_DATACOUNT_R_MASK)>>I2S_RIGHT_FIFO_STATUS;
-  //printk("IRQ_ISR: Amount of information in Right FIFO is %zu\n",DataR);
 
-  if(DataL < FIFO_BUFFER_LIMIT) { // check if the FIFO is not full
-    isfull = false;
+  if(DataL == 0) { // check if the FIFO is empty
+    isFull = false;
+    isEmpty = true;
+  }
+  else if(DataL < FIFO_BUFFER_LIMIT) { // check to see if the FIFO is not full
+    isFull = false;
+    isEmpty = false;
   }
   else { // check if the FIFO is full
-    isfull = true;
-    //pr_info("IRQ_ISR: data_TX is full!\n");
+    isFull = true;
+    isEmpty = false;
   }
-  return isfull;
 }
 
 // function that handles the irq
@@ -221,7 +223,7 @@ static bool check_full(void) {
 static irqreturn_t irq_isr(int irq_loc, void *dev_id) {
   pr_info("IRQ_ISR: Calling the irq_isr!\n");
   // Determine how much free space is in the audio FIFOs
-  bool isFull = check_full();
+  check_full();
   if(!isFull) {
     pr_info("IRQ_ISR: data_TX is not full!\n");
   }
@@ -238,7 +240,7 @@ static irqreturn_t irq_isr(int irq_loc, void *dev_id) {
         iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_R_REG_OFFSET);
         i++;
       }
-      isFull = check_full();
+      check_full();
     }
   }
   // Once end of the audio clip is reached, disable interrupts
