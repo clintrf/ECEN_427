@@ -197,15 +197,10 @@ static bool check_full(void) {
   // Determine how much free space is in the audio FIFOs
   // Only need to check 1 tx_data because they empty at the same time
   unsigned int raw_data = ioread32((dev.virt_addr)+I2S_STATUS_REG_OFFSET);
-  unsigned int data_inL = ioread32((dev.virt_addr)+I2S_DATA_RX_L_REG_OFFSET);
-  unsigned int data_inR = ioread32((dev.virt_addr)+I2S_DATA_RX_R_REG_OFFSET);
-  printk("IRQ_ISR: Raw data value in I2S Status Reg %zu\n",raw_data);
   unsigned int DataL = (raw_data&TX_DATACOUNT_L_MASK)>>I2S_LEFT_FIFO_STATUS;
   printk("IRQ_ISR: Amount of information in Left FIFO is %zu\n",DataL);
-  printk("IRQ_ISR: Value of information in Left FIFO is %zu\n",data_inL);
   unsigned int DataR = (raw_data&TX_DATACOUNT_R_MASK)>>I2S_RIGHT_FIFO_STATUS;
   printk("IRQ_ISR: Amount of information in Right FIFO is %zu\n",DataR);
-  printk("IRQ_ISR: Value of information in Right FIFO is %zu\n",data_inR);
 
   if(DataL < FIFO_BUFFER_LIMIT) { // check if the FIFO is not full
     isfull = false;
@@ -233,18 +228,15 @@ static irqreturn_t irq_isr(int irq_loc, void *dev_id) {
   }
 
   if(fifo_data_buffer_alloc) { // only write if space is allocated to the fifo
-    for(uint32_t i = 0; i < 10; i++) { // iterate through all the buffer
-      if(!isFull) { // only write the information if the buffer is not full
-        printk("Write: Data in the FIFO is %u", *(fifo_data_buffer));
-        iowrite32(*fifo_data_buffer,(dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
-        unsigned int data_inL = ioread32((dev.virt_addr)+I2S_DATA_RX_L_REG_OFFSET);
-        printk("IRQ_ISR: Value of information in Left FIFO is %zu\n",data_inL);
-        iowrite32(*fifo_data_buffer,(dev.virt_addr)+I2S_DATA_TX_R_REG_OFFSET);
-        unsigned int data_inR = ioread32((dev.virt_addr)+I2S_DATA_RX_R_REG_OFFSET);
-        printk("IRQ_ISR: Value of information in Right FIFO is %zu\n",data_inR);
-        fifo_data_buffer++;
-        isFull = check_full();
+    uint32_t i = 0;
+    while(i < buf_len) { // go through the entire buffer
+      if(!isFull) { // check to see if the FIFO is full or not
+        printk("Write: Data in the FIFO is %u", fifo_data_buffer[i]);
+        iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
+        iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_R_REG_OFFSET);
+        i++;
       }
+      isFull = check_full();
     }
   }
   // Once end of the audio clip is reached, disable interrupts
