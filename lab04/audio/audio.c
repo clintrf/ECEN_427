@@ -68,6 +68,7 @@ static ssize_t audio_write(struct file *f, const char *buf, size_t len,
 static void check_full(void);// added by seth
 static int audio_probe(struct platform_device *pdev);
 static int audio_remove(struct platform_device * pdev);
+static int audio_ioctl();//needs to be updated
 
 /*********************************** structs *********************************/
 // struct containing the audio_device data
@@ -86,7 +87,8 @@ static int audio_remove(struct platform_device * pdev);
 static struct file_operations audio_fops = {
   .owner = THIS_MODULE,
   .read = audio_read,
-  .write = audio_write
+  .write = audio_write,
+  .ioctl= audio_ioctl
 };
 
 // Link between the hardware and its driver
@@ -215,7 +217,6 @@ static void check_full(void) {
     isEmpty = false;
   }
 }
-
 // function that handles the irq
 // irq : irq number
 // dev_id : the device id
@@ -248,7 +249,32 @@ static irqreturn_t irq_isr(int irq_loc, void *dev_id) {
 
   return IRQ_HANDLED;
 }
+// Extend your kernel driver to add ioctl to the list of file operations supported by your character device
+//
+static int audio_ioctl()
+{
+  //You should support two ioctl commands
+  //Turn on looping for the current audio clip.
+  //Turn off looping for the current audio clip.
 
+//------------------------- NOT IN KERNAL
+  //Integrate sound into Space Invaders by generating the following sounds during game operation:
+  /*
+    the “marching” sound the aliens make as they move back and forth across the screen
+     (which cycles through each of the 4 walk sounds each time the aliens move),
+    the sound that the red flying saucer makes as it flies across the screen,
+    the explosion noise that occurs when your tank is hit by an alien bullet,
+    the explosion noise that occurs when an alien is hit by a tank bullet,
+    the “ping” sound that the tank makes when you fire a bullet, and
+    the sound the flying saucer makes if you hit it with a bullet.
+
+Implement volume control in the following manner:
+
+    To increase volume, slide sw0 up, press btn3. Each press increases the volume a preset amount, such as 10%.
+    To decrease volume, slide sw0 down, press btn3. Each press decreases the volume a preset amount, such as 10%.
+
+*/
+}
 /********************************** functions ********************************/
 // This is called when Linux loadrite (buffer);s your driver
 // returns : an int signalling a successful initialization or an error

@@ -12,7 +12,9 @@
 
 int32_t len = 0;
 const char * soundbuf;
-
+#define ALWAYS_TRUE 1
+#define TIME_TO_SLEEP 3
+#define SIZEOF_SOUND_ARRAY 8
 int main() {
   // initialize codec
   config_audio_pll(0);
@@ -32,13 +34,13 @@ int main() {
   fclose(fpp);
 
   int i = 0;
-  while(1) {
+  while(ALWAYS_TRUE) {
     int stuff = audio_driver_read(audio_driver_get_data_array(i).sound_data,audio_driver_get_data_array(i).num_samples);
     if(!stuff) {
-      sleep(3);
+      sleep(TIME_TO_SLEEP);
       audio_driver_write(audio_driver_get_data_array(i).sound_data,audio_driver_get_data_array(i).num_samples);
       i++;
-      if(i > 8) {
+      if(i > SIZEOF_SOUND_ARRAY) {
         i = 0;
       }
     }
