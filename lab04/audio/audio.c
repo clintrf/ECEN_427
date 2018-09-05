@@ -197,8 +197,8 @@ static bool check_full(void)
   // Determine how much free space is in the audio FIFOs
   // Only need to check 1 tx_data because they empty at the same time
   unsigned int raw_data = ioread32((dev.virt_addr)+I2S_STATUS_REG_OFFSET);
-  unsigned int data_inR = ioread32((dev.virt_addr)+I2S_DATA_RX_R_REG_OFFSET);
   unsigned int data_inL = ioread32((dev.virt_addr)+I2S_DATA_RX_L_REG_OFFSET);
+  unsigned int data_inR = ioread32((dev.virt_addr)+I2S_DATA_RX_R_REG_OFFSET);
   printk("IRQ_ISR: Raw data value in I2S Status Reg %zu\n",raw_data);
   unsigned int DataL = (raw_data&TX_DATACOUNT_L_MASK)>>I2S_LEFT_FIFO_STATUS;
   printk("IRQ_ISR: Amount of information in Left FIFO is %zu\n",DataL);
@@ -207,15 +207,16 @@ static bool check_full(void)
   printk("IRQ_ISR: Amount of information in Right FIFO is %zu\n",DataR);
   printk("IRQ_ISR: Value of information in Right FIFO is %zu\n",data_inR);
 
-  if(DataL < FIFO_BUFFER_LIMIT) {
+  if(DataL < FIFO_BUFFER_LIMIT) { // check if the FIFO is not full
     isfull = false;
   }
-  else {
+  else { // check if the FIFO is full
     isfull = true;
     pr_info("IRQ_ISR: data_TX is full!\n");
   }
   return isfull;
 }
+
 // function that handles the irq
 // irq : irq number
 // dev_id : the device id
@@ -233,12 +234,14 @@ static irqreturn_t irq_isr(int irq_loc, void *dev_id) {
   }
   // fill them up with the next audio samples to be played.
   // while(!isFull && !init_isr) {
-    iowrite32(63281,(dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
-    iowrite32(63281,(dev.virt_addr)+I2S_DATA_TX_R_REG_OFFSET);
+  u32 leftinfo = 0xFFFFFF;
+  u32 rightinto = 0xFFFFFF;
+  iowrite32(*fifo_data_buffer,(dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
+  iowrite32(*fifo_data_buffer,(dev.virt_addr)+I2S_DATA_TX_R_REG_OFFSET);
   //   fifo_data_buffer++; // move along the buffer to add in new sounds
     isFull = check_full();
   // }
-  iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);// disable IRQ_ISR
+  iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET); // disable IRQ_ISR
   init_isr=false;
   return IRQ_HANDLED;
 }
