@@ -267,7 +267,7 @@ void audio_driver_exit() {
  int16_t audio_driver_write(uint32_t *buf, int32_t len) {
   printf("Reached audio_driver_write()\n");
   if(buf == NULL) { // if the buffer is empty, return an error
-   printf("Buffer that was passed in was empty!\n")
+   printf("Buffer that was passed in was empty!\n");
    return AUDIO_DRIVER_WRITE_FAILED;
   }
   write(fd,buf,len); // call write in the audio driver in kernel space
