@@ -101,6 +101,7 @@ void sound_state_machine() {
         audio_driver_write(
           audio_driver_get_data_array(AUDIO_DRIVER_UFO_DIE_AUDIO).sound_data,
           audio_driver_get_data_array(AUDIO_DRIVER_UFO_DIE_AUDIO).num_samples);
+        globals_set_saucer_ex_flag(false);
         sound_done = false;
       }
       else if (!audio_driver_read()) { sound_done = true; }
@@ -111,6 +112,7 @@ void sound_state_machine() {
         audio_driver_write(
           audio_driver_get_data_array(AUDIO_DRIVER_INVADER_DIE_AUDIO).sound_data,
           audio_driver_get_data_array(AUDIO_DRIVER_INVADER_DIE_AUDIO).num_samples);
+        globals_set_alien_ex_flag(false);
         sound_done = false;
       }
       else if (!audio_driver_read()) { sound_done = true; }
@@ -121,6 +123,7 @@ void sound_state_machine() {
         audio_driver_write(
           audio_driver_get_data_array(AUDIO_DRIVER_LASER_AUDIO_INDEX).sound_data,
           audio_driver_get_data_array(AUDIO_DRIVER_LASER_AUDIO_INDEX).num_samples);
+        globals_set_shoot_flag(false);
         sound_done = false;
       }
       else if (!audio_driver_read()) { sound_done = true; }
@@ -131,6 +134,7 @@ void sound_state_machine() {
         audio_driver_write(
           audio_driver_get_data_array(AUDIO_DRIVER_PLAYER_DIE_AUDIO).sound_data,
           audio_driver_get_data_array(AUDIO_DRIVER_PLAYER_DIE_AUDIO).num_samples);
+        globals_set_tank_ex_flag(false);
         sound_done = false;
       }
       else if (!audio_driver_read()) { sound_done = true; }
