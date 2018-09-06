@@ -34,8 +34,9 @@ int main() {
   fclose(fpp);
 
   int i = 0;
+
   while(ALWAYS_TRUE) {
-    int stuff = audio_driver_read(audio_driver_get_data_array(i).sound_data,audio_driver_get_data_array(i).num_samples);
+    int stuff = audio_driver_read();
     if(!stuff) {
       sleep(TIME_TO_SLEEP);
       audio_driver_write(audio_driver_get_data_array(i).sound_data,audio_driver_get_data_array(i).num_samples);

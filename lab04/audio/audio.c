@@ -20,6 +20,7 @@
 #include <stdbool.h>
 #include <asm/io.h>
 #include <asm/uaccess.h>
+#include <linux/ioctl.h>
 //#include <linux/ioctl.h>// milestone 3 also declared in linux/fs.h
 /*********************************** macros *********************************/
 MODULE_LICENSE("GPL");
@@ -63,8 +64,9 @@ MODULE_DESCRIPTION("ECEn 427 Audio Driver");
 #define SOUND_NOT_PLAYING 0
 #define SOUND_PLAYING 1
 //#defines for IOCtl files
-#define TURN_ON_LOOPING //example #define WR_VALUE _IOW('a','a',int32_t*)
-#define TURN_OFF_LOOPING // #define RD_VALUE _IOR('a','b',int32_t*)
+#define IOC_MAGIC  'k'
+#define TURN_ON_LOOPING _IO(IOC_MAGIC, 1)//example #define WR_VALUE _IOW('a','a',int32_t*)
+#define TURN_OFF_LOOPING _IO(IOC_MAGIC, 2)// #define RD_VALUE _IOR('a','b',int32_t*)
 /********************************* prototypes ********************************/
 static ssize_t audio_read(struct file *f, char *buf, size_t len, loff_t *off);
 static ssize_t audio_write(struct file *f, const char *buf, size_t len,
@@ -267,23 +269,22 @@ _IOC_DIR(nr)
 Macrosusedtodecodeacommand.Inparticular,_IOC_TYPE(nr)isanORcom-bination of_IOC_READ and_IOC_WRITE.*/
 static long audio_ioctl(struct file *f, unsigned int cmd,unsigned long arg)
 {
-  //You should support two ioctl commands
-  //Turn on looping for the current audio clip.
-  //Turn off looping for the current audio clip.
-  switch(cmd)
+  switch(cmd)//You should support two ioctl commands
   {
+    //Turn on looping for the current audio clip.
     case TURN_ON_LOOPING:
     {
       printk("AUDIO_IOCTL: TURN_ON_LOOPING");
-      iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
+      iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);// turn on the register to write
       //static ssize_t audio_write(struct file *f, const char *buf, size_t len,loff_t *off)
       //iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
       break;
     }
+    //Turn off looping for the current audio clip.
     case TURN_OFF_LOOPING:
     {
       printk("AUDIO_IOCTL: TURN_OFF_LOOPING");
-      iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
+      iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);// turn off the register
       //static ssize_t audio_write(struct file *f, const char *buf, size_t len,loff_t *off)
       ////iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
       break;

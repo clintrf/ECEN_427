@@ -77,23 +77,23 @@ int32_t audio_driver_init(char devDevice[]) {
     printf("Audio Driver Error, file cannot open.\n");
     return AUDIO_DRIVER_ERROR;
   }
-  audio_driver_import_audio(INVADER_DIE_AUDIO,0);
+  audio_driver_import_audio(INVADER_DIE_AUDIO,AUDIO_DRIVER_INVADER_DIE_AUDIO);
   printf("INVADER_DIE_AUDIO imported\n\n\r");
-  audio_driver_import_audio(LASER_AUDIO,1);
+  audio_driver_import_audio(LASER_AUDIO,AUDIO_DRIVER_LASER_AUDIO_INDEX);
   printf("LASER_AUDIO imported\n\n\r");
-  audio_driver_import_audio(PLAYER_DIE_AUDIO,2);
+  audio_driver_import_audio(PLAYER_DIE_AUDIO,AUDIO_DRIVER_PLAYER_DIE_AUDIO);
   printf("PLAYER_DIE_AUDIO imported\n\n\r");
-  audio_driver_import_audio(UFO_AUDIO,3);
+  audio_driver_import_audio(UFO_AUDIO,AUDIO_DRIVER_UFO_AUDIO);
   printf("UFO_AUDIO imported\n\n\r");
-  audio_driver_import_audio(UFO_DIE_AUDIO,4);
+  audio_driver_import_audio(UFO_DIE_AUDIO,AUDIO_DRIVER_UFO_DIE_AUDIO);
   printf("UFO_DIE_AUDIO imported\n\n\r");
-  audio_driver_import_audio(WALK1_AUDIO,5);
+  audio_driver_import_audio(WALK1_AUDIO,AUDIO_DRIVER_WALK1_AUDIO);
   printf("WALK1_AUDIO imported\n\n\r");
-  audio_driver_import_audio(WALK2_AUDIO,6);
+  audio_driver_import_audio(WALK2_AUDIO,AUDIO_DRIVER_WALK2_AUDIO);
   printf("WALK2_AUDIO imported\n\n\r");
-  audio_driver_import_audio(WALK3_AUDIO,7);
+  audio_driver_import_audio(WALK3_AUDIO,AUDIO_DRIVER_WALK3_AUDIO);
   printf("WALK3_AUDIO imported\n\n\r");
-  audio_driver_import_audio(WALK4_AUDIO,8);
+  audio_driver_import_audio(WALK4_AUDIO,AUDIO_DRIVER_WALK4_AUDIO);
   printf("WALK4_AUDIO imported\n\r");
   return AUDIO_DRIVER_SUCCESS;
 }
@@ -256,10 +256,10 @@ void audio_driver_exit() {
 }
 
 // Called to read to the audio driver
-// buf : the current file being written to
-// len : length of the file beoing written to
 // returns whether a sound is being played (1) or not (0)
-int32_t audio_driver_read(uint32_t *buf, uint32_t len) {
+int32_t audio_driver_read() {
+  uint32_t *buf;
+  uint32_t len;
   printf("Reached audio_driver_read()\n");
   int32_t count = read(fd,buf,len);
   if(count == 1) { // optimal case success
@@ -272,9 +272,8 @@ int32_t audio_driver_read(uint32_t *buf, uint32_t len) {
   }
 }
 
-long audio_driver_ioctl(unsigned int cmd,unsigned long arg);
-{
-  printf("audio_driver_ioctl- userspace code\n\r", );
+long audio_driver_ioctl(unsigned int cmd,unsigned long arg){
+  printf("audio_driver_ioctl- userspace code\n\r");
 }
 // Call to get the audio header and data out of the data data_array
 // index : the audio sound index (each one contains a different sound)

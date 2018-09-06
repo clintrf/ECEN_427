@@ -27,6 +27,17 @@
 #define AUDIO_DRIVER_WRITE_FAILED -1
 #define AUDIO_DRIVER_WRITE_SUCCESS 0
 
+#define AUDIO_DRIVER_INVADER_DIE_AUDIO 0
+#define AUDIO_DRIVER_LASER_AUDIO_INDEX 1
+#define AUDIO_DRIVER_PLAYER_DIE_AUDIO 2
+#define AUDIO_DRIVER_UFO_AUDIO 3
+#define AUDIO_DRIVER_UFO_DIE_AUDIO 4
+#define AUDIO_DRIVER_WALK1_AUDIO 5
+#define AUDIO_DRIVER_WALK2_AUDIO 6
+#define AUDIO_DRIVER_WALK3_AUDIO 7
+#define AUDIO_DRIVER_WALK4_AUDIO 8
+
+
 //ADAU audio controller parameters
 #define _AUDIO_ADAU1761_H_
 // Slave address for the ADAU audio controller 8
@@ -139,10 +150,8 @@ void audio_driver_exit();
  int16_t audio_driver_write(uint32_t *buf, int32_t len);
 
 // Called to read to the audio driver
-// buf : the current file being written to
-// len : length of the file beoing written to
 // returns whether a sound is being played (1) or not (0)
-int32_t audio_driver_read(uint32_t *buf, uint32_t len);
+int32_t audio_driver_read();
 
 //--------------
 // Called to control the io device_create
