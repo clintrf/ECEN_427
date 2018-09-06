@@ -20,7 +20,7 @@
 #include <stdbool.h>
 #include <asm/io.h>
 #include <asm/uaccess.h>
-
+//#include <linux/ioctl.h>// milestone 3 also declared in linux/fs.h
 /*********************************** macros *********************************/
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Seth Becerra, Dax Eckles & Clint Frandsen");
@@ -53,6 +53,8 @@ MODULE_DESCRIPTION("ECEn 427 Audio Driver");
 #define PROBE_SUCCESS 0
 #define PROBE_ERR -1
 #define REMOVE_SUCCESS 0
+#define IOCTL_SUCCESS 0
+#define IOCTL_ERR -1
 #define INTERRUPTS_OFF 0x0
 #define INTERRUPTS_ON 0x1
 #define ZERO_BYTES_WRITTEN 0
@@ -60,7 +62,9 @@ MODULE_DESCRIPTION("ECEn 427 Audio Driver");
 #define WRITE_ERR -1
 #define SOUND_NOT_PLAYING 0
 #define SOUND_PLAYING 1
-
+//#defines for IOCtl files
+#define TURN_ON_LOOPING //example #define WR_VALUE _IOW('a','a',int32_t*)
+#define TURN_OFF_LOOPING // #define RD_VALUE _IOR('a','b',int32_t*)
 /********************************* prototypes ********************************/
 static ssize_t audio_read(struct file *f, char *buf, size_t len, loff_t *off);
 static ssize_t audio_write(struct file *f, const char *buf, size_t len,
@@ -68,7 +72,7 @@ static ssize_t audio_write(struct file *f, const char *buf, size_t len,
 static void check_full(void);// added by seth
 static int audio_probe(struct platform_device *pdev);
 static int audio_remove(struct platform_device * pdev);
-static int audio_ioctl();//needs to be updated
+static long audio_ioctl(struct file *f, unsigned int cmd,unsigned long arg);//needs to be updated
 
 /*********************************** structs *********************************/
 // struct containing the audio_device data
@@ -88,7 +92,7 @@ static struct file_operations audio_fops = {
   .owner = THIS_MODULE,
   .read = audio_read,
   .write = audio_write,
-  .ioctl= audio_ioctl
+  .unlocked_ioctl = audio_ioctl
 };
 
 // Link between the hardware and its driver
@@ -246,16 +250,52 @@ static irqreturn_t irq_isr(int irq_loc, void *dev_id) {
   }
   // Once end of the audio clip is reached, disable interrupts
   iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
-
   return IRQ_HANDLED;
 }
 // Extend your kernel driver to add ioctl to the list of file operations supported by your character device
 //
-static int audio_ioctl()
+//long audio_ioctl(int fd, unsigned int cmd,unsigned long arg)// or ,
+/*_IOC(dir,type,nr,size)_IO(type,nr)
+_IOR(type,nr,size)
+_IOW(type,nr,size)
+_IOWR(type,nr,size)
+Macros used to create anioctl command.
+_IOC_DIR(nr)
+ _IOC_TYPE(nr)
+ _IOC_NR(nr)
+ _IOC_SIZE(nr)
+Macrosusedtodecodeacommand.Inparticular,_IOC_TYPE(nr)isanORcom-bination of_IOC_READ and_IOC_WRITE.*/
+static long audio_ioctl(struct file *f, unsigned int cmd,unsigned long arg)
 {
   //You should support two ioctl commands
   //Turn on looping for the current audio clip.
   //Turn off looping for the current audio clip.
+  switch(cmd)
+  {
+    case TURN_ON_LOOPING:
+    {
+      printk("AUDIO_IOCTL: TURN_ON_LOOPING");
+      iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
+      //static ssize_t audio_write(struct file *f, const char *buf, size_t len,loff_t *off)
+      //iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
+      break;
+    }
+    case TURN_OFF_LOOPING:
+    {
+      printk("AUDIO_IOCTL: TURN_OFF_LOOPING");
+      iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
+      //static ssize_t audio_write(struct file *f, const char *buf, size_t len,loff_t *off)
+      ////iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
+      break;
+    }
+
+    default:
+    {
+      printk("AUDIO_IOCTL: Default case, no valid cmd given");
+      return IOCTL_ERR;
+    }
+
+  }
 
 //------------------------- NOT IN KERNAL
   //Integrate sound into Space Invaders by generating the following sounds during game operation:
@@ -274,6 +314,7 @@ Implement volume control in the following manner:
     To decrease volume, slide sw0 down, press btn3. Each press decreases the volume a preset amount, such as 10%.
 
 */
+return IOCTL_SUCCESS;
 }
 /********************************** functions ********************************/
 // This is called when Linux loadrite (buffer);s your driver

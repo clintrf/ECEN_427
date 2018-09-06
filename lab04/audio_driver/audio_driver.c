@@ -272,6 +272,10 @@ int32_t audio_driver_read(uint32_t *buf, uint32_t len) {
   }
 }
 
+long audio_driver_ioctl(unsigned int cmd,unsigned long arg);
+{
+  printf("audio_driver_ioctl- userspace code\n\r", );
+}
 // Call to get the audio header and data out of the data data_array
 // index : the audio sound index (each one contains a different sound)
 // return : audio_data struct that contains the data buffer

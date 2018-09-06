@@ -94,6 +94,9 @@ enum audio_adau1761_regs {
     R65_CLOCK_ENABLE_0                              = 0xF9,
     R66_CLOCK_ENABLE_1                              = 0xFA
 };
+//#defines for IOCtl files
+#define TURN_ON_LOOPING //example #define WR_VALUE _IOW('a','a',int32_t*)
+#define TURN_OFF_LOOPING // #define RD_VALUE _IOR('a','b',int32_t*)
 
 /********************************** structs **********************************/
 // struct containing the header and data of audio
@@ -140,6 +143,14 @@ void audio_driver_exit();
 // len : length of the file beoing written to
 // returns whether a sound is being played (1) or not (0)
 int32_t audio_driver_read(uint32_t *buf, uint32_t len);
+
+//--------------
+// Called to control the io device_create
+//long ioctl( "file descriptor","ioctl command","Arguments");
+// cmd : cmd for the switch statment to loop or not to loop.
+// arg :
+//returns a long  variable for success or failure;
+long audio_driver_ioctl(unsigned int cmd,unsigned long arg);
 
 // Call to get the audio header and data out of the data data_array
 // index : the audio sound index (each one contains a different sound)
