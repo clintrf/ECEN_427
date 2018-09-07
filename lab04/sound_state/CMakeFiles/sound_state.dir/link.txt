@@ -1,0 +1,2 @@
+/usr/bin/ar qc libsound_state.a  CMakeFiles/sound_state.dir/sound_state.c.o
+/usr/bin/ranlib libsound_state.a
