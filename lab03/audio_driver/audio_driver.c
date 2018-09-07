@@ -55,6 +55,9 @@
 #define PCM_FORMAT 1
 #define A_LAW_FORMAT 6
 #define MU_LAW_FORMAT 7
+#define VOLUME_MAX 231
+#define VOLUME_MINIMUM 24
+#define VOLUME_UP_DOWN_VALUE 24
 
 /********************************** globals **********************************/
 static uint32_t fd; // this is a file descriptor that describes the UIO device
@@ -98,12 +101,12 @@ int32_t audio_driver_init(char devDevice[]) {
   printf("WALK4_AUDIO imported\n\n\r");
   return AUDIO_DRIVER_SUCCESS;
 }
-void audio_driver_volume(int16_t switch_flag){ //MAGIC NUMBERS HERE
+void audio_driver_volume(int16_t switch_flag){
   int iic_fd = setI2C(0, IIC_SLAVE_ADDR);
   if(switch_flag){
     //printf("volume up, %x \n\r", volume);
-    if(volume<=231){
-      volume += 24;
+    if(volume<=VOLUME_MAX){
+      volume += VOLUME_UP_DOWN_VALUE;
     }
     write_audio_reg(R29_PLAYBACK_HEADPHONE_LEFT_VOLUME_CONTROL, volume, iic_fd);
     write_audio_reg(R30_PLAYBACK_HEADPHONE_RIGHT_VOLUME_CONTROL, volume, iic_fd);
@@ -111,8 +114,8 @@ void audio_driver_volume(int16_t switch_flag){ //MAGIC NUMBERS HERE
   else{
     //call a function in audio_drivier_volume_UP()
     //printf("volume Down, %x \n\r", volume);
-    if(volume>24)
-    volume -= 24;
+    if(volume>VOLUME_MINIMUM)
+    volume -= VOLUME_UP_DOWN_VALUE;
     write_audio_reg(R29_PLAYBACK_HEADPHONE_LEFT_VOLUME_CONTROL, volume, iic_fd);
     write_audio_reg(R30_PLAYBACK_HEADPHONE_RIGHT_VOLUME_CONTROL, volume, iic_fd);
   }
@@ -253,7 +256,7 @@ void audio_driver_exit() {
    return AUDIO_DRIVER_WRITE_FAILED;
   }
   //printf("************************start audiodriver w**************************************\r\n");
-  
+
   write(fd,buf,len); // call write in the audio driver in kernel space
   //printf("************************end audiodriver w**************************************\r\n");
 

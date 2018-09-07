@@ -2,7 +2,7 @@
 * sound_state.h
 *
 * ECEn 427
-* Clint Frandsen, Dax Eckles
+* Clint Frandsen, Dax Eckles, Seth Becerra
 * BYU 2019
 */
 
@@ -41,4 +41,3 @@ void sound_state_init();
 
 // funtion for the state sound_state_machine
 void sound_state_machine();
-

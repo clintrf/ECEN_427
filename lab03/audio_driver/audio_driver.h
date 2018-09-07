@@ -2,7 +2,7 @@
 * audio_driver.h
 *
 * ECEn 427
-* Clint Frandsen, Dax Eckles
+* Clint Frandsen, Dax Eckles, Seth Becerra
 * BYU 2019
 */
 

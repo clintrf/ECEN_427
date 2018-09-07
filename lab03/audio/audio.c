@@ -63,6 +63,7 @@ MODULE_DESCRIPTION("ECEn 427 Audio Driver");
 #define WRITE_ERR -1
 #define SOUND_NOT_PLAYING 0
 #define SOUND_PLAYING 1
+#define MALLOC_INCREASE_VAL 4
 //#defines for IOCtl files
 #define IOC_MAGIC  'k'
 #define TURN_ON_LOOPING _IO(IOC_MAGIC, 1)//example #define WR_VALUE _IOW('a','a',int32_t*)
@@ -174,7 +175,7 @@ static ssize_t audio_write(struct file *f, const char *buf, size_t len,
     printk("Write: First iteration, did not free FIFO.\n");
   }
   // allocate a buffer for the new clip (kmalloc).
-  fifo_data_buffer = kmalloc((len)*4, GFP_KERNEL);
+  fifo_data_buffer = kmalloc((len)*MALLOC_INCREASE_VAL, GFP_KERNEL);
   fifo_data_buffer_alloc = true;
 
   if (!fifo_data_buffer) { // allocation failed, need to free pointers
@@ -186,7 +187,7 @@ static ssize_t audio_write(struct file *f, const char *buf, size_t len,
 
   // Copy the audio data from userspace to your newly allocated buffer
   // (including safety checks on the userspace pointer) - LDD page 64.
-  unsigned int bytes_written = copy_from_user(fifo_data_buffer,buf,(len)*4);
+  unsigned int bytes_written = copy_from_user(fifo_data_buffer,buf,(len)*MALLOC_INCREASE_VAL);
 
   // check to see if we have written any bytes
   if(bytes_written < ZERO_BYTES_WRITTEN){

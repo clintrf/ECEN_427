@@ -99,7 +99,7 @@ void sound_state_machine() {
         return_state = SAUCER_ZOOM_STATE;
         transition = SAUCER_ZOOM_TRANS;
         int i = 0;
-        while(i<100000){
+        while(i<100000){// MAGIC NUMBERS
           i++;
           printf("loop\r\n");
         }

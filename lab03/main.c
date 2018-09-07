@@ -42,6 +42,7 @@
 #define TANK_EXPLOSION_TIMER 20
 #define SWITCH_FLAG_UP 1
 #define SWITCH_FLAG_DOWN 0
+#define SWITCH_COUNTER_MAX 10
 
 /********************************** globals **********************************/
 int32_t white_t[BYTES_PER_PIXEL] = {0xFF, 0xFF, 0xFF};
@@ -97,7 +98,9 @@ void move_cursor(uint32_t buttonPressed) {
         letter_index++;
       }
       // write new character
-      sprites_render_image(char_array[letter_index],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,(SPRITES_SCORE_BOARD_START_POS+(button_pressed_counter*SPRITES_NORMAL_CHARACTER_SCALING*SPRITES_ONE_PIXEL*BUFFER_SPACE)),SPRITES_NORMAL_CHARACTER_SCALING,white_t);
+      sprites_render_image(char_array[letter_index],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,
+        (SPRITES_SCORE_BOARD_START_POS+(button_pressed_counter*SPRITES_NORMAL_CHARACTER_SCALING*SPRITES_ONE_PIXEL*BUFFER_SPACE))
+        ,SPRITES_NORMAL_CHARACTER_SCALING,white_t);
       break;
     case BTN_2_MASK:
     // if letter_index is less than  then letter_index is 36
@@ -174,7 +177,7 @@ void move_tank(uint32_t buttonPressed) {
         break;
       case BTN_3_MASK:
         switch_counter++;
-        if (switch_counter>10){
+        if (switch_counter>SWITCH_COUNTER_MAX){// SWITCH_COUNTER_MAX= 10
           switch_counter = 0;
           audio_driver_volume(switch_flag);
         }
