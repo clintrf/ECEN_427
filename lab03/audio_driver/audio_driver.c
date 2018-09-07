@@ -59,6 +59,7 @@
 /********************************** globals **********************************/
 static uint32_t fd; // this is a file descriptor that describes the UIO device
 static uint16_t off = 0;
+uint16_t volume = 231;//0xE7;
 
 /******************************** prototypes *********************************/
 void audio_driver_import_audio(char fileName[], uint16_t index);
@@ -97,7 +98,27 @@ int32_t audio_driver_init(char devDevice[]) {
   printf("WALK4_AUDIO imported\n\n\r");
   return AUDIO_DRIVER_SUCCESS;
 }
+void audio_driver_volume(int16_t switch_flag){
+  int iic_fd = setI2C(0, IIC_SLAVE_ADDR);
+  if(switch_flag){
+    printf("volume up, %x \n\r", volume);
+    if(volume<=231){
+      volume += 24;
+    }
+    write_audio_reg(R29_PLAYBACK_HEADPHONE_LEFT_VOLUME_CONTROL, volume, iic_fd);
+    write_audio_reg(R30_PLAYBACK_HEADPHONE_RIGHT_VOLUME_CONTROL, volume, iic_fd);
+  }
+  else{
+    //call a function in audio_drivier_volume_UP()
+    printf("volume Down, %x \n\r", volume);
+    if(volume>24)
+    volume -= 24;
+    write_audio_reg(R29_PLAYBACK_HEADPHONE_LEFT_VOLUME_CONTROL, volume, iic_fd);
+    write_audio_reg(R30_PLAYBACK_HEADPHONE_RIGHT_VOLUME_CONTROL, volume, iic_fd);
+  }
 
+
+}
 // This goes through one audio file, converts it, and puts it in the data_array
 // fileName : the name of the file to import
 // index : the index within data_array to place the imported and converted file
@@ -231,7 +252,11 @@ void audio_driver_exit() {
    printf("Buffer that was passed in was empty!\n");
    return AUDIO_DRIVER_WRITE_FAILED;
   }
+  //printf("************************start audiodriver w**************************************\r\n");
+  printf("volume, %x \n\r", volume);
   write(fd,buf,len); // call write in the audio driver in kernel space
+  //printf("************************end audiodriver w**************************************\r\n");
+
   return AUDIO_DRIVER_WRITE_SUCCESS;
 }
 
@@ -240,13 +265,14 @@ void audio_driver_exit() {
 int32_t audio_driver_read() {
   uint32_t *buf;
   uint32_t len;
+  //printf("************************startread**************************************\r\n");
   int32_t count = read(fd,buf,len);
   if(count == 1) { // optimal case success
-    printf("Sound is currently playing!\n");
+    //printf("Sound is currently playing!\n");
     return 1;
   }
   else { // some kind of error occured if the number is negative
-    printf("Sound is not currently playing!\n");
+    //printf("Sound is not currently playing!\n");
     return 0;
   }
 }

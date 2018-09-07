@@ -1,8 +1,8 @@
-cmd_/home/xilinx/ECEN_427/lab04/audio/audio.o := gcc -Wp,-MD,/home/xilinx/ECEN_427/lab04/audio/.audio.o.d  -nostdinc -isystem /usr/lib/gcc/arm-linux-gnueabihf/5/include -I./arch/arm/include -I./arch/arm/include/generated/uapi -I./arch/arm/include/generated  -I./include -I./arch/arm/include/uapi -I./include/uapi -I./include/generated/uapi -include ./include/linux/kconfig.h -D__KERNEL__ -mlittle-endian -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -Wno-format-security -std=gnu89 -fno-PIE -fno-dwarf2-cfi-asm -fno-ipa-sra -mabi=aapcs-linux -mno-thumb-interwork -mfpu=vfp -funwind-tables -marm -D__LINUX_ARM_ARCH__=7 -march=armv7-a -msoft-float -Uarm -fno-delete-null-pointer-checks -Os -Wno-maybe-uninitialized --param=allow-store-data-races=0 -Wframe-larger-than=1024 -fno-stack-protector -Wno-unused-but-set-variable -fomit-frame-pointer -fno-var-tracking-assignments -Wdeclaration-after-statement -Wno-pointer-sign -fno-strict-overflow -fconserve-stack -Werror=implicit-int -Werror=strict-prototypes -Werror=date-time -Werror=incompatible-pointer-types -DCC_HAVE_ASM_GOTO -std=gnu99 -Wno-declaration-after-statement  -DMODULE  -DKBUILD_BASENAME='"audio"'  -DKBUILD_MODNAME='"audio"' -c -o /home/xilinx/ECEN_427/lab04/audio/.tmp_audio.o /home/xilinx/ECEN_427/lab04/audio/audio.c
+cmd_/home/xilinx/ECEN_427/lab03/audio/audio.o := gcc -Wp,-MD,/home/xilinx/ECEN_427/lab03/audio/.audio.o.d  -nostdinc -isystem /usr/lib/gcc/arm-linux-gnueabihf/5/include -I./arch/arm/include -I./arch/arm/include/generated/uapi -I./arch/arm/include/generated  -I./include -I./arch/arm/include/uapi -I./include/uapi -I./include/generated/uapi -include ./include/linux/kconfig.h -D__KERNEL__ -mlittle-endian -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -Wno-format-security -std=gnu89 -fno-PIE -fno-dwarf2-cfi-asm -fno-ipa-sra -mabi=aapcs-linux -mno-thumb-interwork -mfpu=vfp -funwind-tables -marm -D__LINUX_ARM_ARCH__=7 -march=armv7-a -msoft-float -Uarm -fno-delete-null-pointer-checks -Os -Wno-maybe-uninitialized --param=allow-store-data-races=0 -Wframe-larger-than=1024 -fno-stack-protector -Wno-unused-but-set-variable -fomit-frame-pointer -fno-var-tracking-assignments -Wdeclaration-after-statement -Wno-pointer-sign -fno-strict-overflow -fconserve-stack -Werror=implicit-int -Werror=strict-prototypes -Werror=date-time -Werror=incompatible-pointer-types -DCC_HAVE_ASM_GOTO -std=gnu99 -Wno-declaration-after-statement  -DMODULE  -DKBUILD_BASENAME='"audio"'  -DKBUILD_MODNAME='"audio"' -c -o /home/xilinx/ECEN_427/lab03/audio/.tmp_audio.o /home/xilinx/ECEN_427/lab03/audio/audio.c
 
-source_/home/xilinx/ECEN_427/lab04/audio/audio.o := /home/xilinx/ECEN_427/lab04/audio/audio.c
+source_/home/xilinx/ECEN_427/lab03/audio/audio.o := /home/xilinx/ECEN_427/lab03/audio/audio.c
 
-deps_/home/xilinx/ECEN_427/lab04/audio/audio.o := \
+deps_/home/xilinx/ECEN_427/lab03/audio/audio.o := \
   include/linux/init.h \
     $(wildcard include/config/debug/rodata.h) \
   include/linux/compiler.h \
@@ -779,6 +779,6 @@ deps_/home/xilinx/ECEN_427/lab04/audio/audio.o := \
     $(wildcard include/config/io/36.h) \
     $(wildcard include/config/cpu/cp15/mmu.h) \
 
-/home/xilinx/ECEN_427/lab04/audio/audio.o: $(deps_/home/xilinx/ECEN_427/lab04/audio/audio.o)
+/home/xilinx/ECEN_427/lab03/audio/audio.o: $(deps_/home/xilinx/ECEN_427/lab03/audio/audio.o)
 
-$(deps_/home/xilinx/ECEN_427/lab04/audio/audio.o):
+$(deps_/home/xilinx/ECEN_427/lab03/audio/audio.o):

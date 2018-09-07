@@ -1,3 +1,3 @@
-/home/xilinx/ECEN_427/lab04/audio/audio.ko
-/home/xilinx/ECEN_427/lab04/audio/audio.o
+/home/xilinx/ECEN_427/lab03/audio/audio.ko
+/home/xilinx/ECEN_427/lab03/audio/audio.o
 

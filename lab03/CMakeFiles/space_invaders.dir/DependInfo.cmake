@@ -24,6 +24,7 @@ set(CMAKE_TARGET_LINKED_INFO_FILES
   "/home/xilinx/ECEN_427/lab03/image_render/CMakeFiles/render.dir/DependInfo.cmake"
   "/home/xilinx/ECEN_427/lab03/intcFolder/CMakeFiles/intc.dir/DependInfo.cmake"
   "/home/xilinx/ECEN_427/lab03/uioFolder/CMakeFiles/btn.dir/DependInfo.cmake"
+  "/home/xilinx/ECEN_427/lab03/uioFolder/CMakeFiles/swtch.dir/DependInfo.cmake"
   "/home/xilinx/ECEN_427/lab03/globals/CMakeFiles/global.dir/DependInfo.cmake"
   "/home/xilinx/ECEN_427/lab03/sound_state/CMakeFiles/sound.dir/DependInfo.cmake"
   "/home/xilinx/ECEN_427/lab03/audio_driver/CMakeFiles/audio_driver.dir/DependInfo.cmake"

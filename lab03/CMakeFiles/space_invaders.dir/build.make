@@ -93,6 +93,7 @@ space_invaders: CMakeFiles/space_invaders.dir/build.make
 space_invaders: image_render/librender.a
 space_invaders: intcFolder/libintc.a
 space_invaders: uioFolder/libbtn.a
+space_invaders: uioFolder/libswtch.a
 space_invaders: globals/libglobal.a
 space_invaders: sound_state/libsound.a
 space_invaders: audio_driver/libaudio_driver.a

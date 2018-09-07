@@ -138,7 +138,8 @@ audio_data_header sound_data_array[AUDIO_DRIVER_NUM_SAMPLE_FILES];
 // Returns: A negative error code on error, INTC_SUCCESS otherwise
 // This must be called before calling any other intc_* functions
 int32_t audio_driver_init(char devDevice[]);
-
+// called to increase the audio_driver_volume up or down based on switch_flag
+void audio_driver_volume(int16_t switch_flag);
 // Called to exit the driver (unmap and close UIO file)
 void audio_driver_exit();
 

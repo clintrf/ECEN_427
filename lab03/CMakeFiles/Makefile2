@@ -68,6 +68,7 @@ CMakeFiles/space_invaders.dir/all: image_render/hdmi/CMakeFiles/hdmi.dir/all
 CMakeFiles/space_invaders.dir/all: image_render/sprites/CMakeFiles/sprites.dir/all
 CMakeFiles/space_invaders.dir/all: image_render/score_board/CMakeFiles/score_board.dir/all
 CMakeFiles/space_invaders.dir/all: intcFolder/CMakeFiles/intc.dir/all
+CMakeFiles/space_invaders.dir/all: uioFolder/CMakeFiles/swtch.dir/all
 CMakeFiles/space_invaders.dir/all: uioFolder/CMakeFiles/btn.dir/all
 CMakeFiles/space_invaders.dir/all: globals/CMakeFiles/global.dir/all
 CMakeFiles/space_invaders.dir/all: sound_state/CMakeFiles/sound.dir/all
@@ -85,7 +86,7 @@ all: CMakeFiles/space_invaders.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/space_invaders.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles 22
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles 24
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/space_invaders.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles 0
 .PHONY : CMakeFiles/space_invaders.dir/rule

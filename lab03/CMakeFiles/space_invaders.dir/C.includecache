@@ -6,6 +6,10 @@
 
 #IncludeRegexTransform: 
 
+/home/xilinx/ECEN_427/lab03/audio_driver/audio_driver.h
+stdint.h
+-
+
 /home/xilinx/ECEN_427/lab03/globals/globals.h
 stdio.h
 -
@@ -49,10 +53,18 @@ intcFolder/intc.h
 /home/xilinx/ECEN_427/lab03/intcFolder/intc.h
 uioFolder/button_uio.h
 /home/xilinx/ECEN_427/lab03/uioFolder/button_uio.h
+uioFolder/switch_uio.h
+/home/xilinx/ECEN_427/lab03/uioFolder/switch_uio.h
 ../sound_state/sound_state.h
 /home/xilinx/ECEN_427/sound_state/sound_state.h
+audio_driver/audio_driver.h
+/home/xilinx/ECEN_427/lab03/audio_driver/audio_driver.h
 
 /home/xilinx/ECEN_427/lab03/uioFolder/button_uio.h
+stdint.h
+-
+
+/home/xilinx/ECEN_427/lab03/uioFolder/switch_uio.h
 stdint.h
 -
 

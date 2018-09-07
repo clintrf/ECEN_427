@@ -7,7 +7,9 @@
 #include "image_render/score_board/score_board.h"
 #include "intcFolder/intc.h"
 #include "uioFolder/button_uio.h"
+#include "uioFolder/switch_uio.h"
 #include "../sound_state/sound_state.h"
+#include "audio_driver/audio_driver.h"
 
 /*********************************** macros ***********************************/
 #define MOVE_ONE_SPACE 2
@@ -15,6 +17,8 @@
 #define BTN_0_MASK 0x1
 #define BTN_1_MASK 0x2
 #define BTN_2_MASK 0x4
+#define BTN_3_MASK 0x8
+#define SWTCH_0_MASK 0x1  /* first switch mask */
 #define BUFFER_SPACE 10
 #define LETTER_A 11
 #define CHAR_ARRAY_MAX 36
@@ -36,6 +40,8 @@
 #define COUNTER_DELAY 4
 #define OVERRUN_DETECTED 1
 #define TANK_EXPLOSION_TIMER 20
+#define SWITCH_FLAG_UP 1
+#define SWITCH_FLAG_DOWN 0
 
 /********************************** globals **********************************/
 int32_t white_t[BYTES_PER_PIXEL] = {0xFF, 0xFF, 0xFF};
@@ -59,6 +65,8 @@ uint32_t buttonPressed = 0;
 uint16_t alien_movement_delay = ALIEN_MOVEMENT_DELAY;
 uint16_t max_alien_shots = MAX_ALIEN_SHOTS;
 uint16_t current_alien_shots = 0;
+int16_t switch_flag = SWITCH_FLAG_UP; /* this will track if the switch is flipped on or off */
+uint32_t switch_counter = 0;
 
 /********************************* functions *********************************/
 // moves the cursor around so the player can type in their name after the game is done
@@ -164,15 +172,26 @@ void move_tank(uint32_t buttonPressed) {
       case BTN_2_MASK:
         image_render_tank(MOVE_ONE_SPACE,IMAGE_RENDER_LEFT_MOVEMENT);
         break;
+      case BTN_3_MASK:
+        switch_counter++;
+        if (switch_counter>10){
+          switch_counter = 0;
+          audio_driver_volume(switch_flag);
+        }
+        //audio_driver_volume(switch_flag);
+        break;
     }
   }
 }
+
+void increment_sound(){}
 
 // handles the FIT interrupts, moves the saucer, alien block, and bullets
 void isr_fit() {
   intc_ack_interrupt(INTC_FIT_MASK); // acknowledges the received FIT interrupt
 
   if(globals_get_tank_dead()) { // checks to see if the tank is dead or not
+    globals_set_tank_ex_flag(true);
     tank_dead_counter++; // if its dead, move timer
     if(tank_dead_counter > TANK_EXPLOSION_TIMER) { // if time is up, reprint tank
         image_render_tank(MOVE_ONE_SPACE,0);
@@ -322,11 +341,26 @@ void isr_buttons() {
   intc_ack_interrupt(INTC_BTNS_MASK); /* acknowledges an interrupt from the interrupt controller */
 }
 
+// handles the switch interrupts in the main game
+void isr_switches(){
+  uint32_t switchState = switch_uio_read(SWITCH_UIO_GPIO_DATA_OFFSET); // read data from switches
+  // if the switch is in the on position, set the switch flag to on (increment)
+  if(switchState & SWTCH_0_MASK) {
+    switch_flag = SWITCH_FLAG_UP;
+  }
+  else if(~(switchState & SWTCH_0_MASK)) {
+    // if the switch is off, set the flag to off (decrement)
+    switch_flag = SWITCH_FLAG_DOWN;
+  }
+  switch_uio_acknowledge(SWITCH_UIO_CHANNEL_ONE_MASK); /* acknowledges an interrupt from the GPIO */
+  intc_ack_interrupt(INTC_SWITCHES_MASK); /* acknowledges an interrupt from the interrupt controller */
+}
 
 /*********************************** main ***********************************/
 int main() {
   intc_init(INTC_GPIO_FILE_PATH); // intializes interrupts
   button_uio_init(BUTTON_UIO_GPIO_FILE_PATH); // initializes buttons
+  switch_uio_init(SWITCH_UIO_GPIO_FILE_PATH);  // Initialize switches
   image_render_init(); // initializes image making abilities
   image_render_print_start_screen(); // initializes the start screen
   sound_state_init(); // initiliazes the sound state machine
@@ -341,11 +375,16 @@ int main() {
       isr_fit();
       sound_state_machine();
     }
+    if(interrupts & INTC_SWITCHES_MASK) {
+      isr_switches();
+    }
     if(interrupts & INTC_BTNS_MASK) { // buttons interrupt
       isr_buttons();
+
     }
     if ((buttonPressed == button_uio_read(BUTTON_UIO_GPIO_DATA_OFFSET) && buttonPressed != 0) ) { // manages the movement of the tank
       move_tank(buttonPressed);
+
     }
   }
   globals_set_alien_walk_flag(false);

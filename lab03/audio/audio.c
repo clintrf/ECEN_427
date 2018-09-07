@@ -145,7 +145,7 @@ module_exit(audio_exit);
 // off : indicates the file position the user is accessing
 // return one byte of data (0 or 1) stating if an audio sample is being played
 static ssize_t audio_read(struct file *f, char *buf, size_t len, loff_t *off) {
-  printk(KERN_INFO "Driver: read()\n");
+  //printk(KERN_INFO "Driver: read()\n");
   check_full();
   if(isEmpty) { return SOUND_NOT_PLAYING; }
   else { return SOUND_PLAYING; }
@@ -176,6 +176,7 @@ static ssize_t audio_write(struct file *f, const char *buf, size_t len,
   // allocate a buffer for the new clip (kmalloc).
   fifo_data_buffer = kmalloc((len)*4, GFP_KERNEL);
   fifo_data_buffer_alloc = true;
+
   if (!fifo_data_buffer) { // allocation failed, need to free pointers
     printk(KERN_INFO "kmalloc Error\n");
     kfree(fifo_data_buffer);
@@ -242,7 +243,7 @@ static irqreturn_t irq_isr(int irq_loc, void *dev_id) {
     uint32_t i = 0;
     while(i < buf_len) { // go through the entire buffer
       if(!isFull) { // check to see if the FIFO is full or not
-        printk("IRQ_ISR: Data in the FIFO is %x", fifo_data_buffer[i]);
+        //printk("IRQ_ISR: Data in the FIFO is %x", fifo_data_buffer[i]);
         iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
         iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_R_REG_OFFSET);
         i++;
