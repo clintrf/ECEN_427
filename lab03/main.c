@@ -1,11 +1,13 @@
 #include <stdio.h>
 #include <stdint.h>
-#include "globals/globals.h"
+#include <stdbool.h>
+#include "../lab03/globals/globals.h"
 #include "image_render.h"
 #include "image_render/sprites/sprites.h"
 #include "image_render/score_board/score_board.h"
 #include "intcFolder/intc.h"
 #include "uioFolder/button_uio.h"
+#include "../sound_state/sound_state.h"
 
 /*********************************** macros ***********************************/
 #define MOVE_ONE_SPACE 2
@@ -33,6 +35,7 @@
 #define BULLET_DELAY_3 180
 #define COUNTER_DELAY 4
 #define OVERRUN_DETECTED 1
+#define TANK_EXPLOSION_TIMER 20
 
 /********************************** globals **********************************/
 int32_t white_t[BYTES_PER_PIXEL] = {0xFF, 0xFF, 0xFF};
@@ -43,6 +46,7 @@ uint32_t bullet_delay_1 = 0;
 uint32_t bullet_delay_2 = 0;
 uint32_t bullet_delay_3 = 0;
 uint32_t counter_delay = 0;
+uint32_t tank_dead_counter = 0;
 uint32_t tanks_bullet_delay = 0;
 uint32_t saucer_counter = 0;
 uint32_t letter_index = LETTER_A;
@@ -146,24 +150,37 @@ void run_game_over() {
 
 // moves the tank along the bottom of the screen
 void move_tank(uint32_t buttonPressed) {
-  switch(buttonPressed) { // reads in which button was pressed and decides what action to take for the tank
-    case BTN_0_MASK:
-      image_render_tank(MOVE_ONE_SPACE,IMAGE_RENDER_RIGHT_MOVEMENT);
-      break;
-    case BTN_1_MASK:
-      if(globals_get_tank_bullet_fired() != SHOTS_FIRED) {
-        image_render_fire_tank_bullet();
-      }
-      break;
-    case BTN_2_MASK:
-      image_render_tank(MOVE_ONE_SPACE,IMAGE_RENDER_LEFT_MOVEMENT);
-      break;
+  if(!globals_get_tank_dead()) {
+    switch(buttonPressed) { // reads in which button was pressed and decides what action to take for the tank
+      case BTN_0_MASK:
+        image_render_tank(MOVE_ONE_SPACE,IMAGE_RENDER_RIGHT_MOVEMENT);
+        break;
+      case BTN_1_MASK:
+        if(globals_get_tank_bullet_fired() != SHOTS_FIRED) {
+          globals_set_shoot_flag(true);
+          image_render_fire_tank_bullet();
+        }
+        break;
+      case BTN_2_MASK:
+        image_render_tank(MOVE_ONE_SPACE,IMAGE_RENDER_LEFT_MOVEMENT);
+        break;
+    }
   }
 }
 
 // handles the FIT interrupts, moves the saucer, alien block, and bullets
 void isr_fit() {
   intc_ack_interrupt(INTC_FIT_MASK); // acknowledges the received FIT interrupt
+
+  if(globals_get_tank_dead()) { // checks to see if the tank is dead or not
+    tank_dead_counter++; // if its dead, move timer
+    if(tank_dead_counter > TANK_EXPLOSION_TIMER) { // if time is up, reprint tank
+        image_render_tank(MOVE_ONE_SPACE,0);
+        globals_set_tank_dead(false);
+        tank_dead_counter = 0;
+    }
+  }
+
   /* checks to see if the aliens have overrun the bunker location, if they have, then end the game */
   if(globals_get_alien_overrun_flag() == OVERRUN_DETECTED) { // if the aliens get too low on the screen, game over!
     globals_decrement_current_lives(); // decerement all possible lives
@@ -256,8 +273,10 @@ void isr_fit() {
   counter_delay++;
   /* saucer flight handling in the main */
   if(globals_get_saucer_status() == SAUCER_SHOT) { // if the saucer is currently dead
+    // globals_set_saucer_zoom_flag(false);
     uint32_t saucer_count = globals_get_saucer_shot_count();
     if(saucer_count > SAUCER_SHOT_DELAY_TIME) { // we wait a certain amount of time before reprinting it
+      // globals_set_saucer_zoom_flag(true);
       globals_set_saucer_status(SAUCER_ALIVE);
       globals_reset_saucer_shot_count();
       image_render_saucer();
@@ -281,6 +300,7 @@ void isr_fit() {
   /* this part oversees the movement of the alien block */
   alien_counter++; // increments the alien counter
   if(alien_counter > alien_movement_delay) { // a little bit of a delay for the alien movement
+    globals_set_alien_walk_flag(true);
     image_render_move_alien_block();
     alien_counter = 0;
   }
@@ -307,7 +327,8 @@ int main() {
   intc_init(INTC_GPIO_FILE_PATH); // intializes interrupts
   button_uio_init(BUTTON_UIO_GPIO_FILE_PATH); // initializes buttons
   image_render_init(); // initializes image making abilities
-  image_render_print_start_screen();
+  image_render_print_start_screen(); // initializes the start screen
+  sound_state_init(); // initiliazes the sound state machine
   // bulk of running program. keep running the program until we run out of lives
   while(globals_get_current_lives() > 0) {
     /* need to run this each time that we block, because this function will unblock */
@@ -317,6 +338,7 @@ int main() {
     // Check which interrupt lines are high and call the appropriate ISR functions
     if(interrupts & INTC_FIT_MASK) { // FIT Interrupt
       isr_fit();
+      sound_state_machine();
     }
     if(interrupts & INTC_BTNS_MASK) { // buttons interrupt
       isr_buttons();
@@ -325,6 +347,8 @@ int main() {
       move_tank(buttonPressed);
     }
   }
+  globals_set_alien_walk_flag(false);
+  globals_set_saucer_zoom_flag(false);
   run_game_over(); // runs the game over screen
   image_render_close(); // closes the image file, which shuts connection to the HDMI
   button_uio_exit(); // exits from the button driver

@@ -11,6 +11,8 @@ stdio.h
 -
 stdint.h
 -
+stdbool.h
+-
 
 /home/xilinx/ECEN_427/lab03/image_render/image_render.c
 stdlib.h

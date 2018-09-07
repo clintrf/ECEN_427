@@ -227,6 +227,45 @@ global/fast:
 	$(MAKE) -f globals/CMakeFiles/global.dir/build.make globals/CMakeFiles/global.dir/build
 .PHONY : global/fast
 
+#=============================================================================
+# Target rules for targets named sound
+
+# Build rule for target.
+sound: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 sound
+.PHONY : sound
+
+# fast build rule for target.
+sound/fast:
+	$(MAKE) -f sound_state/CMakeFiles/sound.dir/build.make sound_state/CMakeFiles/sound.dir/build
+.PHONY : sound/fast
+
+#=============================================================================
+# Target rules for targets named audio_driver
+
+# Build rule for target.
+audio_driver: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 audio_driver
+.PHONY : audio_driver
+
+# fast build rule for target.
+audio_driver/fast:
+	$(MAKE) -f audio_driver/CMakeFiles/audio_driver.dir/build.make audio_driver/CMakeFiles/audio_driver.dir/build
+.PHONY : audio_driver/fast
+
+#=============================================================================
+# Target rules for targets named i2cps
+
+# Build rule for target.
+i2cps: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 i2cps
+.PHONY : i2cps
+
+# fast build rule for target.
+i2cps/fast:
+	$(MAKE) -f i2cps/CMakeFiles/i2cps.dir/build.make i2cps/CMakeFiles/i2cps.dir/build
+.PHONY : i2cps/fast
+
 main.o: main.c.o
 
 .PHONY : main.o
@@ -271,6 +310,9 @@ help:
 	@echo "... swtch"
 	@echo "... btn"
 	@echo "... global"
+	@echo "... sound"
+	@echo "... audio_driver"
+	@echo "... i2cps"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

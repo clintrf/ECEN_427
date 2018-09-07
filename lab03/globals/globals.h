@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
-
+#include <stdbool.h>
 /********************************** macros ***********************************/
 #define GLOBALS_SAUCER_ROW_START_LOCATION (15+(640*3)*20)
 
@@ -136,3 +136,60 @@ void globals_set_dead_alien_loc(uint32_t loc);
 // fetches the location of the most recently killed alien
 // returns the locaiton of the most recently killed alien
 uint32_t globals_get_dead_alien_loc();
+
+/***************************** GLOBALS FOR AUDIO *****************************/
+// sets the tank explosion flag
+// flag : wether the flag is high or low
+void globals_set_tank_ex_flag(bool flag);
+
+// sets the shoot sound flag
+// flag : wether the flag is high or low
+void globals_set_shoot_flag(bool flag);
+
+// sets the alien explosion flag
+// flag : wether the flag is high or low
+void globals_set_alien_ex_flag(bool flag);
+
+// sets the saucer explosion flag
+// flag : wether the flag is high or low
+void globals_set_saucer_ex_flag(bool flag);
+
+// sets the saucer move flag
+// flag : wether the flag is high or low
+void globals_set_saucer_zoom_flag(bool flag);
+
+// sets the aliens walking flag
+// flag : wether the flag is high or low
+void globals_set_alien_walk_flag(bool flag);
+
+// fetches the tank explosion flag
+// returns : tank explosion flag
+bool globals_get_tank_ex_flag();
+
+// fetches the shoot flag
+// returns : the shoot flag
+bool globals_get_shoot_flag();
+
+// fetches the alien explosion flag
+// returns : alien explosion flag
+bool globals_get_alien_ex_flag();
+
+// fetches the saucer explosion flag
+// returns : saucer explosion flag
+bool globals_get_saucer_ex_flag();
+
+// fetches the saucer zoom flag
+// returns : saucer zoom flag
+bool globals_get_saucer_zoom_flag();
+
+// fetches the alien walk flag
+// returns : alien walk flag
+bool globals_get_alien_walk_flag();
+
+// determines whether the tank is alive or not
+// flag : whether the tank is dead or not
+void globals_set_tank_dead(bool flag);
+
+// fetches whether the tank is dead or not
+// flag : tank_dead_flag
+bool globals_get_tank_dead();

@@ -115,8 +115,6 @@
 #define BULLET_MOVEMENT_TWO_PIXELS 640*3*2
 #define BULLET_MOVEMENT_ONE_PIXELS 640*3
 #define SAUCER_SHOT 0
-#define ALIEN_EXPLOSION_TIMER 1000000
-#define TANK_EXPLOSION_TIMER 50000000
 #define ALIEN_ALIVE 1
 #define LEFT 1
 #define RIGHT 0
@@ -130,6 +128,7 @@
 #define BUNKER_BLOCK_9 9
 #define BUNKER_BLOCK_10 10
 #define NUM_BUNKERS 4
+#define ALIEN_EXPLOSION_TIMER 1000
 #define BLOCK_ROWS_PER_BUNKER 3
 #define BLOCKS_PER_ROW 4
 #define BLOCK_THREE_OFFSET SPRITES_BUNKER_DAMAGE_WIDTH*ALIEN_SIZE*IMAGE_RENDER_BYTES_PER_PIXEL*3
@@ -572,8 +571,8 @@ void image_render_blow_tank_up(uint16_t bullet_id) {
   sprites_render_buffer(tank_explosion2_17x10,SPRITES_TANK_WIDTH,SPRITES_TANK_HEIGHT,(IMAGE_RENDER_SCREEN_WIDTH*TANK_FIND_DEPTH+tank_pos)*IMAGE_RENDER_BYTES_PER_PIXEL,ALIEN_SIZE,green);
   globals_decrement_current_lives();
   uint32_t counter = 0;
-  while(counter < TANK_EXPLOSION_TIMER) { counter++; } // timer to display the explosion
-  sprites_render_buffer(tank_17x10,SPRITES_TANK_WIDTH,SPRITES_TANK_HEIGHT,(IMAGE_RENDER_SCREEN_WIDTH*TANK_FIND_DEPTH+tank_pos)*IMAGE_RENDER_BYTES_PER_PIXEL,ALIEN_SIZE,green);
+  globals_set_tank_ex_flag(true);
+  globals_set_tank_dead(true);
 }
 
 // checks for the position of the tank

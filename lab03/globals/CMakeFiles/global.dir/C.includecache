@@ -17,6 +17,8 @@ stdio.h
 -
 stdint.h
 -
+stdbool.h
+-
 
 /home/xilinx/ECEN_427/lab03/image_render/hdmi/hdmi.h
 stdint.h

@@ -23,3 +23,12 @@
 /home/xilinx/ECEN_427/lab03/globals/CMakeFiles/edit_cache.dir
 /home/xilinx/ECEN_427/lab03/globals/CMakeFiles/rebuild_cache.dir
 /home/xilinx/ECEN_427/lab03/globals/CMakeFiles/global.dir
+/home/xilinx/ECEN_427/lab03/sound_state/CMakeFiles/edit_cache.dir
+/home/xilinx/ECEN_427/lab03/sound_state/CMakeFiles/rebuild_cache.dir
+/home/xilinx/ECEN_427/lab03/sound_state/CMakeFiles/sound.dir
+/home/xilinx/ECEN_427/lab03/audio_driver/CMakeFiles/edit_cache.dir
+/home/xilinx/ECEN_427/lab03/audio_driver/CMakeFiles/rebuild_cache.dir
+/home/xilinx/ECEN_427/lab03/audio_driver/CMakeFiles/audio_driver.dir
+/home/xilinx/ECEN_427/lab03/i2cps/CMakeFiles/edit_cache.dir
+/home/xilinx/ECEN_427/lab03/i2cps/CMakeFiles/rebuild_cache.dir
+/home/xilinx/ECEN_427/lab03/i2cps/CMakeFiles/i2cps.dir

@@ -11,12 +11,15 @@ set(CMAKE_MAKEFILE_DEPENDS
   "CMakeFiles/3.5.1/CMakeCXXCompiler.cmake"
   "CMakeFiles/3.5.1/CMakeSystem.cmake"
   "CMakeLists.txt"
+  "audio_driver/CMakeLists.txt"
   "globals/CMakeLists.txt"
+  "i2cps/CMakeLists.txt"
   "image_render/CMakeLists.txt"
   "image_render/hdmi/CMakeLists.txt"
   "image_render/score_board/CMakeLists.txt"
   "image_render/sprites/CMakeLists.txt"
   "intcFolder/CMakeLists.txt"
+  "sound_state/CMakeLists.txt"
   "uioFolder/CMakeLists.txt"
   "/usr/share/cmake-3.5/Modules/CMakeCInformation.cmake"
   "/usr/share/cmake-3.5/Modules/CMakeCXXInformation.cmake"
@@ -51,6 +54,9 @@ set(CMAKE_MAKEFILE_PRODUCTS
   "intcFolder/CMakeFiles/CMakeDirectoryInformation.cmake"
   "uioFolder/CMakeFiles/CMakeDirectoryInformation.cmake"
   "globals/CMakeFiles/CMakeDirectoryInformation.cmake"
+  "sound_state/CMakeFiles/CMakeDirectoryInformation.cmake"
+  "audio_driver/CMakeFiles/CMakeDirectoryInformation.cmake"
+  "i2cps/CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:
@@ -64,4 +70,7 @@ set(CMAKE_DEPEND_INFO_FILES
   "uioFolder/CMakeFiles/swtch.dir/DependInfo.cmake"
   "uioFolder/CMakeFiles/btn.dir/DependInfo.cmake"
   "globals/CMakeFiles/global.dir/DependInfo.cmake"
+  "sound_state/CMakeFiles/sound.dir/DependInfo.cmake"
+  "audio_driver/CMakeFiles/audio_driver.dir/DependInfo.cmake"
+  "i2cps/CMakeFiles/i2cps.dir/DependInfo.cmake"
   )

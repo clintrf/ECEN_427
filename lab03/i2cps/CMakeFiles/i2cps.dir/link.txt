@@ -1,0 +1,2 @@
+/usr/bin/ar qc libi2cps.a  CMakeFiles/i2cps.dir/i2cps.c.o
+/usr/bin/ranlib libi2cps.a

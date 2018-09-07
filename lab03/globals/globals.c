@@ -51,7 +51,13 @@ static uint16_t total_alien_count = STARTING_ALIEN_AMOUNT;
 static uint32_t current_lives = START_LIVES;
 static uint16_t alien_overrun_flag = 0;
 static uint32_t dead_alien_loc = 0;
-
+static bool tank_ex_flag = false;
+static bool shoot_flag = false;
+static bool alien_ex_flag = false;
+static bool saucer_ex_flag = false;
+static bool saucer_zoom_flag = false;
+static bool alien_walk_flag = false;
+static bool tank_dead = false;
 uint32_t global_green[GLOBAL_BYTES_PER_PIXEL] = {0x00,0x80,0x00};
 uint32_t global_black[GLOBAL_BYTES_PER_PIXEL] = {0x00,0x00,0x00};
 
@@ -325,6 +331,90 @@ void globals_set_dead_alien_loc(uint32_t loc) {
 // returns the locaiton of the most recently killed alien
 uint32_t globals_get_dead_alien_loc() {
   return dead_alien_loc;
+}
+
+// sets the tank explosion flag
+// flag : wether the flag is high or low
+void globals_set_tank_ex_flag(bool flag) {
+  tank_ex_flag = flag;
+}
+
+// sets the shoot sound flag
+// flag : wether the flag is high or low
+void globals_set_shoot_flag(bool flag) {
+  shoot_flag = flag;
+}
+
+// sets the alien explosion flag
+// flag : wether the flag is high or low
+void globals_set_alien_ex_flag(bool flag) {
+  alien_ex_flag = flag;
+}
+
+// sets the saucer explosion flag
+// flag : wether the flag is high or low
+void globals_set_saucer_ex_flag(bool flag) {
+  saucer_ex_flag = flag;
+}
+
+// sets the saucer move flag
+// flag : wether the flag is high or low
+void globals_set_saucer_zoom_flag(bool flag) {
+  saucer_zoom_flag = flag;
+}
+
+// sets the aliens walking flag
+// flag : wether the flag is high or low
+void globals_set_alien_walk_flag(bool flag) {
+  alien_walk_flag = flag;
+}
+
+// fetches the tank explosion flag
+// returns : tank explosion flag
+bool globals_get_tank_ex_flag() {
+  return tank_ex_flag;
+}
+
+// fetches the shoot flag
+// returns : the shoot flag
+bool globals_get_shoot_flag() {
+  return shoot_flag;
+}
+
+// fetches the alien explosion flag
+// returns : alien explosion flag
+bool globals_get_alien_ex_flag() {
+  return alien_ex_flag;
+}
+
+// fetches the saucer explosion flag
+// returns : saucer explosion flag
+bool globals_get_saucer_ex_flag() {
+  return saucer_ex_flag;
+}
+
+// fetches the saucer zoom flag
+// returns : saucer zoom flag
+bool globals_get_saucer_zoom_flag() {
+  return saucer_zoom_flag;
+}
+
+// fetches the alien walk flag
+// returns : alien walk flag
+bool globals_get_alien_walk_flag() {
+  return alien_walk_flag;
+}
+
+// determines whether the tank is alive or not
+// flag : whether the tank is dead or not
+void globals_set_tank_dead(bool flag) {
+  tank_dead = flag;
+}
+
+// fetches whether the tank is dead or not
+// flag : tank_dead_flag
+bool globals_get_tank_dead() {
+  return tank_dead;
 }
 
 // prints lives to screen

@@ -172,6 +172,9 @@ Project_BINARY_DIR:STATIC=/home/xilinx/ECEN_427/lab03
 Project_SOURCE_DIR:STATIC=/home/xilinx/ECEN_427/lab03
 
 //Dependencies for target
+audio_driver_LIB_DEPENDS:STATIC=
+
+//Dependencies for target
 btn_LIB_DEPENDS:STATIC=
 
 //Dependencies for target
@@ -181,6 +184,9 @@ global_LIB_DEPENDS:STATIC=
 hdmi_LIB_DEPENDS:STATIC=
 
 //Dependencies for target
+i2cps_LIB_DEPENDS:STATIC=
+
+//Dependencies for target
 intc_LIB_DEPENDS:STATIC=
 
 //Dependencies for the target
@@ -188,6 +194,9 @@ render_LIB_DEPENDS:STATIC=general;hdmi;general;sprites;general;score_board;
 
 //Dependencies for target
 score_board_LIB_DEPENDS:STATIC=
+
+//Dependencies for target
+sound_LIB_DEPENDS:STATIC=
 
 //Dependencies for target
 sprites_LIB_DEPENDS:STATIC=
@@ -286,7 +295,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=8
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=11
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP

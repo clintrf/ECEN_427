@@ -11,6 +11,8 @@ stdio.h
 -
 stdint.h
 -
+stdbool.h
+-
 
 /home/xilinx/ECEN_427/lab03/image_render/score_board/score_board.h
 stdint.h
@@ -33,7 +35,9 @@ stdio.h
 -
 stdint.h
 -
-globals/globals.h
+stdbool.h
+-
+../lab03/globals/globals.h
 /home/xilinx/ECEN_427/lab03/globals/globals.h
 image_render.h
 /home/xilinx/ECEN_427/lab03/image_render.h
@@ -45,6 +49,8 @@ intcFolder/intc.h
 /home/xilinx/ECEN_427/lab03/intcFolder/intc.h
 uioFolder/button_uio.h
 /home/xilinx/ECEN_427/lab03/uioFolder/button_uio.h
+../sound_state/sound_state.h
+/home/xilinx/ECEN_427/sound_state/sound_state.h
 
 /home/xilinx/ECEN_427/lab03/uioFolder/button_uio.h
 stdint.h
@@ -54,5 +60,9 @@ image_render/image_render.h
 stdint.h
 -
 stdio.h
+-
+
+sound_state/sound_state.h
+stdint.h
 -
 

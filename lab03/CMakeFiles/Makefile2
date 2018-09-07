@@ -70,9 +70,12 @@ CMakeFiles/space_invaders.dir/all: image_render/score_board/CMakeFiles/score_boa
 CMakeFiles/space_invaders.dir/all: intcFolder/CMakeFiles/intc.dir/all
 CMakeFiles/space_invaders.dir/all: uioFolder/CMakeFiles/btn.dir/all
 CMakeFiles/space_invaders.dir/all: globals/CMakeFiles/global.dir/all
+CMakeFiles/space_invaders.dir/all: sound_state/CMakeFiles/sound.dir/all
+CMakeFiles/space_invaders.dir/all: audio_driver/CMakeFiles/audio_driver.dir/all
+CMakeFiles/space_invaders.dir/all: i2cps/CMakeFiles/i2cps.dir/all
 	$(MAKE) -f CMakeFiles/space_invaders.dir/build.make CMakeFiles/space_invaders.dir/depend
 	$(MAKE) -f CMakeFiles/space_invaders.dir/build.make CMakeFiles/space_invaders.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/lab03/CMakeFiles --progress-num=13,14 "Built target space_invaders"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/lab03/CMakeFiles --progress-num=19,20 "Built target space_invaders"
 .PHONY : CMakeFiles/space_invaders.dir/all
 
 # Include target in all.
@@ -82,7 +85,7 @@ all: CMakeFiles/space_invaders.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/space_invaders.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles 16
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles 22
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/space_invaders.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles 0
 .PHONY : CMakeFiles/space_invaders.dir/rule
@@ -137,7 +140,7 @@ image_render/CMakeFiles/render.dir/all: image_render/sprites/CMakeFiles/sprites.
 image_render/CMakeFiles/render.dir/all: image_render/score_board/CMakeFiles/score_board.dir/all
 	$(MAKE) -f image_render/CMakeFiles/render.dir/build.make image_render/CMakeFiles/render.dir/depend
 	$(MAKE) -f image_render/CMakeFiles/render.dir/build.make image_render/CMakeFiles/render.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/lab03/CMakeFiles --progress-num=9,10 "Built target render"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/lab03/CMakeFiles --progress-num=13,14 "Built target render"
 .PHONY : image_render/CMakeFiles/render.dir/all
 
 # Include target in all.
@@ -192,7 +195,7 @@ image_render/hdmi/preinstall:
 image_render/hdmi/CMakeFiles/hdmi.dir/all:
 	$(MAKE) -f image_render/hdmi/CMakeFiles/hdmi.dir/build.make image_render/hdmi/CMakeFiles/hdmi.dir/depend
 	$(MAKE) -f image_render/hdmi/CMakeFiles/hdmi.dir/build.make image_render/hdmi/CMakeFiles/hdmi.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/lab03/CMakeFiles --progress-num=5,6 "Built target hdmi"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/lab03/CMakeFiles --progress-num=7,8 "Built target hdmi"
 .PHONY : image_render/hdmi/CMakeFiles/hdmi.dir/all
 
 # Include target in all.
@@ -247,7 +250,7 @@ image_render/sprites/preinstall:
 image_render/sprites/CMakeFiles/sprites.dir/all:
 	$(MAKE) -f image_render/sprites/CMakeFiles/sprites.dir/build.make image_render/sprites/CMakeFiles/sprites.dir/depend
 	$(MAKE) -f image_render/sprites/CMakeFiles/sprites.dir/build.make image_render/sprites/CMakeFiles/sprites.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/lab03/CMakeFiles --progress-num=15,16 "Built target sprites"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/lab03/CMakeFiles --progress-num=21,22 "Built target sprites"
 .PHONY : image_render/sprites/CMakeFiles/sprites.dir/all
 
 # Include target in all.
@@ -302,7 +305,7 @@ image_render/score_board/preinstall:
 image_render/score_board/CMakeFiles/score_board.dir/all:
 	$(MAKE) -f image_render/score_board/CMakeFiles/score_board.dir/build.make image_render/score_board/CMakeFiles/score_board.dir/depend
 	$(MAKE) -f image_render/score_board/CMakeFiles/score_board.dir/build.make image_render/score_board/CMakeFiles/score_board.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/lab03/CMakeFiles --progress-num=11,12 "Built target score_board"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/lab03/CMakeFiles --progress-num=15,16 "Built target score_board"
 .PHONY : image_render/score_board/CMakeFiles/score_board.dir/all
 
 # Include target in all.
@@ -357,7 +360,7 @@ intcFolder/preinstall:
 intcFolder/CMakeFiles/intc.dir/all:
 	$(MAKE) -f intcFolder/CMakeFiles/intc.dir/build.make intcFolder/CMakeFiles/intc.dir/depend
 	$(MAKE) -f intcFolder/CMakeFiles/intc.dir/build.make intcFolder/CMakeFiles/intc.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/lab03/CMakeFiles --progress-num=7,8 "Built target intc"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/lab03/CMakeFiles --progress-num=11,12 "Built target intc"
 .PHONY : intcFolder/CMakeFiles/intc.dir/all
 
 # Include target in all.
@@ -414,7 +417,7 @@ uioFolder/preinstall:
 uioFolder/CMakeFiles/swtch.dir/all:
 	$(MAKE) -f uioFolder/CMakeFiles/swtch.dir/build.make uioFolder/CMakeFiles/swtch.dir/depend
 	$(MAKE) -f uioFolder/CMakeFiles/swtch.dir/build.make uioFolder/CMakeFiles/swtch.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/lab03/CMakeFiles --progress-num=17,18 "Built target swtch"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/lab03/CMakeFiles --progress-num=23,24 "Built target swtch"
 .PHONY : uioFolder/CMakeFiles/swtch.dir/all
 
 # Include target in all.
@@ -451,7 +454,7 @@ clean: uioFolder/CMakeFiles/swtch.dir/clean
 uioFolder/CMakeFiles/btn.dir/all:
 	$(MAKE) -f uioFolder/CMakeFiles/btn.dir/build.make uioFolder/CMakeFiles/btn.dir/depend
 	$(MAKE) -f uioFolder/CMakeFiles/btn.dir/build.make uioFolder/CMakeFiles/btn.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/lab03/CMakeFiles --progress-num=1,2 "Built target btn"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/lab03/CMakeFiles --progress-num=3,4 "Built target btn"
 .PHONY : uioFolder/CMakeFiles/btn.dir/all
 
 # Include target in all.
@@ -506,7 +509,7 @@ globals/preinstall:
 globals/CMakeFiles/global.dir/all:
 	$(MAKE) -f globals/CMakeFiles/global.dir/build.make globals/CMakeFiles/global.dir/depend
 	$(MAKE) -f globals/CMakeFiles/global.dir/build.make globals/CMakeFiles/global.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/lab03/CMakeFiles --progress-num=3,4 "Built target global"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/lab03/CMakeFiles --progress-num=5,6 "Built target global"
 .PHONY : globals/CMakeFiles/global.dir/all
 
 # Include target in all.
@@ -533,6 +536,171 @@ globals/CMakeFiles/global.dir/clean:
 
 # clean rule for target.
 clean: globals/CMakeFiles/global.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
+# Directory level rules for directory sound_state
+
+# Convenience name for "all" pass in the directory.
+sound_state/all: sound_state/CMakeFiles/sound.dir/all
+
+.PHONY : sound_state/all
+
+# Convenience name for "clean" pass in the directory.
+sound_state/clean: sound_state/CMakeFiles/sound.dir/clean
+
+.PHONY : sound_state/clean
+
+# Convenience name for "preinstall" pass in the directory.
+sound_state/preinstall:
+
+.PHONY : sound_state/preinstall
+
+#=============================================================================
+# Target rules for target sound_state/CMakeFiles/sound.dir
+
+# All Build rule for target.
+sound_state/CMakeFiles/sound.dir/all:
+	$(MAKE) -f sound_state/CMakeFiles/sound.dir/build.make sound_state/CMakeFiles/sound.dir/depend
+	$(MAKE) -f sound_state/CMakeFiles/sound.dir/build.make sound_state/CMakeFiles/sound.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/lab03/CMakeFiles --progress-num=17,18 "Built target sound"
+.PHONY : sound_state/CMakeFiles/sound.dir/all
+
+# Include target in all.
+all: sound_state/CMakeFiles/sound.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+sound_state/CMakeFiles/sound.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles 2
+	$(MAKE) -f CMakeFiles/Makefile2 sound_state/CMakeFiles/sound.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles 0
+.PHONY : sound_state/CMakeFiles/sound.dir/rule
+
+# Convenience name for target.
+sound: sound_state/CMakeFiles/sound.dir/rule
+
+.PHONY : sound
+
+# clean rule for target.
+sound_state/CMakeFiles/sound.dir/clean:
+	$(MAKE) -f sound_state/CMakeFiles/sound.dir/build.make sound_state/CMakeFiles/sound.dir/clean
+.PHONY : sound_state/CMakeFiles/sound.dir/clean
+
+# clean rule for target.
+clean: sound_state/CMakeFiles/sound.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
+# Directory level rules for directory audio_driver
+
+# Convenience name for "all" pass in the directory.
+audio_driver/all: audio_driver/CMakeFiles/audio_driver.dir/all
+
+.PHONY : audio_driver/all
+
+# Convenience name for "clean" pass in the directory.
+audio_driver/clean: audio_driver/CMakeFiles/audio_driver.dir/clean
+
+.PHONY : audio_driver/clean
+
+# Convenience name for "preinstall" pass in the directory.
+audio_driver/preinstall:
+
+.PHONY : audio_driver/preinstall
+
+#=============================================================================
+# Target rules for target audio_driver/CMakeFiles/audio_driver.dir
+
+# All Build rule for target.
+audio_driver/CMakeFiles/audio_driver.dir/all:
+	$(MAKE) -f audio_driver/CMakeFiles/audio_driver.dir/build.make audio_driver/CMakeFiles/audio_driver.dir/depend
+	$(MAKE) -f audio_driver/CMakeFiles/audio_driver.dir/build.make audio_driver/CMakeFiles/audio_driver.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/lab03/CMakeFiles --progress-num=1,2 "Built target audio_driver"
+.PHONY : audio_driver/CMakeFiles/audio_driver.dir/all
+
+# Include target in all.
+all: audio_driver/CMakeFiles/audio_driver.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+audio_driver/CMakeFiles/audio_driver.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles 2
+	$(MAKE) -f CMakeFiles/Makefile2 audio_driver/CMakeFiles/audio_driver.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles 0
+.PHONY : audio_driver/CMakeFiles/audio_driver.dir/rule
+
+# Convenience name for target.
+audio_driver: audio_driver/CMakeFiles/audio_driver.dir/rule
+
+.PHONY : audio_driver
+
+# clean rule for target.
+audio_driver/CMakeFiles/audio_driver.dir/clean:
+	$(MAKE) -f audio_driver/CMakeFiles/audio_driver.dir/build.make audio_driver/CMakeFiles/audio_driver.dir/clean
+.PHONY : audio_driver/CMakeFiles/audio_driver.dir/clean
+
+# clean rule for target.
+clean: audio_driver/CMakeFiles/audio_driver.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
+# Directory level rules for directory i2cps
+
+# Convenience name for "all" pass in the directory.
+i2cps/all: i2cps/CMakeFiles/i2cps.dir/all
+
+.PHONY : i2cps/all
+
+# Convenience name for "clean" pass in the directory.
+i2cps/clean: i2cps/CMakeFiles/i2cps.dir/clean
+
+.PHONY : i2cps/clean
+
+# Convenience name for "preinstall" pass in the directory.
+i2cps/preinstall:
+
+.PHONY : i2cps/preinstall
+
+#=============================================================================
+# Target rules for target i2cps/CMakeFiles/i2cps.dir
+
+# All Build rule for target.
+i2cps/CMakeFiles/i2cps.dir/all:
+	$(MAKE) -f i2cps/CMakeFiles/i2cps.dir/build.make i2cps/CMakeFiles/i2cps.dir/depend
+	$(MAKE) -f i2cps/CMakeFiles/i2cps.dir/build.make i2cps/CMakeFiles/i2cps.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/xilinx/ECEN_427/lab03/CMakeFiles --progress-num=9,10 "Built target i2cps"
+.PHONY : i2cps/CMakeFiles/i2cps.dir/all
+
+# Include target in all.
+all: i2cps/CMakeFiles/i2cps.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+i2cps/CMakeFiles/i2cps.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles 2
+	$(MAKE) -f CMakeFiles/Makefile2 i2cps/CMakeFiles/i2cps.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles 0
+.PHONY : i2cps/CMakeFiles/i2cps.dir/rule
+
+# Convenience name for target.
+i2cps: i2cps/CMakeFiles/i2cps.dir/rule
+
+.PHONY : i2cps
+
+# clean rule for target.
+i2cps/CMakeFiles/i2cps.dir/clean:
+	$(MAKE) -f i2cps/CMakeFiles/i2cps.dir/build.make i2cps/CMakeFiles/i2cps.dir/clean
+.PHONY : i2cps/CMakeFiles/i2cps.dir/clean
+
+# clean rule for target.
+clean: i2cps/CMakeFiles/i2cps.dir/clean
 
 .PHONY : clean
 

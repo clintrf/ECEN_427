@@ -9,3 +9,4 @@ CMakeFiles/space_invaders.dir/main.c.o
  /home/xilinx/ECEN_427/lab03/main.c
  /home/xilinx/ECEN_427/lab03/uioFolder/button_uio.h
  image_render/image_render.h
+ sound_state/sound_state.h

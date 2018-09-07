@@ -38,6 +38,9 @@ if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   include("/home/xilinx/ECEN_427/lab03/intcFolder/cmake_install.cmake")
   include("/home/xilinx/ECEN_427/lab03/uioFolder/cmake_install.cmake")
   include("/home/xilinx/ECEN_427/lab03/globals/cmake_install.cmake")
+  include("/home/xilinx/ECEN_427/lab03/sound_state/cmake_install.cmake")
+  include("/home/xilinx/ECEN_427/lab03/audio_driver/cmake_install.cmake")
+  include("/home/xilinx/ECEN_427/lab03/i2cps/cmake_install.cmake")
 
 endif()
 
