@@ -153,6 +153,7 @@
 #define FIVE_PIXELS 15
 #define TRUE 1
 #define FALSE 0
+#define ALIEN_KILLED_TIMER 1
 
 /********************************** globals **********************************/
 /* global arrays */
@@ -187,6 +188,7 @@ uint32_t current_shooter_0;
 uint32_t current_shooter_1;
 uint32_t current_shooter_2;
 uint32_t current_shooter_3;
+uint32_t alien_killed_counter = 0;
 Bunker bunker_set[NUM_BUNKERS];
 
 /**************************** function prototypes ****************************/
@@ -485,6 +487,7 @@ void image_render_check_for_saucer(uint32_t current_pos) {
         globals_set_saucer_status(SAUCER_SHOT);
         globals_tank_bullet_stopped();
         globals_add_to_current_score(SAUCER_POINTS);
+        globals_set_saucer_ex_flag(true);
       }
     }
   }
@@ -540,9 +543,8 @@ void image_render_check_for_aliens(uint32_t current_pos) {
           globals_add_to_current_score(alien_block[i].points); // adds the alien's points to the score
           globals_decrement_total_alien_count(); // decreases total alien count
           alien_killed = TRUE;
+          globals_set_alien_ex_flag(true);
           globals_set_dead_alien_loc(alien_block[i].current_location);
-          uint32_t counter = 0;
-          while(counter < ALIEN_EXPLOSION_TIMER) { counter++; } // timer to display the explosion
         }
       }
     }
@@ -1260,9 +1262,13 @@ void image_render_move_alien_block() {
   image_render_set_right_bound(); // sets the right boundary
   // if an alien has been killed, then write a blank over it
   if(alien_killed) {
-    uint32_t loc = globals_get_dead_alien_loc();
-    sprites_render_buffer(alien_top_in_14x10,SPRITES_ALIEN_WIDTH,SPRITES_ALIEN_HEIGHT,loc,ALIEN_SIZE,black);
-    alien_killed = 0;
+    alien_killed_counter++;
+    if(alien_killed_counter > ALIEN_KILLED_TIMER) {
+      uint32_t loc = globals_get_dead_alien_loc();
+      sprites_render_buffer(alien_top_in_14x10,SPRITES_ALIEN_WIDTH,SPRITES_ALIEN_HEIGHT,loc,ALIEN_SIZE,black);
+      alien_killed = 0;
+      alien_killed_counter = 0;
+    }
   }
   /* If we run out of aliens in the block, create a new alien block */
   if(globals_get_total_alien_count() == 0) {

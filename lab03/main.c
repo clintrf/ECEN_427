@@ -286,6 +286,7 @@ void isr_fit() {
     }
   }
   else { // if the saucer is currently alive
+    // globals_set_saucer_zoom_flag(true);
     image_render_saucer();
   }
   /* This controls the firing of the bullets and their movement
