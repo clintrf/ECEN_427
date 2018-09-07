@@ -46,10 +46,7 @@ void sound_state_machine() {
     case WALK01_STATE:
       if(globals_get_alien_walk_flag()) {
         current_data = audio_driver_get_data_array(AUDIO_DRIVER_WALK1_AUDIO);
-        //current_data = audio_driver_get_data_array(AUDIO_DRIVER_PLAYER_DIE_AUDIO);
-        //printf("************************start state**************************************\r\n");
-        audio_driver_write(current_data.sound_data, current_data.num_samples);
-        //printf("************************end state**************************************\r\n");
+        // audio_driver_write(current_data.sound_data, current_data.num_samples);
         globals_set_alien_walk_flag(false);
         sound_done = false;
         return_state = WALK01_STATE;
@@ -60,7 +57,7 @@ void sound_state_machine() {
     case WALK02_STATE:
       if(globals_get_alien_walk_flag()) {
         current_data = audio_driver_get_data_array(AUDIO_DRIVER_WALK2_AUDIO);
-        audio_driver_write(current_data.sound_data, current_data.num_samples);
+        // audio_driver_write(current_data.sound_data, current_data.num_samples);
         globals_set_alien_walk_flag(false);
         sound_done = false;
         return_state = WALK02_STATE;
@@ -71,7 +68,7 @@ void sound_state_machine() {
     case WALK03_STATE:
       if(globals_get_alien_walk_flag()) {
         current_data = audio_driver_get_data_array(AUDIO_DRIVER_WALK3_AUDIO);
-        audio_driver_write(current_data.sound_data, current_data.num_samples);
+        // audio_driver_write(current_data.sound_data, current_data.num_samples);
         globals_set_alien_walk_flag(false);
         sound_done = false;
         return_state = WALK03_STATE;
@@ -82,7 +79,7 @@ void sound_state_machine() {
     case WALK04_STATE:
       if(globals_get_alien_walk_flag()) {
         current_data = audio_driver_get_data_array(AUDIO_DRIVER_WALK4_AUDIO);
-        audio_driver_write(current_data.sound_data, current_data.num_samples);
+        // audio_driver_write(current_data.sound_data, current_data.num_samples);
         globals_set_alien_walk_flag(false);
         sound_done = false;
         return_state = WALK04_STATE;
@@ -91,16 +88,26 @@ void sound_state_machine() {
       else if (!audio_driver_read()) { sound_done = true; }
       break;
     case SAUCER_ZOOM_STATE:
-      printf("SAUCER_ZOOM_STATE\n");
+      //printf("SAUCER_ZOOM_STATE\n");
       if(sound_done) {
+        printf("Sound done-----------------------------------------------\r\n");
         current_data = audio_driver_get_data_array(AUDIO_DRIVER_UFO_AUDIO);
-        // audio_driver_write(current_data.sound_data, current_data.num_samples);
+        current_data = audio_driver_get_data_array(AUDIO_DRIVER_PLAYER_DIE_AUDIO);
+        audio_driver_write(current_data.sound_data, current_data.num_samples);
         globals_set_saucer_zoom_flag(false);
         sound_done = false;
         return_state = SAUCER_ZOOM_STATE;
         transition = SAUCER_ZOOM_TRANS;
+        int i = 0;
+        while(i<100000){
+          i++;
+          printf("loop\r\n");
+        }
       }
-      else if (!audio_driver_read()) { sound_done = true; }
+      else if (!audio_driver_read()) {
+        printf("Sound not done****************************************\r\n");
+        sound_done = true;
+      }
       break;
     case SAUCER_EX_STATE:
       if(sound_done) {
@@ -125,7 +132,7 @@ void sound_state_machine() {
     case TANK_SHOOT_STATE:
       if(sound_done) {
         current_data = audio_driver_get_data_array(AUDIO_DRIVER_LASER_AUDIO);
-        //audio_driver_write(current_data.sound_data, current_data.num_samples);
+        // audio_driver_write(current_data.sound_data, current_data.num_samples);
         globals_set_shoot_flag(false);
         sound_done = false;
         transition = TANK_SHOOT_TRANS;
@@ -135,7 +142,7 @@ void sound_state_machine() {
     case TANK_EX_STATE:
       if(sound_done) {
         current_data = audio_driver_get_data_array(AUDIO_DRIVER_PLAYER_DIE_AUDIO);
-        //audio_driver_write(current_data.sound_data, current_data.num_samples);
+        // audio_driver_write(current_data.sound_data, current_data.num_samples);
         globals_set_tank_ex_flag(false);
         sound_done = false;
         transition = TANK_EX_TRANS;
@@ -189,7 +196,7 @@ void sound_state_machine() {
       else { current_state = WALK01_STATE; }
       break;
     case SAUCER_ZOOM_TRANS:
-      printf("SAUCER_ZOOM_TRANS\n");
+      //printf("SAUCER_ZOOM_TRANS\n");
       if (!sound_done) { current_state = current_state; }
       else if(globals_get_tank_ex_flag()) { current_state = TANK_EX_STATE; }
       else if(globals_get_alien_ex_flag()) { current_state = ALIEN_EX_STATE; }

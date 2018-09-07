@@ -195,7 +195,7 @@ static ssize_t audio_write(struct file *f, const char *buf, size_t len,
   }
   // Make sure the audio core has interrupts enabled.
   iowrite32(INTERRUPTS_ON,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
-  enable_irq(irq_num);
+  // enable_irq(irq_num);
   pr_info("IRQ_ISR: Interrupts enabled!!\n");
 
   return bytes_written;
@@ -248,8 +248,12 @@ static irqreturn_t irq_isr(int irq_loc, void *dev_id) {
         iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_R_REG_OFFSET);
         i++;
       }
+      else{
+        break;
+      }
       check_full();
     }
+    printk("IRQ_ISR: Data Finished writing***********************************************");
   }
   // Once end of the audio clip is reached, disable interrupts
   iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
@@ -437,7 +441,7 @@ static int audio_probe(struct platform_device *pdev) {
   }
   dev.pdev = pdev;
   iowrite32(INTERRUPTS_ON,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
-  enable_irq(irq_num);
+  // enable_irq(irq_num);
   // Register your interrupt service routine -- request_irq
   int irq_err = request_irq(irq_num,irq_isr,0,MODULE_NAME,NULL);
   if(irq_err < PROBE_SUCCESS) { // failed to register the platform driver

@@ -292,10 +292,10 @@ void isr_fit() {
   counter_delay++;
   /* saucer flight handling in the main */
   if(globals_get_saucer_status() == SAUCER_SHOT) { // if the saucer is currently dead
-    // globals_set_saucer_zoom_flag(false);
+    globals_set_saucer_zoom_flag(false);
     uint32_t saucer_count = globals_get_saucer_shot_count();
     if(saucer_count > SAUCER_SHOT_DELAY_TIME) { // we wait a certain amount of time before reprinting it
-      // globals_set_saucer_zoom_flag(true);
+      globals_set_saucer_zoom_flag(true);
       globals_set_saucer_status(SAUCER_ALIVE);
       globals_reset_saucer_shot_count();
       image_render_saucer();
@@ -305,7 +305,7 @@ void isr_fit() {
     }
   }
   else { // if the saucer is currently alive
-    // globals_set_saucer_zoom_flag(true);
+    globals_set_saucer_zoom_flag(true);
     image_render_saucer();
   }
   /* This controls the firing of the bullets and their movement
@@ -355,7 +355,8 @@ void isr_switches(){
   switch_uio_acknowledge(SWITCH_UIO_CHANNEL_ONE_MASK); /* acknowledges an interrupt from the GPIO */
   intc_ack_interrupt(INTC_SWITCHES_MASK); /* acknowledges an interrupt from the interrupt controller */
 }
-
+int sound_counter = 0;
+int move_counter = 0;
 /*********************************** main ***********************************/
 int main() {
   intc_init(INTC_GPIO_FILE_PATH); // intializes interrupts
@@ -371,6 +372,8 @@ int main() {
     // Call interrupt controller function to wait for interrupt
     uint32_t interrupts = intc_wait_for_interrupt();
     // Check which interrupt lines are high and call the appropriate ISR functions
+    sound_counter++;
+    move_counter++;
     if(interrupts & INTC_FIT_MASK) { // FIT Interrupt
       isr_fit();
       sound_state_machine();

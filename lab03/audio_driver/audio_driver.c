@@ -98,10 +98,10 @@ int32_t audio_driver_init(char devDevice[]) {
   printf("WALK4_AUDIO imported\n\n\r");
   return AUDIO_DRIVER_SUCCESS;
 }
-void audio_driver_volume(int16_t switch_flag){
+void audio_driver_volume(int16_t switch_flag){ //MAGIC NUMBERS HERE
   int iic_fd = setI2C(0, IIC_SLAVE_ADDR);
   if(switch_flag){
-    printf("volume up, %x \n\r", volume);
+    //printf("volume up, %x \n\r", volume);
     if(volume<=231){
       volume += 24;
     }
@@ -110,7 +110,7 @@ void audio_driver_volume(int16_t switch_flag){
   }
   else{
     //call a function in audio_drivier_volume_UP()
-    printf("volume Down, %x \n\r", volume);
+    //printf("volume Down, %x \n\r", volume);
     if(volume>24)
     volume -= 24;
     write_audio_reg(R29_PLAYBACK_HEADPHONE_LEFT_VOLUME_CONTROL, volume, iic_fd);
@@ -253,7 +253,7 @@ void audio_driver_exit() {
    return AUDIO_DRIVER_WRITE_FAILED;
   }
   //printf("************************start audiodriver w**************************************\r\n");
-  printf("volume, %x \n\r", volume);
+  
   write(fd,buf,len); // call write in the audio driver in kernel space
   //printf("************************end audiodriver w**************************************\r\n");
 

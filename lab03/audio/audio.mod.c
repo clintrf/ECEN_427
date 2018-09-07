@@ -32,7 +32,6 @@ __attribute__((section("__versions"))) = {
 	{ 0x1cd5f9ba, __VMLINUX_SYMBOL_STR(cdev_add) },
 	{ 0xc35f62c8, __VMLINUX_SYMBOL_STR(cdev_init) },
 	{ 0xfa2a45e, __VMLINUX_SYMBOL_STR(__memzero) },
-	{ 0xfcec0987, __VMLINUX_SYMBOL_STR(enable_irq) },
 	{ 0x28cc25db, __VMLINUX_SYMBOL_STR(arm_copy_from_user) },
 	{ 0x12da5bb2, __VMLINUX_SYMBOL_STR(__kmalloc) },
 	{ 0x37a0cba, __VMLINUX_SYMBOL_STR(kfree) },
