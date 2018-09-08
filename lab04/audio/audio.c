@@ -75,7 +75,7 @@ static void check_full(void);// added by seth
 static int audio_probe(struct platform_device *pdev);
 static int audio_remove(struct platform_device * pdev);
 static long audio_ioctl(struct file *f, unsigned int cmd,unsigned long arg);//needs to be updated
-uint32_t i = 0;
+uint32_t fifo_index = 0;
 
 /*********************************** structs *********************************/
 // struct containing the audio_device data
@@ -176,6 +176,7 @@ static ssize_t audio_write(struct file *f, const char *buf, size_t len,
   }
   // allocate a buffer for the new clip (kmalloc).
   fifo_data_buffer = kmalloc((len)*4, GFP_KERNEL);
+  fifo_index = 0;
   fifo_data_buffer_alloc = true;
   if (!fifo_data_buffer) { // allocation failed, need to free pointers
     printk(KERN_INFO "kmalloc Error\n");
@@ -255,17 +256,17 @@ static irqreturn_t irq_isr(int irq_loc, void *dev_id) {
     uint32_t ii = 0;
     while(!isFull) {
       if(ii < 600) {
-        printk("IRQ_ISR: Data in the FIFO is %x\n", fifo_data_buffer[i]);
-        printk("IRQ_ISR: Index at the FIFO is %zu\n", i);
-        iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
-        iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_R_REG_OFFSET);
-        i++;
+        printk("IRQ_ISR: Data in the FIFO is %x\n", fifo_data_buffer[fifo_index]);
+        printk("IRQ_ISR: Index at the FIFO is %zu\n", fifo_index);
+        iowrite32(fifo_data_buffer[fifo_index],(dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
+        iowrite32(fifo_data_buffer[fifo_index],(dev.virt_addr)+I2S_DATA_TX_R_REG_OFFSET);
+        fifo_index++;
         ii++;
       }
 
-      if(i >= (buf_len-1)) {
+      if(fifo_index >= buf_len) {
         iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
-        i = 0;
+        fifo_index = 0;
         fifo_data_buffer_alloc = false;
         return IRQ_HANDLED;
       }
