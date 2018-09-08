@@ -253,21 +253,21 @@ static irqreturn_t irq_isr(int irq_loc, void *dev_id) {
     // Once end of the audio clip is reached, disable interrupts
     // iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
 
-    while(!isFull){
-      if(i < 600){
+    uint32_t ii = 0;
+    while(!isFull) {
+      if(ii < 600) {
         iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
         iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_R_REG_OFFSET);
         i++;
+        ii++;
       }
-
-      if(i > buf_len) {
+      if(i >= buf_len) {
         iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
         i = 0;
         return IRQ_HANDLED;
       }
       check_full();
     }
-
   }
   return IRQ_HANDLED;
 }
