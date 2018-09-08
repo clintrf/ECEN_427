@@ -75,7 +75,7 @@ static void check_full(void);// added by seth
 static int audio_probe(struct platform_device *pdev);
 static int audio_remove(struct platform_device * pdev);
 static long audio_ioctl(struct file *f, unsigned int cmd,unsigned long arg);//needs to be updated
-uint32_t ii = 0;
+uint32_t i = 0;
 
 /*********************************** structs *********************************/
 // struct containing the audio_device data
@@ -195,7 +195,7 @@ static ssize_t audio_write(struct file *f, const char *buf, size_t len,
   }
   // Make sure the audio core has interrupts enabled.
   iowrite32(INTERRUPTS_ON,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
-  enable_irq(irq_num);
+  //enable_irq(irq_num);
   pr_info("IRQ_ISR: Interrupts enabled!!\n");
 
   return bytes_written;
@@ -449,8 +449,8 @@ static int audio_probe(struct platform_device *pdev) {
     return PROBE_ERR;
   }
   dev.pdev = pdev;
-  iowrite32(INTERRUPTS_ON,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
-  enable_irq(irq_num);
+  // iowrite32(INTERRUPTS_ON,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
+  // enable_irq(irq_num);// turn off for lab 3
   // Register your interrupt service routine -- request_irq
   int irq_err = request_irq(irq_num,irq_isr,0,MODULE_NAME,NULL);
   if(irq_err < PROBE_SUCCESS) { // failed to register the platform driver
