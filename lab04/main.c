@@ -34,21 +34,21 @@ int main() {
   fclose(fpp);
 
   int i = 0;
-
+  int j=0;
   while(ALWAYS_TRUE) {
-    int stuff = audio_driver_read();
-    if(!stuff) {
-      sleep(TIME_TO_SLEEP);
-      audio_driver_write(audio_driver_get_data_array(i).sound_data,audio_driver_get_data_array(i).num_samples);
-      i++;
-      if(i > SIZEOF_SOUND_ARRAY) {
-        i = 0;
-      }
-    }
-    printf("Current Index: %zu\n",i);
-  }
 
-  printf("\t invader_die audio sound played\n\r");
+    if(!audio_driver_read()) {
+      printf("\t\tstart\n");
+      audio_driver_write(audio_driver_get_data_array(i).sound_data,audio_driver_get_data_array(i).num_samples);
+      printf("\t\tend\n");
+      i = 1;
+    }
+    else{
+      j++;
+      printf("sound  playing %d\n", j);
+    }
+    //printf("Current Index: %zu\n",i);
+  }
   // exit from the audio driver and free up allocated memory
   audio_driver_exit();
 }

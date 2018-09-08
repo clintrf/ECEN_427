@@ -243,7 +243,7 @@ void audio_driver_exit() {
    printf("Buffer that was passed in was empty!\n");
    return AUDIO_DRIVER_WRITE_FAILED;
   }
-  printf("Size of the buffer passed in: %zu\n",len);
+  //printf("Size of the buffer passed in: %zu\n",len);
   write(fd,buf,len); // call write in the audio driver in kernel space
 
   write_audio_reg(R22_PLAYBACK_MIXER_LEFT_CONTROL_0, 0x01, iic_fd);
@@ -260,14 +260,14 @@ void audio_driver_exit() {
 int32_t audio_driver_read() {
   uint32_t *buf;
   uint32_t len;
-  printf("Reached audio_driver_read()\n");
+  //printf("Reached audio_driver_read()\n");
   int32_t count = read(fd,buf,len);
   if(count == 1) { // optimal case success
-    printf("Sound is currently playing!\n");
+    //printf("Sound is currently playing!\n");
     return 1;
   }
   else { // some kind of error occured if the number is negative
-    printf("Sound is not currently playing!\n");
+    //printf("Sound is not currently playing!\n");
     return 0;
   }
 }
