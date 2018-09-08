@@ -281,7 +281,7 @@ int32_t audio_driver_read() {
 // returns a long  variable for success or failure
 long audio_driver_ioctl(unsigned int cmd, unsigned long arg){
   printf("audio_driver_ioctl- userspace code\n\r");
-  return audio_ioctl(fd,cmd,arg);
+  // return unlocked_ioctl(fd,cmd,arg);
 }
 
 // Call to get the audio header and data out of the data data_array
