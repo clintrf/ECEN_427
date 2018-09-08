@@ -238,34 +238,38 @@ static irqreturn_t irq_isr(int irq_loc, void *dev_id) {
   else {
     pr_info("IRQ_ISR: data_TX is full!\n");
   }
-  //uint32_t i = 0;
   if(fifo_data_buffer_alloc) { // only write if space is allocated to the fifo
-    // uint32_t i = 0;
-    // while(i < buf_len) { // go through the entire buffer
-    //   if(!isFull) { // check to see if the FIFO is full or not
-    //     printk("IRQ_ISR: Data in the FIFO is %x", fifo_data_buffer[i]);
-    //     iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
-    //     iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_R_REG_OFFSET);
-    //     i++;
-    //   }
-    //   check_full();
-    // }
-    // Once end of the audio clip is reached, disable interrupts
-    // iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
+  //   uint32_t i = 0;
+  //   while(i < buf_len) { // go through the entire buffer
+  //     if(!isFull) { // check to see if the FIFO is full or not
+  //       printk("IRQ_ISR: Data in the FIFO is %x", fifo_data_buffer[i]);
+  //       iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
+  //       iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_R_REG_OFFSET);
+  //       i++;
+  //     }
+  //     check_full();
+  //   }
+  //   // Once end of the audio clip is reached, disable interrupts
+  //   iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
 
     uint32_t ii = 0;
     while(!isFull) {
       if(ii < 600) {
+        printk("IRQ_ISR: Data in the FIFO is %x\n", fifo_data_buffer[i]);
+        printk("IRQ_ISR: Index at the FIFO is %zu\n", i);
         iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
         iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_R_REG_OFFSET);
         i++;
         ii++;
       }
-      if(i >= buf_len) {
+
+      if(i >= buf_len-4) {
         iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
         i = 0;
+        fifo_data_buffer_alloc = false;
         return IRQ_HANDLED;
       }
+
       check_full();
     }
   }
