@@ -263,7 +263,7 @@ static irqreturn_t irq_isr(int irq_loc, void *dev_id) {
         ii++;
       }
 
-      if(i >= buf_len-4) {
+      if(i >= (buf_len-1)) {
         iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
         i = 0;
         fifo_data_buffer_alloc = false;
