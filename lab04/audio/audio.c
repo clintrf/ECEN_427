@@ -234,46 +234,46 @@ static irqreturn_t irq_isr(int irq_loc, void *dev_id) {
   // Determine how much free space is in the audio FIFOs
   check_full();
   if(!isFull) {
-    pr_info("IRQ_ISR: data_TX is not full!\n");
+    // pr_info("IRQ_ISR: data_TX is not full!\n");
   }
   else {
-    pr_info("IRQ_ISR: data_TX is full!\n");
+    // pr_info("IRQ_ISR: data_TX is full!\n");
   }
   if(fifo_data_buffer_alloc) { // only write if space is allocated to the fifo
-  //   uint32_t i = 0;
-  //   while(i < buf_len) { // go through the entire buffer
-  //     if(!isFull) { // check to see if the FIFO is full or not
-  //       printk("IRQ_ISR: Data in the FIFO is %x", fifo_data_buffer[i]);
-  //       iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
-  //       iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_R_REG_OFFSET);
-  //       i++;
-  //     }
-  //     check_full();
-  //   }
-  //   // Once end of the audio clip is reached, disable interrupts
-  //   iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
+    // uint32_t i = 0;
+    // while(i < buf_len) { // go through the entire buffer
+    //   if(!isFull) { // check to see if the FIFO is full or not
+    //     printk("IRQ_ISR: Data in the FIFO is %x", fifo_data_buffer[i]);
+    //     iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
+    //     iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_R_REG_OFFSET);
+    //     i++;
+    //   }
+    //   check_full();
+    // }
+    // // Once end of the audio clip is reached, disable interrupts
+    // iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
 
-    uint32_t ii = 0;
     while(!isFull) {
       if(fifo_index < buf_len) {
-        printk("IRQ_ISR: Data in the FIFO is %x\n", fifo_data_buffer[fifo_index]);
-        printk("IRQ_ISR: Index at the FIFO is %zu\n", fifo_index);
-        printk("IRQ_ISR: II is %zu\n", ii);
+        // printk("IRQ_ISR: Data in the FIFO is %x\n", fifo_data_buffer[fifo_index]);
+        // printk("IRQ_ISR: Index at the FIFO is %zu\n", fifo_index);
         iowrite32(fifo_data_buffer[fifo_index],(dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
         iowrite32(fifo_data_buffer[fifo_index],(dev.virt_addr)+I2S_DATA_TX_R_REG_OFFSET);
         fifo_index++;
-        ii++;
       }
       else {
         iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
+        printk("IRQ_ISR: Index at the FIFO is %zu\n", fifo_index);
         fifo_index = 0;
         fifo_data_buffer_alloc = false;
+        printk("IRQ_ISR: THIS SHOULD BE CALLED ONCE.\n");
         return IRQ_HANDLED;
       }
 
       check_full();
     }
   }
+  printk("IRQ_ISR: Index at the FIFO is %zu\n", fifo_index);
   return IRQ_HANDLED;
 }
 // Extend your kernel driver to add ioctl to the list of file operations supported by your character device
@@ -454,8 +454,6 @@ static int audio_probe(struct platform_device *pdev) {
     return PROBE_ERR;
   }
   dev.pdev = pdev;
-  // iowrite32(INTERRUPTS_ON,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
-  // enable_irq(irq_num);// turn off for lab 3
   // Register your interrupt service routine -- request_irq
   int irq_err = request_irq(irq_num,irq_isr,0,MODULE_NAME,NULL);
   if(irq_err < PROBE_SUCCESS) { // failed to register the platform driver

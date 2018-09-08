@@ -13,7 +13,7 @@
 int32_t len = 0;
 const char * soundbuf;
 #define ALWAYS_TRUE 1
-#define TIME_TO_SLEEP 4
+#define TIME_TO_SLEEP 2
 #define SIZEOF_SOUND_ARRAY 8
 int main() {
   // initialize codec
@@ -34,14 +34,14 @@ int main() {
   fclose(fpp);
 
   int i = 0;
-  int j=0;
+  int j = 0;
   audio_driver_write(audio_driver_get_data_array(i).sound_data,audio_driver_get_data_array(i).num_samples);
   sleep(TIME_TO_SLEEP);
-  audio_driver_write(audio_driver_get_data_array(i).sound_data,audio_driver_get_data_array(i).num_samples);
-  sleep(TIME_TO_SLEEP);
-  audio_driver_write(audio_driver_get_data_array(i).sound_data,audio_driver_get_data_array(i).num_samples);
-  sleep(TIME_TO_SLEEP);
-  audio_driver_write(audio_driver_get_data_array(i).sound_data,audio_driver_get_data_array(i).num_samples);
+  // audio_driver_write(audio_driver_get_data_array(i).sound_data,audio_driver_get_data_array(i).num_samples);
+  // sleep(TIME_TO_SLEEP);
+  // audio_driver_write(audio_driver_get_data_array(i).sound_data,audio_driver_get_data_array(i).num_samples);
+  // sleep(TIME_TO_SLEEP);
+  // audio_driver_write(audio_driver_get_data_array(i).sound_data,audio_driver_get_data_array(i).num_samples);
   // while(ALWAYS_TRUE) {
   //
   //   if(!audio_driver_read()) {
