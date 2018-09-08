@@ -255,13 +255,16 @@ static irqreturn_t irq_isr(int irq_loc, void *dev_id) {
 
     uint32_t ii = 0;
     while(!isFull) {
-      if(ii < 600) {
+      if(ii < 5000) {
         printk("IRQ_ISR: Data in the FIFO is %x\n", fifo_data_buffer[fifo_index]);
         printk("IRQ_ISR: Index at the FIFO is %zu\n", fifo_index);
         iowrite32(fifo_data_buffer[fifo_index],(dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
         iowrite32(fifo_data_buffer[fifo_index],(dev.virt_addr)+I2S_DATA_TX_R_REG_OFFSET);
         fifo_index++;
         ii++;
+      }
+      else {
+        return IRQ_HANDLED;
       }
 
       if(fifo_index >= buf_len) {
