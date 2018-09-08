@@ -250,34 +250,25 @@ static irqreturn_t irq_isr(int irq_loc, void *dev_id) {
     //   }
     //   check_full();
     // }
-	// uint32_t i = 0;
-    // while(!isFull&&!isEmpty) { // check to see if the FIFO is full or not
-    //   if(i < buf_len) { // go through the entire buffer
-    //     printk("IRQ_ISR: Data in the FIFO is %x", fifo_data_buffer[i]);
-    //     iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
-    //     iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_R_REG_OFFSET);
-    //     i++;
-    //   }
-    //   check_full();
-    // }
-    if((ii >= buf_len-4)){
-      ii = 0;
-    }
-    while( (ii < buf_len)){
-      if(!isFull){
-        iowrite32(fifo_data_buffer[ii],(dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
-        iowrite32(fifo_data_buffer[ii],(dev.virt_addr)+I2S_DATA_TX_R_REG_OFFSET);
-        ii++;
+    // Once end of the audio clip is reached, disable interrupts
+    // iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
+
+    while(!isFull){
+      if(i < 600){
+        iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
+        iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_R_REG_OFFSET);
+        i++;
       }
-      else{
-        //break;
+
+      if(i > buf_len) {
+        iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
+        i = 0;
+        return IRQ_HANDLED;
       }
       check_full();
     }
 
   }
-  // Once end of the audio clip is reached, disable interrupts
-  iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
   return IRQ_HANDLED;
 }
 // Extend your kernel driver to add ioctl to the list of file operations supported by your character device

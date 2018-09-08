@@ -13,7 +13,7 @@
 int32_t len = 0;
 const char * soundbuf;
 #define ALWAYS_TRUE 1
-#define TIME_TO_SLEEP 3
+#define TIME_TO_SLEEP 4
 #define SIZEOF_SOUND_ARRAY 8
 int main() {
   // initialize codec
@@ -35,20 +35,27 @@ int main() {
 
   int i = 0;
   int j=0;
-  while(ALWAYS_TRUE) {
-
-    if(!audio_driver_read()) {
-      printf("\t\tstart\n");
-      audio_driver_write(audio_driver_get_data_array(i).sound_data,audio_driver_get_data_array(i).num_samples);
-      printf("\t\tend\n");
-      i = 1;
-    }
-    else{
-      j++;
-      printf("sound  playing %d\n", j);
-    }
-    //printf("Current Index: %zu\n",i);
-  }
+  audio_driver_write(audio_driver_get_data_array(i).sound_data,audio_driver_get_data_array(i).num_samples);
+  sleep(TIME_TO_SLEEP);
+  audio_driver_write(audio_driver_get_data_array(i).sound_data,audio_driver_get_data_array(i).num_samples);
+  sleep(TIME_TO_SLEEP);
+  audio_driver_write(audio_driver_get_data_array(i).sound_data,audio_driver_get_data_array(i).num_samples);
+  sleep(TIME_TO_SLEEP);
+  audio_driver_write(audio_driver_get_data_array(i).sound_data,audio_driver_get_data_array(i).num_samples);
+  // while(ALWAYS_TRUE) {
+  //
+  //   if(!audio_driver_read()) {
+  //     printf("\t\tstart\n");
+  //     audio_driver_write(audio_driver_get_data_array(i).sound_data,audio_driver_get_data_array(i).num_samples);
+  //     printf("\t\tend\n");
+  //     i = 0;
+  //   }
+  //   else{
+  //     j++;
+  //     printf("sound  playing %d\n", j);
+  //   }
+  //   //printf("Current Index: %zu\n",i);
+  // }
   // exit from the audio driver and free up allocated memory
   audio_driver_exit();
 }

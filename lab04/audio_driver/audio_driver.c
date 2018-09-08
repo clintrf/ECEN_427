@@ -243,6 +243,10 @@ void audio_driver_exit() {
    printf("Buffer that was passed in was empty!\n");
    return AUDIO_DRIVER_WRITE_FAILED;
   }
+  //increase loudness -- necessary for testing
+  // uint16_t loud_vol =231;
+  // write_audio_reg(R8_LEFT_DIFFERENTIAL_INPUT_VOLUME_CONTROL, loud_vol, iic_fd);
+  // write_audio_reg(R9_RIGHT_DIFFERENTIAL_INPUT_VOLUME_CONTROL, loud_vol, iic_fd);
   //printf("Size of the buffer passed in: %zu\n",len);
   write(fd,buf,len); // call write in the audio driver in kernel space
 
