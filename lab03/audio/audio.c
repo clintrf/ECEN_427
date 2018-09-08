@@ -63,7 +63,6 @@ MODULE_DESCRIPTION("ECEn 427 Audio Driver");
 #define WRITE_ERR -1
 #define SOUND_NOT_PLAYING 0
 #define SOUND_PLAYING 1
-#define MALLOC_INCREASE_VAL 4
 //#defines for IOCtl files
 #define IOC_MAGIC  'k'
 #define TURN_ON_LOOPING _IO(IOC_MAGIC, 1)//example #define WR_VALUE _IOW('a','a',int32_t*)
@@ -76,6 +75,7 @@ static void check_full(void);// added by seth
 static int audio_probe(struct platform_device *pdev);
 static int audio_remove(struct platform_device * pdev);
 static long audio_ioctl(struct file *f, unsigned int cmd,unsigned long arg);//needs to be updated
+uint32_t fifo_index = 0;
 
 /*********************************** structs *********************************/
 // struct containing the audio_device data
@@ -146,7 +146,7 @@ module_exit(audio_exit);
 // off : indicates the file position the user is accessing
 // return one byte of data (0 or 1) stating if an audio sample is being played
 static ssize_t audio_read(struct file *f, char *buf, size_t len, loff_t *off) {
-  //printk(KERN_INFO "Driver: read()\n");
+  printk(KERN_INFO "Driver: read()\n");
   check_full();
   if(isEmpty) { return SOUND_NOT_PLAYING; }
   else { return SOUND_PLAYING; }
@@ -175,9 +175,9 @@ static ssize_t audio_write(struct file *f, const char *buf, size_t len,
     printk("Write: First iteration, did not free FIFO.\n");
   }
   // allocate a buffer for the new clip (kmalloc).
-  fifo_data_buffer = kmalloc((len)*MALLOC_INCREASE_VAL, GFP_KERNEL);
+  fifo_data_buffer = kmalloc((len)*4, GFP_KERNEL);
+  fifo_index = 0;
   fifo_data_buffer_alloc = true;
-
   if (!fifo_data_buffer) { // allocation failed, need to free pointers
     printk(KERN_INFO "kmalloc Error\n");
     kfree(fifo_data_buffer);
@@ -187,7 +187,7 @@ static ssize_t audio_write(struct file *f, const char *buf, size_t len,
 
   // Copy the audio data from userspace to your newly allocated buffer
   // (including safety checks on the userspace pointer) - LDD page 64.
-  unsigned int bytes_written = copy_from_user(fifo_data_buffer,buf,(len)*MALLOC_INCREASE_VAL);
+  unsigned int bytes_written = copy_from_user(fifo_data_buffer,buf,(len)*4);
 
   // check to see if we have written any bytes
   if(bytes_written < ZERO_BYTES_WRITTEN){
@@ -196,7 +196,7 @@ static ssize_t audio_write(struct file *f, const char *buf, size_t len,
   }
   // Make sure the audio core has interrupts enabled.
   iowrite32(INTERRUPTS_ON,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
-  // enable_irq(irq_num);
+  //enable_irq(irq_num);
   pr_info("IRQ_ISR: Interrupts enabled!!\n");
 
   return bytes_written;
@@ -232,32 +232,40 @@ static void check_full(void) {
 static irqreturn_t irq_isr(int irq_loc, void *dev_id) {
   pr_info("IRQ_ISR: Calling the irq_isr!\n");
   // Determine how much free space is in the audio FIFOs
-  check_full();
-  if(!isFull) {
-    pr_info("IRQ_ISR: data_TX is not full!\n");
-  }
-  else {
-    pr_info("IRQ_ISR: data_TX is full!\n");
-  }
-
   if(fifo_data_buffer_alloc) { // only write if space is allocated to the fifo
-    uint32_t i = 0;
-    while(i < buf_len) { // go through the entire buffer
-      if(!isFull) { // check to see if the FIFO is full or not
-        //printk("IRQ_ISR: Data in the FIFO is %x", fifo_data_buffer[i]);
-        iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
-        iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_R_REG_OFFSET);
-        i++;
+    // uint32_t i = 0;
+    // while(i < buf_len) { // go through the entire buffer
+    //   if(!isFull) { // check to see if the FIFO is full or not
+    //     printk("IRQ_ISR: Data in the FIFO is %x", fifo_data_buffer[i]);
+    //     iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
+    //     iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_R_REG_OFFSET);
+    //     i++;
+    //   }
+    //   check_full();
+    // }
+    // // Once end of the audio clip is reached, disable interrupts
+    // iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
+    check_full();
+    while(!isFull) {
+      if(fifo_index < buf_len) {
+        // printk("IRQ_ISR: Data in the FIFO is %x\n", fifo_data_buffer[fifo_index]);
+        // printk("IRQ_ISR: Index at the FIFO is %zu\n", fifo_index);
+        iowrite32(fifo_data_buffer[fifo_index],(dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
+        iowrite32(fifo_data_buffer[fifo_index],(dev.virt_addr)+I2S_DATA_TX_R_REG_OFFSET);
+        fifo_index++;
       }
-      else{
-        break;
+      else {
+        iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
+        printk("IRQ_ISR: Index at the FIFO is %zu\n", fifo_index);
+        fifo_index = 0;
+        fifo_data_buffer_alloc = false;
+        printk("IRQ_ISR: THIS SHOULD BE CALLED ONCE.\n");
+        return IRQ_HANDLED;
       }
       check_full();
     }
-    printk("IRQ_ISR: Data Finished writing***********************************************");
   }
-  // Once end of the audio clip is reached, disable interrupts
-  iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
+  printk("IRQ_ISR: Index at the FIFO is %zu\n", fifo_index);
   return IRQ_HANDLED;
 }
 // Extend your kernel driver to add ioctl to the list of file operations supported by your character device
@@ -314,12 +322,9 @@ static long audio_ioctl(struct file *f, unsigned int cmd,unsigned long arg)
     the explosion noise that occurs when an alien is hit by a tank bullet,
     the “ping” sound that the tank makes when you fire a bullet, and
     the sound the flying saucer makes if you hit it with a bullet.
-
 Implement volume control in the following manner:
-
     To increase volume, slide sw0 up, press btn3. Each press increases the volume a preset amount, such as 10%.
     To decrease volume, slide sw0 down, press btn3. Each press decreases the volume a preset amount, such as 10%.
-
 */
 return IOCTL_SUCCESS;
 }
@@ -441,8 +446,6 @@ static int audio_probe(struct platform_device *pdev) {
     return PROBE_ERR;
   }
   dev.pdev = pdev;
-  iowrite32(INTERRUPTS_ON,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
-  // enable_irq(irq_num);
   // Register your interrupt service routine -- request_irq
   int irq_err = request_irq(irq_num,irq_isr,0,MODULE_NAME,NULL);
   if(irq_err < PROBE_SUCCESS) { // failed to register the platform driver

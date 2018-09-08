@@ -232,13 +232,6 @@ void audio_driver_exit() {
   printf("Reached audio_driver_write()\n");
   int iic_fd = setI2C(0, IIC_SLAVE_ADDR);
 
-  // Unmute left and right DAC, enable Mixer3 and Mixer4
-  write_audio_reg(R22_PLAYBACK_MIXER_LEFT_CONTROL_0, 0x21, iic_fd);
-  write_audio_reg(R24_PLAYBACK_MIXER_RIGHT_CONTROL_0, 0x41, iic_fd);
-  // Enable Left/Right Headphone out
-  write_audio_reg(R29_PLAYBACK_HEADPHONE_LEFT_VOLUME_CONTROL, 0xE7, iic_fd);
-  write_audio_reg(R30_PLAYBACK_HEADPHONE_RIGHT_VOLUME_CONTROL, 0xE7, iic_fd);
-
   if(buf == NULL) { // if the buffer is empty, return an error
    printf("Buffer that was passed in was empty!\n");
    return AUDIO_DRIVER_WRITE_FAILED;
@@ -249,12 +242,6 @@ void audio_driver_exit() {
   // write_audio_reg(R9_RIGHT_DIFFERENTIAL_INPUT_VOLUME_CONTROL, loud_vol, iic_fd);
   //printf("Size of the buffer passed in: %zu\n",len);
   write(fd,buf,len); // call write in the audio driver in kernel space
-
-  write_audio_reg(R22_PLAYBACK_MIXER_LEFT_CONTROL_0, 0x01, iic_fd);
-  write_audio_reg(R24_PLAYBACK_MIXER_RIGHT_CONTROL_0, 0x01, iic_fd);
-  // Mute left input to mixer3 (R23) and right input to mixer4 (R25)
-  write_audio_reg(R23_PLAYBACK_MIXER_LEFT_CONTROL_1, 0x00, iic_fd);
-  write_audio_reg(R25_PLAYBACK_MIXER_RIGHT_CONTROL_1, 0x00, iic_fd);
 
   return AUDIO_DRIVER_WRITE_SUCCESS;
 }

@@ -27,10 +27,10 @@
 #define POSITION_TWO 1
 #define POSITION_THREE 2
 #define MAX_COUNTER 3
-#define ALIEN_MOVEMENT_DELAY 8
+#define ALIEN_MOVEMENT_DELAY 10
 #define SHOTS_FIRED 1
 #define MAX_ALIEN_SHOTS 1
-#define SAUCER_SHOT_DELAY_TIME 300
+#define SAUCER_SHOT_DELAY_TIME 1200
 #define SAUCER_SHOT 0
 #define SAUCER_ALIVE 1
 #define BULLET_DELAY_0 100
@@ -358,8 +358,7 @@ void isr_switches(){
   switch_uio_acknowledge(SWITCH_UIO_CHANNEL_ONE_MASK); /* acknowledges an interrupt from the GPIO */
   intc_ack_interrupt(INTC_SWITCHES_MASK); /* acknowledges an interrupt from the interrupt controller */
 }
-int sound_counter = 0;
-int move_counter = 0;
+
 /*********************************** main ***********************************/
 int main() {
   intc_init(INTC_GPIO_FILE_PATH); // intializes interrupts
@@ -375,8 +374,7 @@ int main() {
     // Call interrupt controller function to wait for interrupt
     uint32_t interrupts = intc_wait_for_interrupt();
     // Check which interrupt lines are high and call the appropriate ISR functions
-    sound_counter++;
-    move_counter++;
+
     if(interrupts & INTC_FIT_MASK) { // FIT Interrupt
       isr_fit();
       sound_state_machine();

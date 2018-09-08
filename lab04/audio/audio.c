@@ -232,13 +232,6 @@ static void check_full(void) {
 static irqreturn_t irq_isr(int irq_loc, void *dev_id) {
   pr_info("IRQ_ISR: Calling the irq_isr!\n");
   // Determine how much free space is in the audio FIFOs
-  check_full();
-  if(!isFull) {
-    // pr_info("IRQ_ISR: data_TX is not full!\n");
-  }
-  else {
-    // pr_info("IRQ_ISR: data_TX is full!\n");
-  }
   if(fifo_data_buffer_alloc) { // only write if space is allocated to the fifo
     // uint32_t i = 0;
     // while(i < buf_len) { // go through the entire buffer
@@ -252,7 +245,7 @@ static irqreturn_t irq_isr(int irq_loc, void *dev_id) {
     // }
     // // Once end of the audio clip is reached, disable interrupts
     // iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
-
+    check_full();
     while(!isFull) {
       if(fifo_index < buf_len) {
         // printk("IRQ_ISR: Data in the FIFO is %x\n", fifo_data_buffer[fifo_index]);
@@ -269,7 +262,6 @@ static irqreturn_t irq_isr(int irq_loc, void *dev_id) {
         printk("IRQ_ISR: THIS SHOULD BE CALLED ONCE.\n");
         return IRQ_HANDLED;
       }
-
       check_full();
     }
   }
