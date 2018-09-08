@@ -23,6 +23,7 @@
 #include "sound_state.h"
 #include <stdbool.h>
 #include "../globals/globals.h"// sgould this be in the header file?
+#include "../image_render/image_render.h"
 
 /********************************** macros **********************************/
 #define DEFAULT_PLL 0
@@ -144,7 +145,10 @@ void sound_state_machine() {
         sound_done = false;
         transition = TANK_EX_TRANS;
       }
-      else if (!audio_driver_read()) { sound_done = true; }
+      else if (!audio_driver_read()) { 
+      	image_render_tank(0,0);
+      	sound_done = true; 
+      }
       break;
     default:
       printf("Should not come here\n");

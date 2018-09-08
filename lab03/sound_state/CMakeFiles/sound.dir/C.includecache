@@ -18,6 +18,12 @@ stdint.h
 stdbool.h
 -
 
+/home/xilinx/ECEN_427/lab03/image_render/image_render.h
+stdint.h
+-
+stdio.h
+-
+
 /home/xilinx/ECEN_427/lab03/sound_state/sound_state.c
 stdint.h
 -
@@ -53,6 +59,8 @@ stdbool.h
 -
 ../globals/globals.h
 /home/xilinx/ECEN_427/lab03/globals/globals.h
+../image_render/image_render.h
+/home/xilinx/ECEN_427/lab03/image_render/image_render.h
 
 /home/xilinx/ECEN_427/lab03/sound_state/sound_state.h
 stdint.h

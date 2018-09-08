@@ -4,5 +4,6 @@
 sound_state/CMakeFiles/sound.dir/sound_state.c.o
  /home/xilinx/ECEN_427/lab03/audio_driver/audio_driver.h
  /home/xilinx/ECEN_427/lab03/globals/globals.h
+ /home/xilinx/ECEN_427/lab03/image_render/image_render.h
  /home/xilinx/ECEN_427/lab03/sound_state/sound_state.c
  /home/xilinx/ECEN_427/lab03/sound_state/sound_state.h

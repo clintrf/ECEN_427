@@ -3,6 +3,7 @@
 
 sound_state/CMakeFiles/sound.dir/sound_state.c.o: audio_driver/audio_driver.h
 sound_state/CMakeFiles/sound.dir/sound_state.c.o: globals/globals.h
+sound_state/CMakeFiles/sound.dir/sound_state.c.o: image_render/image_render.h
 sound_state/CMakeFiles/sound.dir/sound_state.c.o: sound_state/sound_state.c
 sound_state/CMakeFiles/sound.dir/sound_state.c.o: sound_state/sound_state.h
 

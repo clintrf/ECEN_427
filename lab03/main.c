@@ -195,12 +195,6 @@ void isr_fit() {
 
   if(globals_get_tank_dead()) { // checks to see if the tank is dead or not
     globals_set_tank_ex_flag(true);
-    tank_dead_counter++; // if its dead, move timer
-    if(tank_dead_counter > TANK_EXPLOSION_TIMER) { // if time is up, reprint tank
-        image_render_tank(MOVE_ONE_SPACE,0);
-        globals_set_tank_dead(false);
-        tank_dead_counter = 0;
-    }
   }
 
   /* checks to see if the aliens have overrun the bunker location, if they have, then end the game */
