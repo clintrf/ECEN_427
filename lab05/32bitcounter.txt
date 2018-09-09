@@ -1,0 +1,43 @@
+//32 bit counter for vivad0/vhdl lab 5
+//Seth Becerra, Dax, Clint
+
+
+module bit32_counter{
+input clk,
+enable,
+input reset,
+output out,  // a 32 singel interrupt output, is active when it is a 1
+};
+
+ctrl_reg [31:0] // programable register, read/writeable from cpu
+// bit0 enables the counter to decrement if set to 1, holds if set to 0
+//bit 1 enables interrupts if set to a 1, disables interrupts if set to 0
+//you can use the remaining bits in the programmable ctrl reg as you see fit
+
+delay_val_reg [31:0] // 32 bit delay value register that must be read/writeable
+// loaded into the timer-counter as described
+
+always @ (posedge(clk))
+begin 
+if(ctrl_reg[0]== 1'b1)
+{
+// decrement the counter
+}
+else
+{
+// holds counter if 0, pause the counter
+}
+if(ctrl_reg[1]==1'b1)
+{
+ //enables interrupts
+}
+else
+{
+//disables interrupts 
+}
+
+
+
+
+
+

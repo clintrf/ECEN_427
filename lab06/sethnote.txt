@@ -1,0 +1,22 @@
+your driver must expose the following functionality through the sysfs interface.
+
+
+-- get/set timer period
+-- start/stop timer
+-- turn timer interrupts on/off
+
+//demonstrate that your PIT works correctly by running your space invaders game
+// and while the game is executing, run the following and demonstrate that 
+// your game speed changes on the fly
+
+sudo bash -c “echo new-pit-period > /sys/class/your_pit_class/your_pit/your_pit_period_attribute”
+
+
+//what you need to do
+1 updat the linux device tree
+
+2 create your basic driver
+
+3 add sysfs interfaces
+
+4 space invaders
