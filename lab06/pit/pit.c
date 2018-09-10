@@ -94,6 +94,7 @@ static struct platform_driver pit_platform_driver = {
   }
 };
 
+// a struct that define an attribute
 typedef struct attribute {
     char *           name;  // Name of file
     struct module *  owner;
@@ -101,7 +102,7 @@ typedef struct attribute {
     permissions
 };
 
-
+// a specific type of attribute that allows for reading and writing
 typedef struct pit_attribute {
     struct attribute attr;
     ssize_t (*show)(
@@ -117,26 +118,10 @@ typedef struct pit_attribute {
     );
 };
 
-struct attribute_group {
-  const char       *name;
-  umode_t           (*is_visible)(
-    structkobject *,
-    struct attribute *,
-    int
-  );
-  struct attribute   **attrs;
-  struct bin_attribute  **bin_attrs;
-};
 
-struct kobject *root, *s1;
-static struct attribute_group my_attr_grp; // why do we need a group of attibutes?
-static struct pit_attribute my_pit_attr;
-
+static struct attribute_group my_attr_grp; // why do we need a group of attributes?
 static struct attribute * bundle[ 4 ]; // whats the point of a bundle?
 static struct pit_attribute da1; // what are attributes? Why do we need them?
-static struct pit_attribute da2;
-static struct pit_attribute da3;
-static struct pit_attribute da4;
 
 /****************************** global variables ****************************/
 static pit_dev dev; // global pit device
@@ -147,6 +132,8 @@ static struct device *device;
 static struct cdev cdev; // character device for the driver
 static struct resource *res; // Device Resource Structure
 static struct resource *res_mem; // Device Resource Structure
+static struct pit_attribute p_attr;
+struct kobject *root;
 
 /***************************** kernel definitions ****************************/
 static int pit_init(void);
@@ -154,7 +141,6 @@ static void pit_exit(void);
 
 module_init(pit_init);
 module_exit(pit_exit);
-
 
 /********************************** functions ********************************/
 // This is called when Linux loadrite (buffer);s your driver
@@ -186,33 +172,10 @@ static int pit_init(void) {
     return INIT_ERR;
   }
 
-  da1.attr = ;
-  da2.attr;
-  da3.attr;
-  da4.attr;
-
-  bundle[0] = &da1.attr;
-  bundle[1] = &da2.attr;
-  bundle[2] = &da3.attr;
-  bundle[3] = &da4.attr;
-
-  my_attr_grp.attrs = bundle;
-
-  my_pit_attr.attr.name = "subdir1";
-  my_pit_attr.attr.mode = 0666;
-  my_pit_attr.show  = NULL;            // Read Function
-  my_pit_attr.store = NULL;            // No W function
-
-
-
-  // if(PTR_ERR(sysfs_create_file(ko, &my_pit_attr.attr))) {
-  //   // Handle Error
-  // }
-
-  if(sysfs_create_group(ko, &my_attr_grp)) {
-    // Handle Error
-  }
-
+  /********ADDED CODE********/
+  p_attr.attr.name = "attribute1"; // names the attribute
+  _ATTR_RW("attribute1"); // should set show and store to default setting and mode to 0644
+  /******END ADDED CODE******/
 
   pr_info("%s: PIT Driver initialization success!\n", MODULE_NAME);
   return INIT_SUCCESS;
