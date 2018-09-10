@@ -1,0 +1,2 @@
+/usr/bin/ar qc libaudio_driver.a  CMakeFiles/audio_driver.dir/audio_driver.c.o
+/usr/bin/ranlib libaudio_driver.a

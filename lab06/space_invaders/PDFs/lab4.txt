@@ -1,0 +1,2014 @@
+#include <linux/init.h>
+#include <linux/module.h>
+#include <linux/device.h>
+#include <linux/kernel.h>
+#include <linux/cdev.h>
+#include <linux/kdev_t.h>
+#include <linux/types.h>
+#include <linux/fs.h>
+#include <linux/err.h>
+#include <linux/string.h>
+#include <linux/platform_device.h>
+#include <linux/of.h>
+#include <linux/of_address.h>
+#include <linux/irq.h>
+#include <linux/io.h>
+#include <linux/ioport.h>
+#include <linux/irqdomain.h>
+#include <linux/interrupt.h>
+#include <linux/slab.h>
+#include <stdbool.h>
+#include <asm/io.h>
+#include <asm/uaccess.h>
+#include <linux/ioctl.h>
+//#include <linux/ioctl.h>// milestone 3 also declared in linux/fs.h
+/*********************************** macros *********************************/
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("Seth Becerra, Dax Eckles & Clint Frandsen");
+MODULE_DESCRIPTION("ECEn 427 Audio Driver");
+
+#define MODULE_NAME "audio"
+#define I2S_DATA_RX_L_REG_OFFSET 0 // input for left channel (low 24 bits)
+#define I2S_DATA_RX_R_REG_OFFSET 1 // input for right channel (low 24 bits)
+#define I2S_DATA_TX_R_REG_OFFSET 2 // output for right channel (low 24 bits)
+#define I2S_DATA_TX_L_REG_OFFSET 3 // output for left channel (low 24 bits)
+/*
+ * Various statuses are held in this register
+ * [0] : control interrupt generation (0 disabled, 1 enabled)
+ * [10-1] : number of values currently in the audio FIFO right channel
+ * [20-11] : number of values currently in the audio FIFO left channel
+ * [21] : each time a new audio sample is available, this is 1, must be cleared
+*/
+#define I2S_STATUS_REG_OFFSET 4
+#define I2S_LEFT_FIFO_STATUS 11
+#define I2S_RIGHT_FIFO_STATUS 1
+#define TX_DATACOUNT_L_MASK 2095104 // 0x00000000000111111111100000000000
+#define TX_DATACOUNT_R_MASK 2046    // 0x00000000000000000000011111111110
+#define FIRST_MINOR 0
+#define NUM_OF_CONTIGUOUS_DEVS 1
+#define FIRST_RESOURCE 0
+#define SECOND_RESOURCE 1
+#define INIT_SUCCESS 0
+#define INIT_ERR -1
+#define PROBE_SUCCESS 0
+#define PROBE_ERR -1
+#define REMOVE_SUCCESS 0
+#define IOCTL_SUCCESS 0
+#define IOCTL_ERR -1
+#define INTERRUPTS_OFF 0x0
+#define INTERRUPTS_ON 0x1
+#define ZERO_BYTES_WRITTEN 0
+#define FIFO_BUFFER_LIMIT 1023
+#define WRITE_ERR -1
+#define SOUND_NOT_PLAYING 0
+#define SOUND_PLAYING 1
+#define IOC_MAGIC  'k'
+#define TURN_ON_LOOPING _IO(IOC_MAGIC, 1)
+#define TURN_OFF_LOOPING _IO(IOC_MAGIC, 2)
+#define BYTES_PER_WORD 4
+/********************************* prototypes ********************************/
+static ssize_t audio_read(struct file *f, char *buf, size_t len, loff_t *off);
+static ssize_t audio_write(struct file *f, const char *buf, size_t len,
+    loff_t *off);
+static void check_full(void);// added by seth
+static int audio_probe(struct platform_device *pdev);
+static int audio_remove(struct platform_device * pdev);
+static long audio_ioctl(struct file *f, unsigned int cmd,unsigned long arg);
+uint32_t fifo_index = 0;
+
+/*********************************** structs *********************************/
+// struct containing the audio_device data
+ typedef struct audio_device {
+    int minor_num;                      // Device minor number
+    struct cdev cdev;                   // Character device structure
+    struct platform_device * pdev;      // Platform device pointer
+    struct device* dev;                 // device (/dev)
+    phys_addr_t phys_addr;              // Physical address
+    u32 mem_size;                       // Allocated mem space size
+    u32* virt_addr;                     // Virtual address
+    // Add any items to this that you need
+} audio_dev;
+
+// struct containing the file operations data
+static struct file_operations audio_fops = {
+  .owner = THIS_MODULE,
+  .read = audio_read,
+  .write = audio_write,
+  .unlocked_ioctl = audio_ioctl
+};
+
+// Link between the hardware and its driver
+static struct of_device_id audio_of_match[] = {
+  { .compatible = "byu,ecen427-audio_codec", },
+  {}
+};
+MODULE_DEVICE_TABLE(of, audio_of_match);
+
+// struct containing the platform driver
+static struct platform_driver audio_platform_driver = {
+  .probe = audio_probe,
+  .remove = audio_remove,
+  .driver = {
+    .name = MODULE_NAME,
+    .owner = THIS_MODULE,
+    .of_match_table = audio_of_match,
+  }
+};
+
+/****************************** global variables ****************************/
+static audio_dev dev; // global audio device
+static bool audio_probe_called_once = false; // makes audio_probe call once
+static bool fifo_data_buffer_alloc = false; // needed to alloc space for fifo
+static dev_t dev_nums; // contains major and minor numbers
+static struct class *audio;
+static struct device *device;
+static struct cdev cdev; // character device for the driver
+static struct resource *res; // Device Resource Structure
+static struct resource *res_mem; // Device Resource Structure
+static struct resource *res_irq; // Device Resource Structure
+static unsigned int irq_num; // contains the irq number
+static u32 *fifo_data_buffer = NULL;
+static unsigned long buf_len = 0;
+static bool isEmpty = false;
+static bool isFull = false;
+/***************************** kernel definitions ****************************/
+static int audio_init(void);
+static void audio_exit(void);
+
+module_init(audio_init);
+module_exit(audio_exit);
+
+// reads a certain amount of bytes from a buffer
+// f : the file to read from
+// buf : the buffer to place the read values into
+// len : the number of bytes to read
+// off : indicates the file position the user is accessing
+// return one byte of data (0 or 1) stating if an audio sample is being played
+static ssize_t audio_read(struct file *f, char *buf, size_t len, loff_t *off) {
+  printk(KERN_INFO "Driver: read()\n");
+  check_full();
+  if(isEmpty) { return SOUND_NOT_PLAYING; }
+  else { return SOUND_PLAYING; }
+}
+
+// reads a certain amount of bytes from a buffer
+// f : the file to read from
+// buf : accepts a signed 32 bit buffer containing an audio clip
+// len : the number of bytes to write
+// off : indicates the file position the user is accessing
+// returns how many byteirq_locs were written
+static ssize_t audio_write(struct file *f, const char *buf, size_t len,
+    loff_t *off) {
+  printk(KERN_INFO "Driver: Write()\n");
+  buf_len = len;
+  // Immediately disable interrupts from the audio core.
+  iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
+  // Free the buffer used to store the old sound sample if applicable
+  if(fifo_data_buffer != NULL) { // check if there is anything inside the fifo
+      kfree(fifo_data_buffer);
+      printk("Write: Needed to free FIFO before continuing...\n");
+      fifo_data_buffer = NULL;
+  }
+  else {
+    printk("Write: First iteration, did not free FIFO.\n");
+  }
+  // allocate a buffer for the new clip (kmalloc).
+  fifo_data_buffer = kmalloc((len)*BYTES_PER_WORD, GFP_KERNEL);
+  fifo_index = 0;
+  fifo_data_buffer_alloc = true;
+  if (!fifo_data_buffer) { // allocation failed, need to free pointers
+    printk(KERN_INFO "kmalloc Error\n");
+    kfree(fifo_data_buffer);
+    fifo_data_buffer_alloc = false;
+    return ZERO_BYTES_WRITTEN; // zero bytes were written, the write failed.
+  }
+
+  // Copy the audio data from userspace to your newly allocated buffer
+  // (including safety checks on the userspace pointer) - LDD page 64.
+  unsigned int bytes_written = copy_from_user(fifo_data_buffer,buf,
+    (len)*BYTES_PER_WORD);
+
+  // check to see if we have written any bytes
+  if(bytes_written < ZERO_BYTES_WRITTEN){
+    printk(KERN_INFO "Audio Write Error\n");
+    return WRITE_ERR;
+  }
+  // Make sure the audio core has interrupts enabled.
+  iowrite32(INTERRUPTS_ON,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
+  //enable_irq(irq_num);
+  pr_info("IRQ_ISR: Interrupts enabled!!\n");
+  return bytes_written;
+}
+
+// used to check if the fifos are full or not.
+// returns true is the FIFO is full and false if there is space in it
+static void check_full(void) {
+  isFull = false;
+  isEmpty = false;
+  // Determine how much free space is in the audio FIFOs
+  // Only need to check 1 tx_data because they empty at the same time
+  unsigned int raw_data = ioread32((dev.virt_addr)+I2S_STATUS_REG_OFFSET);
+  uint32_t DataL = (raw_data&TX_DATACOUNT_L_MASK)>>I2S_LEFT_FIFO_STATUS;
+
+  if(DataL == 0) { // check if the FIFO is empty
+    isFull = false;
+    isEmpty = true;
+  }
+  else if(DataL < FIFO_BUFFER_LIMIT) { // check to see if the FIFO is not full
+    isFull = false;
+    isEmpty = false;
+  }
+  else { // check if the FIFO is full
+    isFull = true;
+    isEmpty = false;
+  }
+}
+
+// function that handles the irq
+// irq : irq number
+// dev_id : the device id
+// returns a flag stating if the irq was handled properly
+static irqreturn_t irq_isr(int irq_loc, void *dev_id) {
+  pr_info("IRQ_ISR: Calling the irq_isr!\n");
+  // Determine how much free space is in the audio FIFOs
+  if(fifo_data_buffer_alloc) { // only write if space is allocated to the fifo
+    check_full();
+    while(!isFull) { // while the FIFO is not full, loop here
+      if(fifo_index < buf_len) { // write the info in the buffer until the end
+        iowrite32(fifo_data_buffer[fifo_index],
+          (dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
+        iowrite32(fifo_data_buffer[fifo_index],
+          (dev.virt_addr)+I2S_DATA_TX_R_REG_OFFSET);
+        fifo_index++;
+      }
+      else { // when we reach the end of the buffer, turn off interrupts
+        iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
+        fifo_index = 0;
+        fifo_data_buffer_alloc = false;
+        return IRQ_HANDLED;
+      }
+      check_full(); // check to see if the FIFO is full or not
+    }
+  }
+  return IRQ_HANDLED;
+}
+
+// Handles the audio looping for the audio
+// f : necessary for prototype, but serves no purpose in our implementation
+// cmd : the command to turn on looping or turn off looping
+// arg : necessary for prototype, but serves no purpose in our implementation
+// returns a long signalling error or success
+static long audio_ioctl(struct file *f, unsigned int cmd, unsigned long arg) {
+  switch(cmd) { // You should support two ioctl commands
+    // Turn on looping for the current audio clip.
+    case TURN_ON_LOOPING:
+    {
+      printk("AUDIO_IOCTL: TURN_ON_LOOPING");
+       // turn on the register to write
+      iowrite32(INTERRUPTS_ON,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
+      break;
+    }
+    //Turn off looping for the current audio clip.
+    case TURN_OFF_LOOPING:
+    {
+      printk("AUDIO_IOCTL: TURN_OFF_LOOPING");
+      // turn off the register
+      iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
+      break;
+    }
+    default: // default case, should not reach this point
+    {
+      printk("AUDIO_IOCTL: Default case, no valid cmd given");
+      return IOCTL_ERR;
+    }
+  }
+  return IOCTL_SUCCESS;
+}
+
+/********************************** functions ********************************/
+// This is called when Linux loadrite (buffer);s your driver
+// returns : an int signalling a successful initialization or an error
+static int audio_init(void) {
+  pr_info("%s: Initializing Audio Driver!\n", MODULE_NAME);
+  // Get a major number for the driver -- alloc_chrdev_region; // pg. 45, LDD3.
+  int err = alloc_chrdev_region(&dev_nums,FIRST_MINOR,NUM_OF_CONTIGUOUS_DEVS,
+    MODULE_NAME);
+  if(err < INIT_SUCCESS) { // failure doing region allocation
+    pr_info("Failure allocating major/minor numbers!\n");
+    return INIT_ERR;
+  }
+  int minor_num = MINOR(dev_nums); // returns the minor number of a dev_t type
+  dev.minor_num = minor_num;
+  // Create a device class. -- class_create()
+  audio = class_create(THIS_MODULE,MODULE_NAME);
+  if(audio == NULL) { // failed to create the class, undo allocation
+    pr_info("Failure creating device class!\nRollback changes...\\n");
+    unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
+    return INIT_ERR;
+  }
+  // Register the driver as a platform driver -- platform_driver_register
+  err = platform_driver_register(&audio_platform_driver);
+  if(err < INIT_SUCCESS) { // failed to register the platform driver,
+    pr_info("Failure registering platform driver!\nRollback changes...\\n");
+    class_destroy(audio);
+    unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
+    return INIT_ERR;
+  }
+  pr_info("%s: Audio Driver initialization success!\n", MODULE_NAME);
+  return INIT_SUCCESS;
+}
+
+// This is called when Linux unloads your driver
+static void audio_exit(void) {
+  pr_info("%s: Exiting Audio Driver!\n", MODULE_NAME);
+  platform_driver_unregister(&audio_platform_driver); // unregister platform
+  class_destroy(audio); // class_destroy
+  unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
+  pr_info("%s: Finish Exit Audio Driver!\n", MODULE_NAME);
+  return;
+}
+
+// Called by kernel when a platform device is detected that matches the
+// 'compatible' name of this driver.
+// pdev : platform device which to probe
+// returns an int signalling a successful probe or some kind of error
+static int audio_probe(struct platform_device *pdev) {
+  pr_info("%s: Probing Audio Driver!\n", MODULE_NAME);
+  if(audio_probe_called_once == true) { // we want to call this function once
+    pr_info("Already called probe() once...\n");
+    return PROBE_SUCCESS;
+  }
+  // Initialize the character device structure (cdev_init)
+  cdev_init(&cdev,&audio_fops);
+  cdev.owner = THIS_MODULE;
+  // Register the character device with Linux (cdev_add)
+  int err = cdev_add(&cdev,dev_nums,NUM_OF_CONTIGUOUS_DEVS);
+  if(err < PROBE_SUCCESS) { // if err is negative, the device hasn't been added
+    pr_info("Failure registering the cdev!\nRollback changes...\\n");
+    platform_driver_unregister(&audio_platform_driver);
+    class_destroy(audio);
+    unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
+    return PROBE_ERR;
+  }
+  dev.cdev = cdev;
+  // Create a device file in /dev so that the character device can be accessed
+  // from user space
+  device = device_create(audio,NULL,dev_nums,NULL,MODULE_NAME);
+  if(device == NULL) { // if the device returns null, then we hit an error
+    pr_info("Failure creating device!\nRollback changes...\\n");
+    cdev_del(&cdev);
+    platform_driver_unregister(&audio_platform_driver);
+    class_destroy(audio);
+    unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
+    return PROBE_ERR;
+  }
+  dev.dev = device;
+  // Get the physical device address from the device tree
+  res = platform_get_resource(pdev,IORESOURCE_MEM,FIRST_RESOURCE);
+  if(res == NULL) { // if the resource returns null, then we hit an error
+    pr_info("Failure Getting Resources 01!\nRollback changes...\\n");
+    device_destroy(audio,dev_nums); // device_destroy
+    cdev_del(&cdev);
+    platform_driver_unregister(&audio_platform_driver);
+    class_destroy(audio);
+    unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
+    return PROBE_ERR;
+  }
+  dev.phys_addr = res->start;
+  // Reserve the memory region -- request_mem_region
+  dev.mem_size = (res->end)-(res->start)+1;
+  res_mem = request_mem_region(dev.phys_addr,dev.mem_size,MODULE_NAME);
+  if(res_mem == NULL) { // if the resource returns null, then we hit an error
+    pr_info("Failure Requesting Memory Region!\nRollback changes...\n");
+    device_destroy(audio,dev_nums); // device_destroy
+    cdev_del(&cdev);
+    platform_driver_unregister(&audio_platform_driver);
+    class_destroy(audio);
+    unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
+  }
+  // Get a (virtual memory) pointer to the device -- ioremap
+  dev.virt_addr = ioremap(res->start,dev.mem_size);
+  // Get the IRQ number from the device tree -- platform_get_resource
+  res_irq = platform_get_resource(pdev,IORESOURCE_IRQ,FIRST_RESOURCE);
+  irq_num = res_irq->start;
+  if(res_irq == NULL){ // if the resource returns null, then we hit an error
+    pr_info("Failure Getting Resources 02!\nRollback changes...\\n");
+    release_mem_region(dev.phys_addr,dev.mem_size); // release_mem_region
+    device_destroy(audio,dev_nums); // device_destroy
+    cdev_del(&cdev);
+    platform_driver_unregister(&audio_platform_driver);
+    class_destroy(audio);
+    unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
+    return PROBE_ERR;
+  }
+  dev.pdev = pdev;
+  // Register your interrupt service routine -- request_irq
+  int irq_err = request_irq(irq_num,irq_isr,0,MODULE_NAME,NULL);
+  if(irq_err < PROBE_SUCCESS) { // failed to register the platform driver
+    pr_info("Failure calling the request_irq !\nRollback changes...\\n");
+    release_mem_region(dev.phys_addr,dev.mem_size); // release_mem_region
+    device_destroy(audio,dev_nums); // device_destroy
+    cdev_del(&cdev);
+    platform_driver_unregister(&audio_platform_driver);
+    class_destroy(audio);
+    unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
+    return PROBE_ERR;
+  }
+  audio_probe_called_once = true; // makes certain we don't run probe twice
+  pr_info("%s: Audio Driver probing success!\n", MODULE_NAME);
+  pr_info("%s: Major Number: %zu\n", MODULE_NAME, MAJOR(dev_nums));
+  pr_info("%s: Physical Addr: %zu\n", MODULE_NAME, dev.phys_addr);
+  pr_info("%s: Virtual Addr: %p\n", MODULE_NAME, dev.virt_addr);
+  pr_info("%s: IRQ Number: %zu\n", MODULE_NAME, irq_num);
+  return PROBE_SUCCESS;
+}
+
+// removes the audio_device by unloaded and unmapping it, destroys device
+// returns : an int signalling success or failure
+static int audio_remove(struct platform_device * pdev) {
+  pr_info("%s: Removing Audio Driver!\n", MODULE_NAME);
+  free_irq(irq_num,NULL); // free the irq to allow interrupts to continue
+  ioport_unmap(dev.virt_addr); // iounmap
+  release_mem_region(dev.phys_addr,dev.mem_size); // release_mem_region
+  device_destroy(audio,dev_nums); // device_destroy
+  cdev_del(&cdev); // cdev_del
+  pr_info("%s: Removing Audio Driver success!\n", MODULE_NAME);
+  return REMOVE_SUCCESS;
+}
+
+/*
+* audio_driver.h
+*
+* ECEn 427
+* Clint Frandsen, Dax Eckles, Seth Becerra
+* BYU 2019
+*/
+
+#include <stdint.h>
+
+/*********************************** macros ***********************************/
+#define AUDIO_DRIVER_MMAP_OFFSET   0
+#define AUDIO_DRIVER_SUCCESS  0
+#define AUDIO_DRIVER_ERROR   -1      //error return value
+#define AUDIO_DRIVER_GPIO_FILE_PATH "/dev/audio"
+#define AUDIO_DRIVER_READ_OPTIMAL_SUCCESS 1
+#define AUDIO_DRIVER_PARTIAL_DATA_TRANSFER 2
+#define AUDIO_DRIVER_REACHED_EOF 3
+#define AUDIO_DRIVER_READ_ERROR -1
+#define SUBCHUNK2SIZE 40
+#define DATA_OFFSET 44
+#define FOUR_BITS 4
+#define PCM_8_SHIFT 8
+#define PCM_16_SHIFT 16
+#define PCM_24_SHIFT 24
+#define AUDIO_DRIVER_NUM_SAMPLE_FILES 9
+#define AUDIO_DRIVER_WRITE_FAILED -1
+#define AUDIO_DRIVER_WRITE_SUCCESS 0
+#define AUDIO_DRIVER_INVADER_DIE_AUDIO 0
+#define AUDIO_DRIVER_LASER_AUDIO 1
+#define AUDIO_DRIVER_PLAYER_DIE_AUDIO 2
+#define AUDIO_DRIVER_UFO_AUDIO 3
+#define AUDIO_DRIVER_UFO_DIE_AUDIO 4
+#define AUDIO_DRIVER_WALK1_AUDIO 5
+#define AUDIO_DRIVER_WALK2_AUDIO 6
+#define AUDIO_DRIVER_WALK3_AUDIO 7
+#define AUDIO_DRIVER_WALK4_AUDIO 8
+
+//ADAU audio controller parameters
+#define _AUDIO_ADAU1761_H_
+// Slave address for the ADAU audio controller 8
+#define IIC_SLAVE_ADDR          0x3B
+// I2C Serial Clock frequency in Hertz
+#define IIC_SCLK_RATE           400000
+// I2S Register
+#define I2S_DATA_RX_L_REG           0x00
+#define I2S_DATA_RX_R_REG           0x04
+#define I2S_DATA_TX_L_REG           0x08
+#define I2S_DATA_TX_R_REG           0x0C
+#define I2S_STATUS_REG              0x10
+//ADAU internal registers
+enum audio_adau1761_regs {
+    R0_CLOCK_CONTROL                                = 0x00,
+    R1_PLL_CONTROL                                  = 0x02,
+    R2_DIGITAL_MIC_JACK_DETECTION_CONTROL           = 0x08,
+    R3_RECORD_POWER_MANAGEMENT                      = 0x09,
+    R4_RECORD_MIXER_LEFT_CONTROL_0                  = 0x0A,
+    R5_RECORD_MIXER_LEFT_CONTROL_1                  = 0x0B,
+    R6_RECORD_MIXER_RIGHT_CONTROL_0                 = 0x0C,
+    R7_RECORD_MIXER_RIGHT_CONTROL_1                 = 0x0D,
+    R8_LEFT_DIFFERENTIAL_INPUT_VOLUME_CONTROL       = 0x0E,
+    R9_RIGHT_DIFFERENTIAL_INPUT_VOLUME_CONTROL      = 0x0F,
+    R10_RECORD_MICROPHONE_BIAS_CONTROL              = 0x10,
+    R11_ALC_CONTROL_0                               = 0x11,
+    R12_ALC_CONTROL_1                               = 0x12,
+    R13_ALC_CONTROL_2                               = 0x13,
+    R14_ALC_CONTROL_3                               = 0x14,
+    R15_SERIAL_PORT_CONTROL_0                       = 0x15,
+    R16_SERIAL_PORT_CONTROL_1                       = 0x16,
+    R17_CONVERTER_CONTROL_0                         = 0x17,
+    R18_CONVERTER_CONTROL_1                         = 0x18,
+    R19_ADC_CONTROL                                 = 0x19,
+    R20_LEFT_INPUT_DIGITAL_VOLUME                   = 0x1A,
+    R21_RIGHT_INPUT_DIGITAL_VOLUME                  = 0x1B,
+    R22_PLAYBACK_MIXER_LEFT_CONTROL_0               = 0x1C,
+    R23_PLAYBACK_MIXER_LEFT_CONTROL_1               = 0x1D,
+    R24_PLAYBACK_MIXER_RIGHT_CONTROL_0              = 0x1E,
+    R25_PLAYBACK_MIXER_RIGHT_CONTROL_1              = 0x1F,
+    R26_PLAYBACK_LR_MIXER_LEFT_LINE_OUTPUT_CONTROL  = 0x20,
+    R27_PLAYBACK_LR_MIXER_RIGHT_LINE_OUTPUT_CONTROL = 0x21,
+    R28_PLAYBACK_LR_MIXER_MONO_OUTPUT_CONTROL       = 0x22,
+    R29_PLAYBACK_HEADPHONE_LEFT_VOLUME_CONTROL      = 0x23,
+    R30_PLAYBACK_HEADPHONE_RIGHT_VOLUME_CONTROL     = 0x24,
+    R31_PLAYBACK_LINE_OUTPUT_LEFT_VOLUME_CONTROL    = 0x25,
+    R32_PLAYBACK_LINE_OUTPUT_RIGHT_VOLUME_CONTROL   = 0x26,
+    R33_PLAYBACK_MONO_OUTPUT_CONTROL                = 0x27,
+    R34_PLAYBACK_POP_CLICK_SUPPRESSION              = 0x28,
+    R35_PLAYBACK_POWER_MANAGEMENT                   = 0x29,
+    R36_DAC_CONTROL_0                               = 0x2A,
+    R37_DAC_CONTROL_1                               = 0x2B,
+    R38_DAC_CONTROL_2                               = 0x2C,
+    R39_SERIAL_PORT_PAD_CONTROL                     = 0x2D,
+    R40_CONTROL_PORT_PAD_CONTROL_0                  = 0x2F,
+    R41_CONTROL_PORT_PAD_CONTROL_1                  = 0x30,
+    R42_JACK_DETECT_PIN_CONTROL                     = 0x31,
+    R67_DEJITTER_CONTROL                            = 0x36,
+    R58_SERIAL_INPUT_ROUTE_CONTROL                  = 0xF2,
+    R59_SERIAL_OUTPUT_ROUTE_CONTROL                 = 0xF3,
+    R61_DSP_ENABLE                                  = 0xF5,
+    R62_DSP_RUN                                     = 0xF6,
+    R63_DSP_SLEW_MODES                              = 0xF7,
+    R64_SERIAL_PORT_SAMPLING_RATE                   = 0xF8,
+    R65_CLOCK_ENABLE_0                              = 0xF9,
+    R66_CLOCK_ENABLE_1                              = 0xFA
+};
+#define TURN_ON_LOOPING //example #define WR_VALUE _IOW('a','a',int32_t*)
+#define TURN_OFF_LOOPING // #define RD_VALUE _IOR('a','b',int32_t*)
+
+/********************************** structs **********************************/
+// struct containing the header and data of audio
+typedef struct audio_data{ // 48 bytes for the struct itself
+   char riff[FOUR_BITS]; // RIFF string
+   uint32_t overall_size; // overall size of file in bytes
+   char wave[FOUR_BITS]; // WAVE string
+   char fmt_chunk_marker[FOUR_BITS]; // fmt string with trailing null char
+   uint16_t length_of_fmt; // length of the format data
+   uint16_t format_type; // format type.
+   uint16_t channels; // no.of channels
+   uint16_t sample_rate;  // sampling rate (blocks per second)
+   uint32_t byte_rate; // SampleRate * NumChannels * BitsPerSample/8
+   uint16_t block_align; // NumChannels * BitsPerSample/8
+   uint16_t bits_per_sample; // bits per sample, 8- 8bits, 16- 16 bits etc
+   char data_chunk_header[FOUR_BITS]; // DATA string or FLLR string
+   uint32_t data_size; // NumSamples*NumChannels*(BitsPerSample/8)-ChunkSize2
+   uint32_t num_samples; // the number of samples inside the file
+   uint32_t * sound_data; // a pointer to the start of the data
+ } audio_data_header;
+ struct audio_data audio_data_info;
+
+// array of sound data
+audio_data_header sound_data_array[AUDIO_DRIVER_NUM_SAMPLE_FILES];
+/**************************** function prototypes ****************************/
+// Initializes the driver (opens UIO file and calls mmap)
+// devDevice: The file path to the uio dev file
+// Returns: A negative error code on error, INTC_SUCCESS otherwise
+// This must be called before calling any other intc_* functions
+int32_t audio_driver_init(char devDevice[]);
+
+// called to increase the audio_driver_volume up or down based on switch_flag
+void audio_driver_volume(int16_t switch_flag);
+
+// Called to exit the driver (unmap and close UIO file)
+void audio_driver_exit();
+
+// Called to write to the audio driver
+// len : amount of bytes to write to the driver
+// buf : the buffer to be passed into the kernel (contains audio data)
+// returns an int indicating a success or failure
+ int16_t audio_driver_write(uint32_t *buf, int32_t len);
+
+// Called to read to the audio driver
+// returns whether a sound is being played (1) or not (0)
+int32_t audio_driver_read();
+
+// Called to control the io device_create
+// cmd : cmd for the switch statment to loop or not to loop.
+// arg :
+// returns a long  variable for success or failure
+long audio_driver_ioctl(unsigned int cmd,unsigned long arg);
+
+// Call to get the audio header and data out of the data data_array
+// index : the audio sound index (each one contains a different sound)
+// return : audio_data struct that contains the data buffer
+audio_data_header audio_driver_get_data_array(uint32_t index);
+
+/******************************************************************************
+ * Function to write 8 bits to one of the registers from the audio
+ * controller.
+ * @param   u8RegAddr is the register address.
+ * @param   u8Data is the data byte to write.
+ * @param   iic_fd is the file descriptor for /dev/i2c-x
+ * @return  none.
+ *****************************************************************************/
+void write_audio_reg(unsigned char u8RegAddr,
+                     unsigned char u8Data, int iic_fd);
+
+/******************************************************************************
+* Function to configure the audio PLL.
+* @param   iic_index is the i2c index in /dev list.
+* @return  none.
+*****************************************************************************/
+void config_audio_pll(int iic_index);
+
+/******************************************************************************
+ * Function to configure the audio codec.
+ * @param   iic_index is the i2c index in /dev list.
+ * @return  none.
+ *****************************************************************************/
+void config_audio_codec(int iic_index);
+
+/*
+* Audio Driver
+* Used to parse through .wav files, convert the data to 32 bits and
+* subsequently send them into the audio kernel driver to be played through
+* the xilinx PINQ board. Several pieces of code were used from the xilinx
+* depository found at https://github.com/Xilinx/PYNQ/blob/master/pynq/lib/
+* _pynq/_audio/audio_adau1761.cpp
+*
+* ECEn 427
+* Clint Frandsen, Dax Eckles, Seth Becerra
+* BYU 2019
+*/
+
+#include <stdint.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <string.h>
+#include <linux/i2c-dev.h>
+#include <stdlib.h>
+#include <time.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <sys/ioctl.h>
+#include <err.h>
+#include "audio_driver.h"
+#include "../i2cps/i2cps.h"
+
+/*********************************** macros **********************************/
+#define END_OF_READ_FILE 0
+#define SOUND_FILE_HOME "/home/xilinx/ECEN_427/lab03/wavFiles"
+#define INVADER_DIE_AUDIO SOUND_FILE_HOME "/invader_die.wav"
+#define LASER_AUDIO SOUND_FILE_HOME "/laser.wav"
+#define PLAYER_DIE_AUDIO SOUND_FILE_HOME "/player_die.wav"
+#define UFO_AUDIO SOUND_FILE_HOME "/ufo.wav"
+#define UFO_DIE_AUDIO SOUND_FILE_HOME "/ufo_die.wav"
+#define WALK1_AUDIO SOUND_FILE_HOME "/walk1.wav"
+#define WALK2_AUDIO SOUND_FILE_HOME "/walk2.wav"
+#define WALK3_AUDIO SOUND_FILE_HOME "/walk3.wav"
+#define WALK4_AUDIO SOUND_FILE_HOME "/walk4.wav"
+#define BITS_PER_BYTE 8
+#define SUCCESSFUL_CLOSE 0
+#define ERR 1
+#define FILE_NAME_LENGTH 52
+#define TWO_CHARACTERS 2
+#define FOUR_CHARACTERS 4
+#define READ_ONE_INDEX_POS 1
+#define INDEX_ZERO 0
+#define INDEX_ONE 1
+#define INDEX_TWO 2
+#define INDEX_THREE 3
+#define BYTES_PER_KILOBYTE 1024
+#define FORMAT_NAME_LENGTH 10
+#define PCM_FORMAT 1
+#define A_LAW_FORMAT 6
+#define MU_LAW_FORMAT 7
+#define VOLUME_MAX 231
+#define VOLUME_MINIMUM 24
+#define VOLUME_UP_DOWN_VALUE 24
+#define SOUND_PLAYING 1
+#define SOUND_NOT_PLAYING 0
+
+/********************************** globals **********************************/
+static uint32_t fd; // this is a file descriptor that describes the UIO device
+static uint16_t off = 0;
+uint16_t volume = 231; //0xE7;
+
+/******************************** prototypes *********************************/
+void audio_driver_import_audio(char fileName[], uint16_t index);
+
+/********************************* functions *********************************/
+// Initializes the driver (opens UIO file and calls mmap)
+// devDevice: The file path to the uio dev file
+// Returns: A negative error code on error, INTC_SUCCESS otherwise
+// This must be called before calling any other intc_* functions
+int32_t audio_driver_init(char devDevice[]) {
+  printf("Initializing Audio Driver\n");
+  /* open the device */
+  fd = open(devDevice, O_RDWR);
+  /* if there is a problem, return an error */
+  if(fd == AUDIO_DRIVER_ERROR) {
+    printf("Audio Driver Error, file cannot open.\n");
+    return AUDIO_DRIVER_ERROR;
+  }
+  /* Import all of the audio files */
+  audio_driver_import_audio(INVADER_DIE_AUDIO,AUDIO_DRIVER_INVADER_DIE_AUDIO);
+  printf("INVADER_DIE_AUDIO imported\n\r");
+  audio_driver_import_audio(LASER_AUDIO,AUDIO_DRIVER_LASER_AUDIO);
+  printf("LASER_AUDIO imported\n\r");
+  audio_driver_import_audio(PLAYER_DIE_AUDIO,AUDIO_DRIVER_PLAYER_DIE_AUDIO);
+  printf("PLAYER_DIE_AUDIO imported\n\r");
+  audio_driver_import_audio(UFO_AUDIO,AUDIO_DRIVER_UFO_AUDIO);
+  printf("UFO_AUDIO imported\n\r");
+  audio_driver_import_audio(UFO_DIE_AUDIO,AUDIO_DRIVER_UFO_DIE_AUDIO);
+  printf("UFO_DIE_AUDIO imported\n\r");
+  audio_driver_import_audio(WALK1_AUDIO,AUDIO_DRIVER_WALK1_AUDIO);
+  printf("WALK1_AUDIO imported\n\r");
+  audio_driver_import_audio(WALK2_AUDIO,AUDIO_DRIVER_WALK2_AUDIO);
+  printf("WALK2_AUDIO imported\n\r");
+  audio_driver_import_audio(WALK3_AUDIO,AUDIO_DRIVER_WALK3_AUDIO);
+  printf("WALK3_AUDIO imported\n\r");
+  audio_driver_import_audio(WALK4_AUDIO,AUDIO_DRIVER_WALK4_AUDIO);
+  printf("WALK4_AUDIO imported\n\n\r");
+  return AUDIO_DRIVER_SUCCESS;
+}
+// controls the volume level of the audio driver
+// switch_flag : state whether the switch is up or down
+void audio_driver_volume(int16_t switch_flag){
+  int iic_fd = setI2C(0, IIC_SLAVE_ADDR);
+  if(switch_flag){ // if the switch is high
+    if(volume <= VOLUME_MAX) { // we want to increase the volume
+      volume += VOLUME_UP_DOWN_VALUE;
+    }
+    write_audio_reg(R29_PLAYBACK_HEADPHONE_LEFT_VOLUME_CONTROL,volume,iic_fd);
+    write_audio_reg(R30_PLAYBACK_HEADPHONE_RIGHT_VOLUME_CONTROL,volume,iic_fd);
+  }
+  else{ // if the switch is down
+    if(volume > VOLUME_MINIMUM) { // we want to decrease the volume
+      volume -= VOLUME_UP_DOWN_VALUE;
+    }
+    write_audio_reg(R29_PLAYBACK_HEADPHONE_LEFT_VOLUME_CONTROL,volume,iic_fd);
+    write_audio_reg(R30_PLAYBACK_HEADPHONE_RIGHT_VOLUME_CONTROL,volume,iic_fd);
+  }
+}
+
+// This goes through one audio file, converts it, and puts it in the data_array
+// fileName : the name of the file to import
+// index : the index within data_array to place the imported and converted file
+void audio_driver_import_audio(char fileName[], uint16_t index) {
+  /* Error checking for getting file name */
+  if (!fileName) { errx(ERR, "Filename not specified"); }
+  /* Open the file given */
+  FILE* fp = fopen(fileName, "r");
+  /* Error check if File was correctly opened */
+  if (!fp) { errx(ERR, "Filename not opened"); }
+  /* values used to grab information from the WAV files */
+  uint32_t read = 0; // will be used to read the information from the file
+  char buffer4[FOUR_CHARACTERS]; // used to grab information of 4 bytes length
+  char buffer2[TWO_CHARACTERS]; // used to grab information of 2 bytes length
+
+  /*** read the header parts of .wav fileName ***/
+  // grab the character array "riff"
+  read = fread(sound_data_array[index].riff,
+    sizeof(sound_data_array[index].riff),READ_ONE_INDEX_POS,fp);
+  // grab the Chunk Size (grabs in little Endian)
+  read = fread(buffer4,sizeof(buffer4),READ_ONE_INDEX_POS,fp);
+  // shift to big endian
+  sound_data_array[index].overall_size = buffer4[INDEX_ZERO] |
+                                        (buffer4[INDEX_ONE]<<PCM_8_SHIFT) |
+                                        (buffer4[INDEX_TWO]<<PCM_16_SHIFT) |
+                                        (buffer4[INDEX_THREE]<<PCM_24_SHIFT);
+  // grab wave formatting marker (should read WAVE)
+  read=fread(sound_data_array[index].wave,sizeof(sound_data_array[index].wave),
+    READ_ONE_INDEX_POS,fp);
+  // grab sub chunk id marker (should read fmt)
+  read=fread(sound_data_array[index].fmt_chunk_marker,
+    sizeof(sound_data_array[index].fmt_chunk_marker),READ_ONE_INDEX_POS,fp);
+  // grab sub chunk 1 size (should be 16)
+  read = fread(buffer4,sizeof(buffer4),READ_ONE_INDEX_POS,fp);
+  // convert little endian to big endian 4 byte integer
+  sound_data_array[index].length_of_fmt = buffer4[INDEX_ZERO] |
+                                        (buffer4[INDEX_ONE]<<PCM_8_SHIFT) |
+                                        (buffer4[INDEX_TWO]<<PCM_16_SHIFT) |
+                                        (buffer4[INDEX_THREE]<<PCM_24_SHIFT);
+  // read in audio format, should be 1 for PCM
+  read = fread(buffer2,sizeof(buffer2),READ_ONE_INDEX_POS,fp);
+  sound_data_array[index].format_type = buffer2[INDEX_ZERO] |
+                                        (buffer2[INDEX_ONE]<<PCM_8_SHIFT);
+  // grab number of channel (1 for mono & 2 for stereo)
+  read = fread(buffer2,sizeof(buffer2),READ_ONE_INDEX_POS,fp);
+  sound_data_array[index].channels = buffer2[INDEX_ZERO] |
+                                    (buffer2[INDEX_ONE]<<PCM_8_SHIFT);
+  // grab the sample rate
+  read = fread(buffer4,sizeof(buffer4),READ_ONE_INDEX_POS,fp);
+  sound_data_array[index].sample_rate = buffer4[INDEX_ZERO] |
+                                        (buffer4[INDEX_ONE]<<PCM_8_SHIFT) |
+                                        (buffer4[INDEX_TWO]<<PCM_16_SHIFT) |
+                                        (buffer4[INDEX_THREE]<<PCM_24_SHIFT);
+  // grab the byte rate
+  read = fread(buffer4,sizeof(buffer4),READ_ONE_INDEX_POS,fp);
+  sound_data_array[index].byte_rate  = buffer4[INDEX_ZERO] |
+                                      (buffer4[INDEX_ONE]<<PCM_8_SHIFT) |
+                                      (buffer4[INDEX_TWO]<<PCM_16_SHIFT) |
+                                      (buffer4[INDEX_THREE]<<PCM_24_SHIFT);
+  // grab the block alignment, should be 2
+  read = fread(buffer2,sizeof(buffer2),READ_ONE_INDEX_POS,fp);
+  sound_data_array[index].block_align = buffer2[INDEX_ZERO] |
+                                        (buffer2[INDEX_ONE]<<PCM_8_SHIFT);
+  // grab the number of bits per sample, should be 16
+  read = fread(buffer2, sizeof(buffer2), READ_ONE_INDEX_POS, fp);
+  sound_data_array[index].bits_per_sample = buffer2[INDEX_ZERO] |
+                                            (buffer2[INDEX_ONE]<<PCM_8_SHIFT);
+  // grab the data marker, should read "data"
+  read = fread(sound_data_array[index].data_chunk_header,
+    sizeof(sound_data_array[index].data_chunk_header),READ_ONE_INDEX_POS,fp);
+  // read the size of the data chunk
+  read = fread(buffer4,sizeof(buffer4),READ_ONE_INDEX_POS,fp);
+  sound_data_array[index].data_size = buffer4[INDEX_ZERO] |
+                                      (buffer4[INDEX_ONE]<<PCM_8_SHIFT) |
+                                      (buffer4[INDEX_TWO]<<PCM_16_SHIFT) |
+                                      (buffer4[INDEX_THREE]<<PCM_24_SHIFT);
+  // calculate number of samples & the size of each sample
+  sound_data_array[index].num_samples =
+    (BITS_PER_BYTE*sound_data_array[index].data_size) /
+    (sound_data_array[index].channels*sound_data_array[index].bits_per_sample);
+  uint32_t size_of_each_sample = (sound_data_array[index].channels*
+    sound_data_array[index].bits_per_sample)/BITS_PER_BYTE;
+  /*** read the data parts of .wav fileName ***/
+  if (sound_data_array[index].format_type == PCM_FORMAT) {
+    uint32_t data_buffer; // 32 bit storage point
+    uint16_t tmp_union; // 16 bit storage point
+    char sample_extract[TWO_CHARACTERS]; // extracts 16 bits of data at a time
+    // dynamically allocate space for the data in the file
+     sound_data_array[index].sound_data = (uint32_t*)malloc(sizeof(uint32_t)*
+      (sound_data_array[index].num_samples+1));
+    // check and make sure malloc returned a valid value (address)
+    if(sound_data_array[index].sound_data == NULL) {
+      printf("******malloc error***\n\r");
+    }
+    // parse through each bit of data and load it into the data array
+    for (uint32_t i = 0; i <= sound_data_array[index].num_samples; i++) {
+      // reads 16 bits (one sample) from the data
+      read = fread(sample_extract,sizeof(sample_extract),READ_ONE_INDEX_POS,fp);
+      // puts the extracted samples into tmp_union
+      tmp_union=sample_extract[INDEX_ONE]<<PCM_8_SHIFT;
+      tmp_union = tmp_union|sample_extract[INDEX_ZERO];
+      // sign extend tmp_union out to 32 bits and put it in data_buffer
+      data_buffer = (uint32_t)tmp_union;
+      // move the information from data buffer into the sound_data array
+      sound_data_array[index].sound_data[i] = data_buffer;
+    }
+  }
+  uint16_t close_err = fclose(fp);
+  if(close_err != SUCCESSFUL_CLOSE) {
+    printf("Unable to close FILE* at index %zu",index);
+  }
+}
+
+// Called to exit the driver (unmap and close UIO file)
+void audio_driver_exit() {
+  printf("Reached audio_driver_exit()\n");
+  for(uint16_t i = 0; i < AUDIO_DRIVER_NUM_SAMPLE_FILES; i++) {
+    free(sound_data_array[i].sound_data);
+    sound_data_array[i].sound_data = 0;
+  }
+  close(fd);
+}
+
+// Called to write to the audio driver
+// len : amount of bytes to write to the driver
+// buf : the buffer to be passed into the kernel (contains audio data)
+// returns an int indicating a success or failure
+ int16_t audio_driver_write(uint32_t *buf, int32_t len) {
+  int iic_fd = setI2C(0, IIC_SLAVE_ADDR);
+  if(buf == NULL) { // if the buffer is empty, return an error
+   printf("Buffer that was passed in was empty!\n");
+   return AUDIO_DRIVER_WRITE_FAILED;
+  }
+  write(fd,buf,len); // call write in the audio driver in kernel space
+  return AUDIO_DRIVER_WRITE_SUCCESS;
+}
+
+// Called to read to the audio driver
+// returns whether a sound is being played (1) or not (0)
+int32_t audio_driver_read() {
+  uint32_t *buf;
+  uint32_t len;
+  int32_t count = read(fd,buf,len);
+  if(count == SOUND_PLAYING) { // the sound is playing
+    return SOUND_PLAYING;
+  }
+  else { // the sound is not playing
+    return SOUND_NOT_PLAYING;
+  }
+}
+
+// Called to control the io device_create
+// cmd : cmd for the switch statment to loop or not to loop.
+// arg : not useful for our implementation but required by the prototype
+// returns a long  variable for success or failure
+long audio_driver_ioctl(unsigned int cmd, unsigned long arg){
+  printf("audio_driver_ioctl- userspace code\n\r");
+  // return unlocked_ioctl(fd,cmd,arg);
+}
+
+// Call to get the audio header and data out of the data data_array
+// index : the audio sound index (each one contains a different sound)
+// return : audio_data struct that contains the data buffer
+audio_data_header audio_driver_get_data_array(uint32_t index){
+  return sound_data_array[index];
+}
+
+/*********** The following functions were not created by our team ************/
+
+/*****************************************************************************
+ * Function to write 8 bits to one of the registers from the audio
+ * controller.
+ * @param   u8RegAddr is the register address.
+ * @param   u8Data is the data byte to write.
+ * @param   iic_fd is the file descriptor for /dev/i2c-x
+ * @return  none.
+ *****************************************************************************/
+void write_audio_reg(unsigned char u8RegAddr,
+                     unsigned char u8Data, int iic_fd) {
+    unsigned char u8TxData[3];
+    u8TxData[0] = 0x40;
+    u8TxData[1] = u8RegAddr;
+    u8TxData[2] = u8Data;
+    if (writeI2C_asFile(iic_fd, u8TxData, 3) < 0){
+        printf("Unable to write audio register.\n");
+    }
+}
+
+/******************************************************************************
+ * Function to configure the audio PLL.
+ * @param   iic_index is the i2c index in /dev list.
+ * @return  none.
+ *****************************************************************************/
+void config_audio_pll(int iic_index) {
+    printf("Configure Audio PLL...\n");
+    unsigned char u8TxData[8], u8RxData[6];
+    int iic_fd;
+    iic_fd = setI2C(iic_index, IIC_SLAVE_ADDR);
+    if (iic_fd < 0) {
+        printf("Unable to set I2C %d.\n", iic_index);
+    }
+    // Disable Core Clock
+    write_audio_reg(R0_CLOCK_CONTROL, 0x0E, iic_fd);
+    /*  MCLK = 10 MHz
+     *  R = 0100 = 4, N = 0x023C = 572, M = 0x0271 = 625
+     *  PLL required output = 1024x48 KHz = 49.152 MHz
+     *  PLLout/MCLK         = 49.152 MHz/10 MHz = 4.9152 MHz
+     *                      = R + (N/M)
+     *                      = 4 + (572/625)
+     */
+    // Register write address [15:8]
+    u8TxData[0] = 0x40;
+    // Register write address [7:0]
+    u8TxData[1] = 0x02;
+    // byte 6 - M[15:8]
+    u8TxData[2] = 0x02;
+    // byte 5 - M[7:0]
+    u8TxData[3] = 0x71;
+    // byte 4 - N[15:8]
+    u8TxData[4] = 0x02;
+    // byte 3 - N[7:0]
+    u8TxData[5] = 0x3C;
+    // byte 2 - bits 6:3 = R[3:0], 2:1 = X[1:0], 0 = PLL operation mode
+    u8TxData[6] = 0x21;
+    // byte 1 - 1 = PLL Lock, 0 = Core clock enable
+    u8TxData[7] = 0x03;
+    // Write bytes to PLL control register R1 at 0x4002
+    if (writeI2C_asFile(iic_fd, u8TxData, 8) < 0){
+        printf("Unable to write I2C %d.\n", iic_index);
+    }
+
+    // Poll PLL Lock bit
+    u8TxData[0] = 0x40;
+    u8TxData[1] = 0x02;
+    do {
+        if (writeI2C_asFile(iic_fd, u8TxData, 2) < 0){
+            printf("Unable to write I2C %d.\n", iic_index);
+        }
+        if (readI2C_asFile(iic_fd, u8RxData, 6) < 0){
+            printf("Unable to read I2C %d.\n", iic_index);
+        }
+    } while((u8RxData[5] & 0x02) == 0);
+
+    /* Clock control register:  bit 3        CLKSRC = PLL Clock input
+     *                          bit 2:1      INFREQ = 1024 x fs
+     *                          bit 0        COREN = Core Clock enabled
+     */
+    write_audio_reg(R0_CLOCK_CONTROL, 0x0F, iic_fd);
+
+    if (unsetI2C(iic_fd) < 0) {
+        printf("Unable to unset I2C %d.\n", iic_index);
+    }
+}
+
+/******************************************************************************
+ * Function to configure the audio codec.
+ * @param   iic_index is the i2c index in /dev list.
+ * @return  none.
+ *****************************************************************************/
+void config_audio_codec(int iic_index) {
+    printf("Configure Audio Codec...\n");
+    int iic_fd;
+    iic_fd = setI2C(iic_index, IIC_SLAVE_ADDR);
+    if (iic_fd < 0) {
+        printf("Unable to set I2C %d.\n", iic_index);
+    }
+
+    /*
+     * Input path control registers are configured
+     * in select_mic and select_line_in
+     */
+
+    // Mute Mixer1 and Mixer2 here, enable when MIC and Line In used
+    write_audio_reg(R4_RECORD_MIXER_LEFT_CONTROL_0, 0x00, iic_fd);
+    write_audio_reg(R6_RECORD_MIXER_RIGHT_CONTROL_0, 0x00, iic_fd);
+    // Set LDVOL and RDVOL to 21 dB and Enable left and right differential
+    write_audio_reg(R8_LEFT_DIFFERENTIAL_INPUT_VOLUME_CONTROL, 0xB3, iic_fd);
+    write_audio_reg(R9_RIGHT_DIFFERENTIAL_INPUT_VOLUME_CONTROL, 0xB3, iic_fd);
+    // Enable MIC bias
+    write_audio_reg(R10_RECORD_MICROPHONE_BIAS_CONTROL, 0x01, iic_fd);
+    // Enable ALC control and noise gate
+    write_audio_reg(R14_ALC_CONTROL_3, 0x20, iic_fd);
+    // Put CODEC in Master mode
+    write_audio_reg(R15_SERIAL_PORT_CONTROL_0, 0x01, iic_fd);
+    // Enable ADC on both channels, normal polarity and ADC high-pass filter
+    write_audio_reg(R19_ADC_CONTROL, 0x33, iic_fd);
+    // Mute play back Mixer3 and Mixer4 and enable when output is required
+    write_audio_reg(R22_PLAYBACK_MIXER_LEFT_CONTROL_0, 0x00, iic_fd);
+    write_audio_reg(R24_PLAYBACK_MIXER_RIGHT_CONTROL_0, 0x00, iic_fd);
+
+    // Mute left input to mixer3 (R23) and right input to mixer4 (R25)
+    write_audio_reg(R23_PLAYBACK_MIXER_LEFT_CONTROL_1, 0x00, iic_fd);
+    write_audio_reg(R25_PLAYBACK_MIXER_RIGHT_CONTROL_1, 0x00, iic_fd);
+
+    // Mute left and right channels output; enable them when output is needed
+    write_audio_reg(R29_PLAYBACK_HEADPHONE_LEFT_VOLUME_CONTROL, 0xE5, iic_fd);
+    write_audio_reg(R30_PLAYBACK_HEADPHONE_RIGHT_VOLUME_CONTROL, 0xE5, iic_fd);
+
+    // Enable play back right and left channels
+    write_audio_reg(R35_PLAYBACK_POWER_MANAGEMENT, 0x03, iic_fd);
+    // Enable DAC for both channels
+    write_audio_reg(R36_DAC_CONTROL_0, 0x03, iic_fd);
+    // Set SDATA_In to DAC
+    write_audio_reg(R58_SERIAL_INPUT_ROUTE_CONTROL, 0x01, iic_fd);
+    // Set SDATA_Out to ADC
+    write_audio_reg(R59_SERIAL_OUTPUT_ROUTE_CONTROL, 0x01, iic_fd);
+
+    // Enable DSP and DSP Run
+    write_audio_reg(R61_DSP_ENABLE, 0x01, iic_fd);
+    write_audio_reg(R62_DSP_RUN, 0x01, iic_fd);
+
+    // Unmute left and right DAC, enable Mixer3 and Mixer4
+    write_audio_reg(R22_PLAYBACK_MIXER_LEFT_CONTROL_0, 0x21, iic_fd);
+    write_audio_reg(R24_PLAYBACK_MIXER_RIGHT_CONTROL_0, 0x41, iic_fd);
+    // Enable Left/Right Headphone out
+    write_audio_reg(R29_PLAYBACK_HEADPHONE_LEFT_VOLUME_CONTROL, 0xE7, iic_fd);
+    write_audio_reg(R30_PLAYBACK_HEADPHONE_RIGHT_VOLUME_CONTROL, 0xE7, iic_fd);
+
+    /*
+     * Enable Digital Clock Generator 0 and 1.
+     * Generator 0 generates sample rates for the ADCs, DACs, and DSP.
+     * Generator 1 generates BCLK and LRCLK for the serial port.
+     */
+    write_audio_reg(R65_CLOCK_ENABLE_0, 0x7F, iic_fd);
+    write_audio_reg(R66_CLOCK_ENABLE_1, 0x03, iic_fd);
+
+    if (unsetI2C(iic_fd) < 0) {
+        printf("Unable to unset I2C %d.\n", iic_index);
+    }
+}
+
+#include <stdio.h>
+#include <stdint.h>
+#include <stdbool.h>
+/********************************** macros ***********************************/
+#define GLOBALS_SAUCER_ROW_START_LOCATION (15+(640*3)*20)
+
+/********************************* functions *********************************/
+
+// fetch whether the tank bullet has been fired or not
+// returns : a 1 if the bullet is still on the screen or a 0 if there is no bullet on screen
+uint16_t globals_get_tank_bullet_fired();
+
+// set this to 1 if a bullet has been fired, keep it asserted until the bullet hits a target or reaches the top of the screen
+void globals_fire_tank_bullet();
+
+// set this to 0 once the bullet hits a target or reaches the top of the screen, allows the tank to fire another bullet
+void globals_tank_bullet_stopped();
+
+// fetch the current tank bullet position
+// returns : the current tank position
+uint32_t globals_get_tank_bullet_position();
+
+// set a new tank bullet position
+// pos : the new position which you wish to set
+void globals_set_tank_bullet_position(uint32_t pos);
+
+// fetch whether the alien bullet has been fired or not
+// we have a function for each individual alien bullet
+// returns : a 1 if the bullet is still on the screen or a 0 if there is no bullet on screen
+uint16_t globals_get_alien_bullet_fired_0();
+uint16_t globals_get_alien_bullet_fired_1();
+uint16_t globals_get_alien_bullet_fired_2();
+uint16_t globals_get_alien_bullet_fired_3();
+
+// set this to 1 if a bullet has been fired, keep it asserted until the bullet hits a target or reaches the top of the screen
+// we have a function for each individual alien bullet
+void globals_fire_alien_bullet_0();
+void globals_fire_alien_bullet_1();
+void globals_fire_alien_bullet_2();
+void globals_fire_alien_bullet_3();
+
+// set this to 0 once the bullet hits a target or reaches the bottom of the screen, allows the alien to fire another bullet
+// we have a function for each individual alien bullet
+void globals_alien_bullet_stopped_0();
+void globals_alien_bullet_stopped_1();
+void globals_alien_bullet_stopped_2();
+void globals_alien_bullet_stopped_3();
+
+// fetch the current alien bullet position
+// returns : the current alien bullet position
+// we have a function for each individual alien bullet
+uint32_t globals_get_alien_bullet_position_0();
+uint32_t globals_get_alien_bullet_position_1();
+uint32_t globals_get_alien_bullet_position_2();
+uint32_t globals_get_alien_bullet_position_3();
+
+// set a new alien bullet position
+// pos : the new position which you wish to set
+// we have a function for each individual alien bullet
+void globals_set_alien_bullet_position_0(uint32_t pos);
+void globals_set_alien_bullet_position_1(uint32_t pos);
+void globals_set_alien_bullet_position_2(uint32_t pos);
+void globals_set_alien_bullet_position_3(uint32_t pos);
+
+// fetches the current score of the current game
+// returns : the score of the current game
+uint32_t globals_get_current_score();
+
+// adds a value to the current score
+// score : the value of the score to add to the current score
+void globals_add_to_current_score(uint32_t score);
+
+// fetches the position of the saucer
+// returns the position of the saucer
+uint32_t globals_get_saucer_pos();
+
+// sets the position of the saucer
+// pos : the position which we wish to place the saucer
+void globals_set_saucer_pos(uint32_t pos);
+
+// fetches the status of the saucer
+// returns the status of the saucer
+uint16_t globals_get_saucer_status();
+
+// sets the status of the saucer
+// status : the status that we wish to set for the saucer
+void globals_set_saucer_status(uint16_t status);
+
+// fetches the saucer delay count
+// returns : the delay count
+uint32_t globals_get_saucer_shot_count();
+
+// increments the saucer shot count until it reaches a certain delay and resets
+// the saucer start position
+void globals_inc_saucer_shot_count();
+
+// resets the saucer shot count
+void globals_reset_saucer_shot_count();
+
+// fetches the total alien count
+// returns : the total alien count
+uint16_t globals_get_total_alien_count();
+
+// decreases the total alien count by one when an alien gets shot
+void globals_decrement_total_alien_count();
+
+// resets the total alien amount
+void globals_reset_total_alien_count();
+
+// prints current score
+void globals_print_current_score();
+
+// get the lives counter
+uint32_t globals_get_current_lives();
+
+// increments the current amount of lives upon defeating an entire alien block if you have less than five
+void globals_increment_current_lives();
+
+// decrements the current lives if the tank gets shot
+void globals_decrement_current_lives();
+
+// prints lives to screen
+void globals_print_current_lives();
+
+// fetches the flag that indicates that aliens have overrun our bunker
+// returns the overrun flag
+uint16_t globals_get_alien_overrun_flag();
+
+// asserts the overrun flag if the bottom column of aliens reaches the top of the bunker line
+void globals_assert_alien_overrun_flag();
+
+// sets the location of the most recently killed alien
+// loc : location of the most recently killed alien
+void globals_set_dead_alien_loc(uint32_t loc);
+
+// fetches the location of the most recently killed alien
+// returns the locaiton of the most recently killed alien
+uint32_t globals_get_dead_alien_loc();
+
+/***************************** GLOBALS FOR AUDIO *****************************/
+// sets the tank explosion flag
+// flag : wether the flag is high or low
+void globals_set_tank_ex_flag(bool flag);
+
+// sets the shoot sound flag
+// flag : wether the flag is high or low
+void globals_set_shoot_flag(bool flag);
+
+// sets the alien explosion flag
+// flag : wether the flag is high or low
+void globals_set_alien_ex_flag(bool flag);
+
+// sets the saucer explosion flag
+// flag : wether the flag is high or low
+void globals_set_saucer_ex_flag(bool flag);
+
+// sets the saucer move flag
+// flag : wether the flag is high or low
+void globals_set_saucer_zoom_flag(bool flag);
+
+// sets the aliens walking flag
+// flag : wether the flag is high or low
+void globals_set_alien_walk_flag(bool flag);
+
+// fetches the tank explosion flag
+// returns : tank explosion flag
+bool globals_get_tank_ex_flag();
+
+// fetches the shoot flag
+// returns : the shoot flag
+bool globals_get_shoot_flag();
+
+// fetches the alien explosion flag
+// returns : alien explosion flag
+bool globals_get_alien_ex_flag();
+
+// fetches the saucer explosion flag
+// returns : saucer explosion flag
+bool globals_get_saucer_ex_flag();
+
+// fetches the saucer zoom flag
+// returns : saucer zoom flag
+bool globals_get_saucer_zoom_flag();
+
+// fetches the alien walk flag
+// returns : alien walk flag
+bool globals_get_alien_walk_flag();
+
+// determines whether the tank is alive or not
+// flag : whether the tank is dead or not
+void globals_set_tank_dead(bool flag);
+
+// fetches whether the tank is dead or not
+// flag : tank_dead_flag
+bool globals_get_tank_dead();
+
+#include "globals.h"
+#include "../image_render/score_board/score_board.c"
+
+/********************************** macros ***********************************/
+#define STARTING_ALIEN_AMOUNT 55
+#define NOT_FIRED 0
+#define FIRED 1
+#define SAUCER_ALIVE 1
+#define SAUCER_SHOT 0
+#define MAX_LIVES 5
+#define S_LOCATION_SC 60
+#define C_LOCATION_SC S_LOCATION_SC+54
+#define O_LOCATION_SC C_LOCATION_SC+54
+#define R_LOCATION_SC O_LOCATION_SC+54
+#define E_LOCATION_SC R_LOCATION_SC+54
+#define SCORE_0_LOCATION E_LOCATION_SC+108
+#define SCORE_1_LOCATION SCORE_0_LOCATION+54
+#define SCORE_2_LOCATION SCORE_1_LOCATION+54
+#define SCORE_3_LOCATION SCORE_2_LOCATION+54
+#define SCORE_4_LOCATION SCORE_3_LOCATION+54
+#define FIFTH_LIFE_LOCATION ((640*3)-(2*17*3)-9)
+#define FOURTH_LIFE_LOCATION (FIFTH_LIFE_LOCATION-(2*17*3)-9)
+#define THIRD_LIFE_LOCATION (FOURTH_LIFE_LOCATION-(2*17*3)-9)
+#define SECOND_LIFE_LOCATION (THIRD_LIFE_LOCATION-(2*17*3)-9)
+#define FIRST_LIFE_LOCATION (SECOND_LIFE_LOCATION-(2*17*3)-9)
+#define GLOBAL_BYTES_PER_PIXEL 3
+#define START_LIVES 3
+#define TANK_SIZING 2
+#define ONE_LIFE 1
+#define TWO_LIFE 2
+#define THREE_LIFE 3
+#define FOUR_LIFE 4
+#define FIVE_LIFE 5
+
+/********************************** globals **********************************/
+static uint16_t tank_bullet_fired = NOT_FIRED;
+static uint32_t tank_bullet_position;
+static uint16_t alien_bullet_fired_0 = NOT_FIRED;
+static uint16_t alien_bullet_fired_1 = NOT_FIRED;
+static uint16_t alien_bullet_fired_2 = NOT_FIRED;
+static uint16_t alien_bullet_fired_3 = NOT_FIRED;
+static uint32_t alien_bullet_position_0;
+static uint32_t alien_bullet_position_1;
+static uint32_t alien_bullet_position_2;
+static uint32_t alien_bullet_position_3;
+static uint32_t current_score = 0;
+static uint32_t saucer_pos = GLOBALS_SAUCER_ROW_START_LOCATION;
+static uint16_t saucer_status = SAUCER_ALIVE;
+static uint32_t saucer_shot_count = 0;
+static uint16_t total_alien_count = STARTING_ALIEN_AMOUNT;
+static uint32_t current_lives = START_LIVES;
+static uint16_t alien_overrun_flag = 0;
+static uint32_t dead_alien_loc = 0;
+static bool tank_ex_flag = false;
+static bool shoot_flag = false;
+static bool alien_ex_flag = false;
+static bool saucer_ex_flag = false;
+static bool saucer_zoom_flag = false;
+static bool alien_walk_flag = false;
+static bool tank_dead = false;
+uint32_t global_green[GLOBAL_BYTES_PER_PIXEL] = {0x00,0x80,0x00};
+uint32_t global_black[GLOBAL_BYTES_PER_PIXEL] = {0x00,0x00,0x00};
+
+/********************************* functions *********************************/
+// fetch whether the tank bullet has been fired or not
+// returns : a 1 if the bullet is still on the screen or a 0 if there is no bullet on screen
+uint16_t globals_get_tank_bullet_fired() {
+  return tank_bullet_fired;
+}
+
+// set this to 1 if a bullet has been fired, keep it asserted until the bullet hits a target or reaches the top of the screen
+void globals_fire_tank_bullet() {
+  tank_bullet_fired = FIRED;
+}
+
+// set this to 0 once the bullet hits a target or reaches the top of the screen, allows the tank to fire another bullet
+void globals_tank_bullet_stopped() {
+  tank_bullet_fired = NOT_FIRED;
+}
+
+// fetch the current tank bullet position
+// returns : the current tank position
+uint32_t globals_get_tank_bullet_position() {
+  return tank_bullet_position;
+}
+
+// set a new tank bullet position
+// pos : the new position which you wish to set
+void globals_set_tank_bullet_position(uint32_t pos) {
+  tank_bullet_position = pos;
+}
+
+// fetch whether the alien bullet has been fired or not
+// returns : a 1 if the bullet is still on the screen or a 0 if there is no bullet on screen
+uint16_t globals_get_alien_bullet_fired_0(){
+  return alien_bullet_fired_0;
+}
+
+// fetch whether the alien bullet has been fired or not
+// returns : a 1 if the bullet is still on the screen or a 0 if there is no bullet on screen
+uint16_t globals_get_alien_bullet_fired_1(){
+  return alien_bullet_fired_1;
+}
+
+// fetch whether the alien bullet has been fired or not
+// returns : a 1 if the bullet is still on the screen or a 0 if there is no bullet on screen
+uint16_t globals_get_alien_bullet_fired_2(){
+  return alien_bullet_fired_2;
+}
+
+// fetch whether the alien bullet has been fired or not
+// returns : a 1 if the bullet is still on the screen or a 0 if there is no bullet on screen
+uint16_t globals_get_alien_bullet_fired_3(){
+  return alien_bullet_fired_3;
+}
+
+// set this to 1 if a bullet has been fired, keep it asserted until the bullet hits a target or reaches the bottom of the screen
+void globals_fire_alien_bullet_0(){
+  alien_bullet_fired_0 = FIRED;
+}
+
+// set this to 1 if a bullet has been fired, keep it asserted until the bullet hits a target or reaches the bottom of the screen
+void globals_fire_alien_bullet_1(){
+  alien_bullet_fired_1 = FIRED;
+}
+
+// set this to 1 if a bullet has been fired, keep it asserted until the bullet hits a target or reaches the bottom of the screen
+void globals_fire_alien_bullet_2(){
+  alien_bullet_fired_2 = FIRED;
+}
+
+// set this to 1 if a bullet has been fired, keep it asserted until the bullet hits a target or reaches the bottom of the screen
+void globals_fire_alien_bullet_3(){
+  alien_bullet_fired_3 = FIRED;
+}
+
+// set this to 0 once the bullet hits a target or reaches the bottom of the screen, allows the alien to fire another bullet
+void globals_alien_bullet_stopped_0() {
+  alien_bullet_fired_0 = NOT_FIRED;
+}
+
+// set this to 0 once the bullet hits a target or reaches the bottom of the screen, allows the alien to fire another bullet
+void globals_alien_bullet_stopped_1() {
+  alien_bullet_fired_1 = NOT_FIRED;
+}
+
+// set this to 0 once the bullet hits a target or reaches the bottom of the screen, allows the alien to fire another bullet
+void globals_alien_bullet_stopped_2() {
+  alien_bullet_fired_2 = NOT_FIRED;
+}
+
+// set this to 0 once the bullet hits a target or reaches the bottom of the screen, allows the alien to fire another bullet
+void globals_alien_bullet_stopped_3() {
+  alien_bullet_fired_3 = NOT_FIRED;
+}
+
+// fetch the current alien bullet position
+// returns : the current alien bullet position
+uint32_t globals_get_alien_bullet_position_0(){
+  return alien_bullet_position_0;
+}
+
+// fetch the current alien bullet position
+// returns : the current alien bullet position
+uint32_t globals_get_alien_bullet_position_1(){
+  return alien_bullet_position_1;
+}
+
+// fetch the current alien bullet position
+// returns : the current alien bullet position
+uint32_t globals_get_alien_bullet_position_2(){
+  return alien_bullet_position_2;
+}
+
+// fetch the current alien bullet position
+// returns : the current alien bullet position
+uint32_t globals_get_alien_bullet_position_3(){
+  return alien_bullet_position_3;
+}
+
+// set a new alien bullet position
+// pos : the new position which you wish to set
+void globals_set_alien_bullet_position_0(uint32_t pos){
+  alien_bullet_position_0 = pos;
+}
+
+// set a new alien bullet position
+// pos : the new position which you wish to set
+void globals_set_alien_bullet_position_1(uint32_t pos){
+  alien_bullet_position_1 = pos;
+}
+
+// set a new alien bullet position
+// pos : the new position which you wish to set
+void globals_set_alien_bullet_position_2(uint32_t pos){
+  alien_bullet_position_2 = pos;
+}
+
+// set a new alien bullet position
+// pos : the new position which you wish to set
+void globals_set_alien_bullet_position_3(uint32_t pos){
+  alien_bullet_position_3 = pos;
+}
+
+// fetches the current score of the current game
+// returns : the score of the current game
+uint32_t globals_get_current_score() {
+  return current_score;
+}
+
+// adds a value to the current score
+// score : the value of the score to add to the current score
+void globals_add_to_current_score(uint32_t score) {
+  current_score += score;
+}
+
+// fetches the position of the saucer
+// returns the position of the saucer
+uint32_t globals_get_saucer_pos() {
+  return saucer_pos;
+}
+
+// sets the position of the saucer
+// pos : the position which we wish to place the saucer
+void globals_set_saucer_pos(uint32_t pos) {
+  saucer_pos = pos;
+}
+
+// fetches the status of the saucer
+// returns the status of the saucer
+uint16_t globals_get_saucer_status() {
+  return saucer_status;
+}
+
+// sets the status of the saucer
+// status : the status that we wish to set for the saucer
+void globals_set_saucer_status(uint16_t status) {
+  saucer_status = status;
+}
+
+// fetches the saucer delay count
+// returns : the delay count
+uint32_t globals_get_saucer_shot_count() {
+  return saucer_shot_count;
+}
+
+// increments the saucer shot count until it reaches a certain delay and resets
+// the saucer start position
+void globals_inc_saucer_shot_count() {
+  saucer_shot_count++;
+}
+
+// resets the saucer shot count
+void globals_reset_saucer_shot_count() {
+  saucer_shot_count = 0;
+}
+
+// fetches the total alien count
+// returns : the total alien count
+uint16_t globals_get_total_alien_count() {
+  return total_alien_count;
+}
+
+// decreases the total alien count by one when an alien gets shot
+void globals_decrement_total_alien_count() {
+  total_alien_count--;
+}
+
+// resets the total alien amount
+void globals_reset_total_alien_count() {
+  total_alien_count = STARTING_ALIEN_AMOUNT;
+}
+
+// prints current score
+void globals_print_current_score(){
+  uint32_t digit_1 = 0;
+  uint32_t digit_10 = 0;
+  uint32_t digit_100 = 0;
+  uint32_t digit_1000 = 0;
+  uint32_t digit_10000 = 0;
+  uint32_t temp = globals_get_current_score();
+  digit_10000 = ((temp)/TEN_THOUSAND_SCALE);
+  digit_1000 = ((temp-digit_10000*TEN_THOUSAND_SCALE)/THOUSAND_SCALE);
+  digit_100 = ((temp-digit_10000*TEN_THOUSAND_SCALE-digit_1000*THOUSAND_SCALE)/HUNDRED_SCALE);
+  digit_10 = ((temp-digit_10000*TEN_THOUSAND_SCALE-digit_1000*THOUSAND_SCALE-digit_100*HUNDRED_SCALE)/TEN_SCALE);
+  digit_1 = ((temp-digit_10000*TEN_THOUSAND_SCALE-digit_1000*THOUSAND_SCALE-digit_100*HUNDRED_SCALE-digit_10*TEN_SCALE)/ONE_SCALE);
+  sprites_render_buffer(char_array[digit_10000],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SCORE_0_LOCATION,SPRITES_NORMAL_CHARACTER_SCALING,global_green);
+  sprites_render_buffer(char_array[digit_1000],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SCORE_1_LOCATION,SPRITES_NORMAL_CHARACTER_SCALING,global_green);
+  sprites_render_buffer(char_array[digit_100],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SCORE_2_LOCATION,SPRITES_NORMAL_CHARACTER_SCALING,global_green);
+  sprites_render_buffer(char_array[digit_10],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SCORE_3_LOCATION,SPRITES_NORMAL_CHARACTER_SCALING,global_green);
+  sprites_render_buffer(char_array[digit_1],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SCORE_4_LOCATION,SPRITES_NORMAL_CHARACTER_SCALING,global_green);
+}
+
+// get the lives counter
+uint32_t globals_get_current_lives(){
+  return current_lives;
+}
+
+// increments the current amount of lives upon defeating an entire alien block if you have less than five
+void globals_increment_current_lives() {
+  if(current_lives < MAX_LIVES)  { // checks to see if we have reached the max amount of lives
+    current_lives++;
+  }
+}
+
+// decrements the current lives if the tank gets shot
+void globals_decrement_current_lives() {
+  if (current_lives > 0) {
+    current_lives--;
+  }
+}
+
+// fetches the flag that indicates that aliens have overrun our bunker
+// returns the overrun flag
+uint16_t globals_get_alien_overrun_flag() {
+  return alien_overrun_flag;
+}
+
+// asserts the overrun flag if the bottom column of aliens reaches the top of the bunker line
+void globals_assert_alien_overrun_flag() {
+  alien_overrun_flag = 1;
+}
+
+// sets the location of the most recently killed alien
+// loc : location of the most recently killed alien
+void globals_set_dead_alien_loc(uint32_t loc) {
+  dead_alien_loc = loc;
+}
+
+// fetches the location of the most recently killed alien
+// returns the locaiton of the most recently killed alien
+uint32_t globals_get_dead_alien_loc() {
+  return dead_alien_loc;
+}
+
+// sets the tank explosion flag
+// flag : wether the flag is high or low
+void globals_set_tank_ex_flag(bool flag) {
+  tank_ex_flag = flag;
+}
+
+// sets the shoot sound flag
+// flag : wether the flag is high or low
+void globals_set_shoot_flag(bool flag) {
+  shoot_flag = flag;
+}
+
+// sets the alien explosion flag
+// flag : wether the flag is high or low
+void globals_set_alien_ex_flag(bool flag) {
+  alien_ex_flag = flag;
+}
+
+// sets the saucer explosion flag
+// flag : wether the flag is high or low
+void globals_set_saucer_ex_flag(bool flag) {
+  saucer_ex_flag = flag;
+}
+
+// sets the saucer move flag
+// flag : wether the flag is high or low
+void globals_set_saucer_zoom_flag(bool flag) {
+  saucer_zoom_flag = flag;
+}
+
+// sets the aliens walking flag
+// flag : wether the flag is high or low
+void globals_set_alien_walk_flag(bool flag) {
+  alien_walk_flag = flag;
+}
+
+// fetches the tank explosion flag
+// returns : tank explosion flag
+bool globals_get_tank_ex_flag() {
+  return tank_ex_flag;
+}
+
+// fetches the shoot flag
+// returns : the shoot flag
+bool globals_get_shoot_flag() {
+  return shoot_flag;
+}
+
+// fetches the alien explosion flag
+// returns : alien explosion flag
+bool globals_get_alien_ex_flag() {
+  return alien_ex_flag;
+}
+
+// fetches the saucer explosion flag
+// returns : saucer explosion flag
+bool globals_get_saucer_ex_flag() {
+  return saucer_ex_flag;
+}
+
+// fetches the saucer zoom flag
+// returns : saucer zoom flag
+bool globals_get_saucer_zoom_flag() {
+  return saucer_zoom_flag;
+}
+
+// fetches the alien walk flag
+// returns : alien walk flag
+bool globals_get_alien_walk_flag() {
+  return alien_walk_flag;
+}
+
+// determines whether the tank is alive or not
+// flag : whether the tank is dead or not
+void globals_set_tank_dead(bool flag) {
+  tank_dead = flag;
+}
+
+// fetches whether the tank is dead or not
+// flag : tank_dead_flag
+bool globals_get_tank_dead() {
+  return tank_dead;
+}
+
+// prints lives to screen
+void globals_print_current_lives(){
+  if(current_lives == ONE_LIFE){ // if we have one life left, delete four tanks and write one
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FIRST_LIFE_LOCATION,TANK_SIZING,global_green);
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,SECOND_LIFE_LOCATION,TANK_SIZING,global_black);
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,THIRD_LIFE_LOCATION,TANK_SIZING,global_black);
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FOURTH_LIFE_LOCATION,TANK_SIZING,global_black);
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FIFTH_LIFE_LOCATION,TANK_SIZING,global_black);
+  }
+  if(current_lives == TWO_LIFE){ // if we have two lives left, delete three tanks and write two
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FIRST_LIFE_LOCATION,TANK_SIZING,global_green);
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,SECOND_LIFE_LOCATION,TANK_SIZING,global_green);
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,THIRD_LIFE_LOCATION,TANK_SIZING,global_black);
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FOURTH_LIFE_LOCATION,TANK_SIZING,global_black);
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FIFTH_LIFE_LOCATION,TANK_SIZING,global_black);
+  }
+  if(current_lives == THREE_LIFE){ // if we have three lives left, delete two tanks and write three
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FIRST_LIFE_LOCATION,TANK_SIZING,global_green);
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,SECOND_LIFE_LOCATION,TANK_SIZING,global_green);
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,THIRD_LIFE_LOCATION,TANK_SIZING,global_green);
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FOURTH_LIFE_LOCATION,TANK_SIZING,global_black);
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FIFTH_LIFE_LOCATION,TANK_SIZING,global_black);
+  }
+  if(current_lives == FOUR_LIFE){ // if we have four lives left, delete one tanks and write four
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FIRST_LIFE_LOCATION,TANK_SIZING,global_green);
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,SECOND_LIFE_LOCATION,TANK_SIZING,global_green);
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,THIRD_LIFE_LOCATION,TANK_SIZING,global_green);
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FOURTH_LIFE_LOCATION,TANK_SIZING,global_green);
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FIFTH_LIFE_LOCATION,TANK_SIZING,global_black);
+  }
+  if(current_lives == FIVE_LIFE){ // if we have no lives left, write five tanks
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FIRST_LIFE_LOCATION,TANK_SIZING,global_green);
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,SECOND_LIFE_LOCATION,TANK_SIZING,global_green);
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,THIRD_LIFE_LOCATION,TANK_SIZING,global_green);
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FOURTH_LIFE_LOCATION,TANK_SIZING,global_green);
+    sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FIFTH_LIFE_LOCATION,TANK_SIZING,global_green);
+  }
+}
+
+/*
+* Sound States
+*
+* ECEn 427
+* Clint Frandsen, Dax Eckles, Seth Becerra
+* BYU 2019
+*/
+
+#include <stdint.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <string.h>
+#include <linux/i2c-dev.h>
+#include <stdlib.h>
+#include <time.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <sys/ioctl.h>
+#include <err.h>
+#include "../audio_driver/audio_driver.h" // sgould this be in the header file?
+#include "sound_state.h"
+#include <stdbool.h>
+#include "../globals/globals.h"// sgould this be in the header file?
+#include "../image_render/image_render.h"
+
+/********************************** macros **********************************/
+#define DEFAULT_PLL 0        // the default value to pass into the PLL
+#define DEFAULT_CODEC 0        // the default value to pass into the CODEC
+#define RENDER_DEFAULT 0      // default render value
+
+/********************************** globals **********************************/
+bool sound_done = true;         // flag to say if the sound is finish or not
+audio_data_header current_data; // stores the value of the audio to play
+
+/********************************* functions *********************************/
+
+void sound_state_init(){  // initialize the state machine
+  printf("Sound State Machine Initialized!\n");
+  current_state = INIT_STATE; // set the start state of the S.M. to INIT_STATE
+}
+
+void sound_state_machine() { // function for the state machine
+  switch(current_state) {    // check the current state of the state in S.M.
+    case INIT_STATE:
+      config_audio_pll(DEFAULT_PLL); // initialize the pll
+      config_audio_codec(DEFAULT_CODEC); // initialize the codec
+      audio_driver_init(AUDIO_DRIVER_GPIO_FILE_PATH); // initialize the driver
+      transition = INIT_TRANS; // set the transition state
+      break;
+    case WALK01_STATE:
+      if(globals_get_alien_walk_flag()) {
+        current_data = audio_driver_get_data_array(AUDIO_DRIVER_WALK1_AUDIO); // get the sound data
+        audio_driver_write(current_data.sound_data, current_data.num_samples); // play the sound
+        globals_set_alien_walk_flag(false); // set walk flag to false
+        sound_done = false; // set sound flag to false
+        return_state = WALK01_STATE; // update return state
+        transition = WALK01_TRANS; // set the transition state
+      }
+      else if (!audio_driver_read()) { sound_done = true; } // set sound done flag high
+      break;
+    case WALK02_STATE:
+      if(globals_get_alien_walk_flag()) {
+        current_data = audio_driver_get_data_array(AUDIO_DRIVER_WALK2_AUDIO); // get the sound data
+        audio_driver_write(current_data.sound_data, current_data.num_samples); // play the sound
+        globals_set_alien_walk_flag(false); // set walk flag to false
+        sound_done = false; // set sound flag to false
+        return_state = WALK02_STATE; // update return state
+        transition = WALK02_TRANS; // set the transition state
+      }
+      else if (!audio_driver_read()) { sound_done = true; } // set sound done flag high
+      break;
+    case WALK03_STATE:
+      if(globals_get_alien_walk_flag()) {
+        current_data = audio_driver_get_data_array(AUDIO_DRIVER_WALK3_AUDIO); // get the sound data
+        audio_driver_write(current_data.sound_data, current_data.num_samples); // play the sound
+        globals_set_alien_walk_flag(false); // set walk flag to false
+        sound_done = false; // set sound flag to false
+        return_state = WALK03_STATE; // update return state
+        transition = WALK03_TRANS; // set the transition state
+      }
+      else if (!audio_driver_read()) { sound_done = true; } // set sound done flag high
+      break;
+    case WALK04_STATE:
+      if(globals_get_alien_walk_flag()) {
+        current_data = audio_driver_get_data_array(AUDIO_DRIVER_WALK4_AUDIO); // get the sound data
+        audio_driver_write(current_data.sound_data, current_data.num_samples); // play the sound
+        globals_set_alien_walk_flag(false); // set walk flag to false
+        sound_done = false; // set sound flag to false
+        return_state = WALK04_STATE; // update return state
+        transition = WALK04_TRANS; // set the transition state
+      }
+      else if (!audio_driver_read()) { sound_done = true; } // set sound done flag high
+      break;
+    case SAUCER_ZOOM_STATE:
+      if(sound_done) {
+        current_data = audio_driver_get_data_array(AUDIO_DRIVER_UFO_AUDIO); // get the sound data
+        audio_driver_write(current_data.sound_data, current_data.num_samples); // play the sound
+        globals_set_saucer_zoom_flag(false); // set zoom flag to false
+        sound_done = false; // set sound flag to false
+        return_state = SAUCER_ZOOM_STATE; // update return state
+        transition = SAUCER_ZOOM_TRANS; // set the transition state
+
+      }
+      else if (!audio_driver_read()) { sound_done = true; }  // set sound done flag high
+      break;
+    case SAUCER_EX_STATE:
+      if(sound_done) {
+        current_data = audio_driver_get_data_array(AUDIO_DRIVER_UFO_DIE_AUDIO); // get the sound data
+        audio_driver_write(current_data.sound_data, current_data.num_samples); // play the sound
+        globals_set_saucer_ex_flag(false); // set saucer explode flag to false
+        sound_done = false; // set sound flag to false
+        transition = SAUCER_EX_TRANS; // set the transition state
+      }
+      else if (!audio_driver_read()) { sound_done = true; } // set sound done flag high
+      break;
+    case ALIEN_EX_STATE:
+     if(sound_done) {
+       current_data = audio_driver_get_data_array(AUDIO_DRIVER_INVADER_DIE_AUDIO); // get the sound data
+        audio_driver_write(current_data.sound_data, current_data.num_samples); // play the sound
+        globals_set_alien_ex_flag(false); // set alien explode flag to false
+        sound_done = false; // set sound flag to false
+        transition = ALIEN_EX_TRANS; // set the transition state
+      }
+      if (!audio_driver_read()) { sound_done = true; } // set sound done flag high
+      break;
+    case TANK_SHOOT_STATE:
+      if(sound_done) {
+        current_data = audio_driver_get_data_array(AUDIO_DRIVER_LASER_AUDIO); // get the sound data
+        audio_driver_write(current_data.sound_data, current_data.num_samples); // play the sound
+        globals_set_shoot_flag(false); // set walk flag to false
+        sound_done = false; // set sound flag to false
+        transition = TANK_SHOOT_TRANS; // set the transition state
+      }
+      else if (!audio_driver_read()) { sound_done = true; } // set sound done flag high
+      break;
+    case TANK_EX_STATE:
+      if(sound_done) {
+        current_data = audio_driver_get_data_array(AUDIO_DRIVER_PLAYER_DIE_AUDIO); // get the sound data
+        audio_driver_write(current_data.sound_data, current_data.num_samples); // play the sound
+        globals_set_tank_ex_flag(false); // say the tank is exploding
+        globals_set_tank_dead(false); // make the tank alive again
+        sound_done = false; // set sound flag to false
+        transition = TANK_EX_TRANS; // set the transition state
+      }
+      else if (!audio_driver_read()) { // set sound done flag high
+      	image_render_tank(RENDER_DEFAULT,RENDER_DEFAULT); // re draw the tank alive after sound plays
+      	sound_done = true; // set sound flag to true
+      }
+      break;
+    default:
+      printf("Should not come here\n");
+      break;
+  }
+
+/******************************** TRANSITIONS ********************************/
+  switch(transition) {
+    case INIT_TRANS:
+      current_state = WALK01_STATE;
+      break;
+    case WALK01_TRANS:
+      if (!sound_done) { current_state = current_state; }
+      else if(globals_get_tank_ex_flag()) { current_state = TANK_EX_STATE; } // if tank explode set state
+      else if(globals_get_alien_ex_flag()) { current_state = ALIEN_EX_STATE; } // if alien explode then set state
+      else if(globals_get_shoot_flag()) { current_state = TANK_SHOOT_STATE; } // if shoot then set state
+      else if(globals_get_saucer_ex_flag()) { current_state = SAUCER_EX_STATE; } // if saucer explode then set state
+      else if(globals_get_saucer_zoom_flag()) { current_state = SAUCER_ZOOM_STATE; } // if saucer move then set state
+      else { current_state = WALK02_STATE; } // set the State to got to on next tick
+      break;
+    case WALK02_TRANS:
+      if (!sound_done) { current_state = current_state; }
+      else if(globals_get_tank_ex_flag()) { current_state = TANK_EX_STATE; } // if tank explode set state
+      else if(globals_get_alien_ex_flag()) { current_state = ALIEN_EX_STATE; } // if alien explode then set state
+      else if(globals_get_shoot_flag()) { current_state = TANK_SHOOT_STATE; } // if shoot then set state
+      else if(globals_get_saucer_ex_flag()) { current_state = SAUCER_EX_STATE; } // if saucer explode then set state
+      else if(globals_get_saucer_zoom_flag()) { current_state = SAUCER_ZOOM_STATE; } // if saucer move then set state
+      else { current_state = WALK03_STATE; } // set the State to got to on next tick
+      break;
+    case WALK03_TRANS:
+      if (!sound_done) { current_state = current_state; }
+      else if(globals_get_tank_ex_flag()) { current_state = TANK_EX_STATE; } // if tank explode set state
+      else if(globals_get_alien_ex_flag()) { current_state = ALIEN_EX_STATE; } // if alien explode then set state
+      else if(globals_get_shoot_flag()) { current_state = TANK_SHOOT_STATE; } // if shoot then set state
+      else if(globals_get_saucer_ex_flag()) { current_state = SAUCER_EX_STATE; } // if saucer explode then set state
+      else if(globals_get_saucer_zoom_flag()) { current_state = SAUCER_ZOOM_STATE; } // if saucer move then set state
+      else { current_state = WALK04_STATE; } // set the State to got to on next tick
+      break;
+    case WALK04_TRANS:
+      if (!sound_done) { current_state = current_state; }
+      else if(globals_get_tank_ex_flag()) { current_state = TANK_EX_STATE; } // if tank explode set state
+      else if(globals_get_alien_ex_flag()) { current_state = ALIEN_EX_STATE; } // if alien explode then set state
+      else if(globals_get_shoot_flag()) { current_state = TANK_SHOOT_STATE; } // if shoot then set state
+      else if(globals_get_saucer_ex_flag()) { current_state = SAUCER_EX_STATE; } // if saucer explode then set state
+      else if(globals_get_saucer_zoom_flag()) { current_state = SAUCER_ZOOM_STATE; } // if saucer move then set state
+      else { current_state = WALK01_STATE; } // set the State to got to on next tick
+      break;
+    case SAUCER_ZOOM_TRANS:
+      if (!sound_done) { current_state = current_state; }
+      else if(globals_get_tank_ex_flag()) { current_state = TANK_EX_STATE; } // if tank explode set state
+      else if(globals_get_alien_ex_flag()) { current_state = ALIEN_EX_STATE; } // if alien explode then set state
+      else if(globals_get_shoot_flag()) { current_state = TANK_SHOOT_STATE; } // if shoot then set state
+      else if(globals_get_saucer_ex_flag()) { current_state = SAUCER_EX_STATE; } // if saucer explode then set state
+      else if(globals_get_saucer_zoom_flag()) { current_state = SAUCER_ZOOM_STATE; } // if saucer move then set state
+      else { current_state = WALK01_STATE; } // set the State to got to on next tick
+      break;
+    case SAUCER_EX_TRANS:
+      if (!sound_done) { current_state = current_state; } // if sound is not done playing the stay in same state
+      else { current_state = return_state; } // set the State to got to on next tick
+      break;
+    case ALIEN_EX_TRANS:
+      if (!sound_done) { current_state = current_state; } // if sound is not done playing the stay in same state
+      else { current_state = return_state; } // set the State to got to on next tick
+      break;
+    case TANK_SHOOT_TRANS:
+      if (!sound_done) { current_state = current_state; } // if sound is not done playing the stay in same state
+      else { current_state = return_state; } // set the State to got to on next tick
+      break;
+    case TANK_EX_TRANS:
+      if (!sound_done) { current_state = current_state; } // if sound is not done playing the stay in same state
+      else { current_state = return_state; } // set the State to got to on next tick
+      break;
+    default:
+      printf("Error, should not reach default state.\n");
+      break;
+  }
+}
+
+
+/*
+* sound_state.h
+*
+* ECEn 427
+* Clint Frandsen, Dax Eckles, Seth Becerra
+* BYU 2019
+*/
+
+#include <stdint.h>
+
+/*********************************** macros ***********************************/
+
+enum states {        // defines all of the state for the S.M.
+  INIT_STATE,        // defines the init state for S.M.
+  WALK01_STATE,        // defines the walk 1 state for S.M.
+  WALK02_STATE,        // defines the walk 2 state for S.M.
+  WALK03_STATE,        // defines the walk 3 state for S.M.
+  WALK04_STATE,        // defines the walk 4 state for S.M.
+  SAUCER_ZOOM_STATE,        // defines the saucer move state for S.M.
+  SAUCER_EX_STATE,        // defines the saucer explode state for S.M.
+  ALIEN_EX_STATE,        // defines the alien explode state for S.M.
+  TANK_SHOOT_STATE,        // defines the shoot bullet state for S.M.
+  TANK_EX_STATE,        // defines the tank explode state for S.M.
+} current_state, return_state; // defines the current state for the S.M.
+
+enum transitions {        // defines the transition states for the S.M.
+  INIT_TRANS,        // defines the initialize state for the S.M.
+  WALK01_TRANS,        // defines the transition walk 01 state for the S.M.
+  WALK02_TRANS,        // defines the transition walk 2 state for the S.M.
+  WALK03_TRANS,        // defines the transition walk 3 state for the S.M.
+  WALK04_TRANS,        // defines the transition walk 4 state for the S.M.
+  SAUCER_ZOOM_TRANS,  // defines the transition saucer move state for the S.M.
+  SAUCER_EX_TRANS, // defines the transition saucer explode state for the S.M.
+  ALIEN_EX_TRANS,    // defines the transition alien explode state for the S.M.
+  TANK_SHOOT_TRANS,   // defines the transition shoot bullet state for the S.M.
+  TANK_EX_TRANS,      // defines the transition tank explode state for the S.M.
+} transition;
+
+// funtion initializes S.M.
+void sound_state_init();
+
+// funtion for the state sound_state_machine
+void sound_state_machine();
+
+
+

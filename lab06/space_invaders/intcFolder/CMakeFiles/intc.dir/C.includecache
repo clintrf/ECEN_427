@@ -1,0 +1,26 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/xilinx/ECEN_427/lab03/intcFolder/intc.c
+stdint.h
+-
+stdio.h
+-
+unistd.h
+-
+fcntl.h
+-
+sys/mman.h
+-
+intc.h
+/home/xilinx/ECEN_427/lab03/intcFolder/intc.h
+
+/home/xilinx/ECEN_427/lab03/intcFolder/intc.h
+stdint.h
+-
+

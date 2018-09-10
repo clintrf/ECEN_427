@@ -1,1 +1,0 @@
-cmd_/home/xilinx/ECEN_427/lab06/pit/pit.ko := ld -EL -r  -T ./scripts/module-common.lds --build-id  -o /home/xilinx/ECEN_427/lab06/pit/pit.ko /home/xilinx/ECEN_427/lab06/pit/pit.o /home/xilinx/ECEN_427/lab06/pit/pit.mod.o ;  true

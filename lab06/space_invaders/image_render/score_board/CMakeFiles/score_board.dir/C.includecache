@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/xilinx/ECEN_427/lab03/image_render/hdmi/hdmi.h
+stdint.h
+-
+
+/home/xilinx/ECEN_427/lab03/image_render/score_board/score_board.c
+score_board.h
+/home/xilinx/ECEN_427/lab03/image_render/score_board/score_board.h
+../sprites/sprites.h
+/home/xilinx/ECEN_427/lab03/image_render/sprites/sprites.h
+../hdmi/hdmi.h
+/home/xilinx/ECEN_427/lab03/image_render/hdmi/hdmi.h
+
+/home/xilinx/ECEN_427/lab03/image_render/score_board/score_board.h
+stdint.h
+-
+stdio.h
+-
+
+/home/xilinx/ECEN_427/lab03/image_render/sprites/sprites.h
+stdint.h
+-
+stdio.h
+-
+

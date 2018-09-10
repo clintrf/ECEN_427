@@ -1,0 +1,2 @@
+/usr/bin/ar qc libswtch.a  CMakeFiles/swtch.dir/switch_uio.c.o
+/usr/bin/ranlib libswtch.a

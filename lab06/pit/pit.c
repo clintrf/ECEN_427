@@ -80,7 +80,7 @@ static struct file_operations pit_fops = {
 
 // Link between the hardware and its driver
 static struct of_device_id pit_of_match[] = {
-  { .compatible = "byu,ecen427-pitt", },
+  { .compatible = "xlnx,xps-intc-1.00.b", },
   {}
 };
 MODULE_DEVICE_TABLE(of, pit_of_match);
@@ -90,7 +90,7 @@ static struct platform_driver pit_platform_driver = {
   .probe = pit_probe,
   .remove = pit_remove,
   .driver = {
-    .name = MODULE_NAME,
+    .name = "ecen427_user_pit",
     .owner = THIS_MODULE,
     .of_match_table = pit_of_match,
   }
@@ -120,6 +120,8 @@ static struct device_attribute dattr_period = __ATTR_RW(period);
 static int pit_init(void);
 static void pit_exit(void);
 
+static const char pitname[] = "ecen427_user_pit";
+
 module_init(pit_init);
 module_exit(pit_exit);
 
@@ -130,7 +132,7 @@ static int pit_init(void) {
   pr_info("%s: Initializing PIT Driver!\n", MODULE_NAME);
   // Get a major number for the driver -- alloc_chrdev_region; // pg. 45, LDD3.
   int err = alloc_chrdev_region(&dev_nums,FIRST_MINOR,NUM_OF_CONTIGUOUS_DEVS,
-    MODULE_NAME);
+    pitname);
   if(err < INIT_SUCCESS) { // failure doing region allocation
     pr_info("Failure allocating major/minor numbers!\n");
     return INIT_ERR;
@@ -138,7 +140,7 @@ static int pit_init(void) {
   int minor_num = MINOR(dev_nums); // returns the minor number of a dev_t type
   dev.minor_num = minor_num;
   // Create a device class. -- class_create()
-  pit = class_create(THIS_MODULE,MODULE_NAME);
+  pit = class_create(THIS_MODULE,pitname);
   if(pit == NULL) { // failed to create the class, undo allocation
     pr_info("Failure creating device class!\nRollback changes...\\n");
     unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
@@ -146,11 +148,11 @@ static int pit_init(void) {
   }
 
   /********ADDED CODE********/
-  bundle[0] = &dattr_int.attr;
-  bundle[1] = &dattr_timer.attr;
-  bundle[2] = &dattr_period.attr;
-  bundle[3] = NULL;
-  my_attr_grp.attrs = bundle;
+  // bundle[0] = &dattr_int.attr;
+  // bundle[1] = &dattr_timer.attr;
+  // bundle[2] = &dattr_period.attr;
+  // bundle[3] = NULL;
+  // my_attr_grp.attrs = bundle;
   /******END ADDED CODE******/
 
   // Register the driver as a platform driver -- platform_driver_register
