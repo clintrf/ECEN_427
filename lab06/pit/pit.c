@@ -7,8 +7,8 @@
 #include <linux/device.h>
 #include <linux/slab.h>
 #include <asm/uaccess.h> //possibly #include<linux/uaccess.h>
-#include<linux/sysfs.h> 
-#include<linux/kobject.h> 
+#include<linux/sysfs.h>
+#include<linux/kobject.h>
 
 // don't need the rest probably
 #include <linux/types.h>
@@ -78,7 +78,7 @@ static struct file_operations pit_fops = {
 
 // Link between the hardware and its driver
 static struct of_device_id pit_of_match[] = {
-  { .compatible = "byu,ecen427-pit_codec", },    //CHANGE
+  { .compatible = "byu,ecen427-pit", },    //CHANGE
   {}
 };
 MODULE_DEVICE_TABLE(of, pit_of_match);
@@ -93,6 +93,50 @@ static struct platform_driver pit_platform_driver = {
     .of_match_table = pit_of_match,
   }
 };
+
+typedef struct attribute {
+    char *           name;  // Name of file
+    struct module *  owner;
+    umode_t          mode;  // Oct
+    permissions
+};
+
+
+typedef struct pit_attribute {
+    struct attribute attr;
+    ssize_t (*show)(
+        struct device *dev,
+        struct device_attribute *attr,
+        char * buf
+    );
+    ssize_t (*store)(
+         struct device *dev,
+         struct device_attribute *attr,
+         const char * buf,
+         size_t count
+    );
+};
+
+struct attribute_group {
+  const char       *name;
+  umode_t           (*is_visible)(
+    structkobject *,
+    struct attribute *,
+    int
+  );
+  struct attribute   **attrs;
+  struct bin_attribute  **bin_attrs;
+};
+
+struct kobject *root, *s1;
+static struct attribute_group my_attr_grp; // why do we need a group of attibutes?
+static struct pit_attribute my_pit_attr;
+
+static struct attribute * bundle[ 4 ]; // whats the point of a bundle?
+static struct pit_attribute da1; // what are attributes? Why do we need them?
+static struct pit_attribute da2;
+static struct pit_attribute da3;
+static struct pit_attribute da4;
 
 /****************************** global variables ****************************/
 static pit_dev dev; // global pit device
@@ -141,6 +185,35 @@ static int pit_init(void) {
     unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
     return INIT_ERR;
   }
+
+  da1.attr = ;
+  da2.attr;
+  da3.attr;
+  da4.attr;
+
+  bundle[0] = &da1.attr;
+  bundle[1] = &da2.attr;
+  bundle[2] = &da3.attr;
+  bundle[3] = &da4.attr;
+
+  my_attr_grp.attrs = bundle;
+
+  my_pit_attr.attr.name = "subdir1";
+  my_pit_attr.attr.mode = 0666;
+  my_pit_attr.show  = NULL;            // Read Function
+  my_pit_attr.store = NULL;            // No W function
+
+
+
+  // if(PTR_ERR(sysfs_create_file(ko, &my_pit_attr.attr))) {
+  //   // Handle Error
+  // }
+
+  if(sysfs_create_group(ko, &my_attr_grp)) {
+    // Handle Error
+  }
+
+
   pr_info("%s: PIT Driver initialization success!\n", MODULE_NAME);
   return INIT_SUCCESS;
 }
@@ -191,25 +264,12 @@ static int pit_probe(struct platform_device *pdev) {
     return PROBE_ERR;
   }
   dev.dev = device;
- 
- /********** NEW CODE *********/
-//  device = root_device_register("my_folder");
-//  if(device == NULL) {
-//    pr_info("Failure registering root device!\nRollback changes....\n");
-//    cdev_del(&cdev);
-//    platform_driver_unregister(&pit_platform_driver);
-//    class_destroy(pit);
-//    unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
-//    return PROBE_ERR;
-//  }
-//  dev.dev = device;
- /******** END NEW CODE *******/
- 
+
   // Get the physical device address from the device tree
   res = platform_get_resource(pdev,IORESOURCE_MEM,FIRST_RESOURCE);
   if(res == NULL) { // if the resource returns null, then we hit an error
     pr_info("Failure Getting Resources 01!\nRollback changes...\\n");
-//     device_destroy(pit,dev_nums); // device_destroy COMMENTED OUT FROM LAST LAB
+    device_destroy(pit,dev_nums); // device_destroy
     root_device_unregister(dev.dev); // maybe?
     cdev_del(&cdev);
     platform_driver_unregister(&pit_platform_driver);
@@ -231,7 +291,7 @@ static int pit_probe(struct platform_device *pdev) {
   }
   // Get a (virtual memory) pointer to the device -- ioremap
   dev.virt_addr = ioremap(res->start,dev.mem_size);
-  
+
 //  // Get the IRQ number from the device tree -- platform_get_resource
 //   res_irq = platform_get_resource(pdev,IORESOURCE_IRQ,FIRST_RESOURCE);
 //   irq_num = res_irq->start;
@@ -260,7 +320,7 @@ static int pit_probe(struct platform_device *pdev) {
 //     unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
 //     return PROBE_ERR;
 //   }
- pit_probe_called_once = true; // makes certain we don't run probe twice
+  pit_probe_called_once = true; // makes certain we don't run probe twice
   pr_info("%s: PIT Driver probing success!\n", MODULE_NAME);
   pr_info("%s: Major Number: %zu\n", MODULE_NAME, MAJOR(dev_nums));
   pr_info("%s: Physical Addr: %zu\n", MODULE_NAME, dev.phys_addr);
@@ -273,9 +333,10 @@ static int pit_probe(struct platform_device *pdev) {
 static int pit_remove(struct platform_device * pdev) {
   pr_info("%s: Removing PIT Driver!\n", MODULE_NAME);
   //free_irq(irq_num,NULL); // free the irq to allow interrupts to continue
+  sysfs_remove_group( s1, &my_attr_grp );
   ioport_unmap(dev.virt_addr); // iounmap
   release_mem_region(dev.phys_addr,dev.mem_size); // release_mem_region
-//     device_destroy(pit,dev_nums); // device_destroy COMMENTED OUT FROM LAST LAB
+  device_destroy(pit,dev_nums); // device_destroy
   root_device_unregister(dev.dev); // maybe?
   cdev_del(&cdev); // cdev_del
   pr_info("%s: Removing PIT Driver success!\n", MODULE_NAME);
