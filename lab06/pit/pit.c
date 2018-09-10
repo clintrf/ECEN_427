@@ -6,11 +6,9 @@
 #include <linux/cdev.h>
 #include <linux/device.h>
 #include <linux/slab.h>
-#include <asm/uaccess.h> //possibly #include<linux/uaccess.h>
+#include <asm/uaccess.h>
 #include<linux/sysfs.h>
 #include<linux/kobject.h>
-
-// don't need the rest probably
 #include <linux/types.h>
 #include <linux/err.h>
 #include <linux/string.h>
@@ -25,6 +23,7 @@
 #include <stdbool.h>
 #include <asm/io.h>
 #include <linux/ioctl.h>
+
 /*********************************** macros *********************************/
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Seth Becerra, Dax Eckles & Clint Frandsen");
@@ -32,9 +31,7 @@ MODULE_DESCRIPTION("ECEn 427 Pit Driver");
 
 #define MODULE_NAME "pit"
 #define MYIP_REG_OFFSET 0x43C3
-
 #define I2S_STATUS_REG_OFFSET 4
-
 // i2s register above
 #define FIRST_MINOR 0
 #define NUM_OF_CONTIGUOUS_DEVS 1
@@ -45,19 +42,24 @@ MODULE_DESCRIPTION("ECEn 427 Pit Driver");
 #define PROBE_SUCCESS 0
 #define PROBE_ERR -1
 #define REMOVE_SUCCESS 0
-#define INTERRUPTS_OFF 0x0
-#define INTERRUPTS_ON 0x1
 #define ZERO_BYTES_WRITTEN 0
 #define WRITE_ERR -1
-#define SOUND_NOT_PLAYING 0
-#define SOUND_PLAYING 1
-//#defines for IOCtl files
-#define IOC_MAGIC  'k'
-
 
 /********************************* prototypes ********************************/
 static int pit_probe(struct platform_device *pdev);
 static int pit_remove(struct platform_device * pdev);
+static ssize_t int_show(struct device *dev, struct device_attribute *attr,
+    char *buf);
+static ssize_t int_store(struct device *dev, struct device_attribute *attr,
+    const char *buf, size_t count);
+static ssize_t timer_show(struct device *dev, struct device_attribute *attr,
+    char *buf);
+static ssize_t timer_store(struct device *dev, struct device_attribute *attr,
+    const char *buf, size_t count);
+static ssize_t period_show(struct device *dev, struct device_attribute *attr,
+    char *buf);
+static ssize_t period_store(struct device *dev, struct device_attribute *attr,
+    const char *buf, size_t count);
 
 /*********************************** structs *********************************/
 // struct containing the pit_device data
@@ -78,7 +80,7 @@ static struct file_operations pit_fops = {
 
 // Link between the hardware and its driver
 static struct of_device_id pit_of_match[] = {
-  { .compatible = "byu,ecen427-pit", },    //CHANGE
+  { .compatible = "byu,ecen427-pitt", },
   {}
 };
 MODULE_DEVICE_TABLE(of, pit_of_match);
@@ -94,46 +96,25 @@ static struct platform_driver pit_platform_driver = {
   }
 };
 
-// a struct that define an attribute
-typedef struct attribute {
-    char *           name;  // Name of file
-    struct module *  owner;
-    umode_t          mode;  // Oct
-    permissions
-};
-
-// a specific type of attribute that allows for reading and writing
-typedef struct pit_attribute {
-    struct attribute attr;
-    ssize_t (*show)(
-        struct device *dev,
-        struct device_attribute *attr,
-        char * buf
-    );
-    ssize_t (*store)(
-         struct device *dev,
-         struct device_attribute *attr,
-         const char * buf,
-         size_t count
-    );
-};
-
-
-static struct attribute_group my_attr_grp; // why do we need a group of attributes?
-static struct attribute * bundle[ 4 ]; // whats the point of a bundle?
-static struct pit_attribute da1; // what are attributes? Why do we need them?
+// static struct attribute_group my_attr_grp; // why do we need a group of attributes?
+// static struct attribute * bundle[ 4 ]; // whats the point of a bundle?
+// static struct pit_attribute da1; // what are attributes? Why do we need them?
 
 /****************************** global variables ****************************/
 static pit_dev dev; // global pit device
 static bool pit_probe_called_once = false; // makes pit_probe call once
-static dev_t dev_nums; // contains major and minor numbers
+static dev_t dev_nums; // contains major and minor numbers"byu,ecen427-pit"
 static struct class *pit;
 static struct device *device;
 static struct cdev cdev; // character device for the driver
 static struct resource *res; // Device Resource Structure
 static struct resource *res_mem; // Device Resource Structure
-static struct pit_attribute p_attr;
 struct kobject *root;
+struct attribute * bundle[4];
+struct attribute_group my_attr_grp;
+static struct device_attribute dattr_int = __ATTR_RW(int);
+static struct device_attribute dattr_timer = __ATTR_RW(timer);
+static struct device_attribute dattr_period = __ATTR_RW(period);
 
 /***************************** kernel definitions ****************************/
 static int pit_init(void);
@@ -163,6 +144,15 @@ static int pit_init(void) {
     unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
     return INIT_ERR;
   }
+
+  /********ADDED CODE********/
+  bundle[0] = &dattr_int.attr;
+  bundle[1] = &dattr_timer.attr;
+  bundle[2] = &dattr_period.attr;
+  bundle[3] = NULL;
+  my_attr_grp.attrs = bundle;
+  /******END ADDED CODE******/
+
   // Register the driver as a platform driver -- platform_driver_register
   err = platform_driver_register(&pit_platform_driver);
   if(err < INIT_SUCCESS) { // failed to register the platform driver,
@@ -171,11 +161,6 @@ static int pit_init(void) {
     unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
     return INIT_ERR;
   }
-
-  /********ADDED CODE********/
-  p_attr.attr.name = "attribute1"; // names the attribute
-  _ATTR_RW("attribute1"); // should set show and store to default setting and mode to 0644
-  /******END ADDED CODE******/
 
   pr_info("%s: PIT Driver initialization success!\n", MODULE_NAME);
   return INIT_SUCCESS;
@@ -189,6 +174,75 @@ static void pit_exit(void) {
   unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
   pr_info("%s: Finish Exit PIT Driver!\n", MODULE_NAME);
   return;
+}
+
+// called when the sysfs file is read
+// dev : the device affected
+// attr : the attribute affected
+// buf : the number of bytes you want to pass back
+// returns : the number of bytes placed into the buf
+static ssize_t int_show(struct device *dev, struct device_attribute *attr,
+    char *buf) {
+  return scnprintf(buf, PAGE_SIZE, "%s\n", dev->init_name);
+}
+
+// is called when the sysfs file is written to
+// dev : the device affected
+// attr : the attribute affected
+// buf : a buffer containing the data to write
+// count : the number of bytes of data in the buffer
+// returns the number of bytes consumed
+static ssize_t int_store(struct device *dev, struct device_attribute *attr,
+    const char *buf, size_t count) {
+  snprintf(dev->init_name, sizeof(dev->init_name), "%.*s",(int)min(count,
+    sizeof(dev->init_name)-1), buf);
+	return count;
+}
+
+// called when the sysfs file is read
+// dev : the device affected
+// attr : the attribute affected
+// buf : the number of bytes you want to pass back
+// returns : the number of bytes placed into the buf
+static ssize_t timer_show(struct device *dev, struct device_attribute *attr,
+    char *buf) {
+  return scnprintf(buf, PAGE_SIZE, "%s\n", dev->init_name);
+}
+
+// is called when the sysfs file is written to
+// dev : the device affected
+// attr : the attribute affected
+// buf : a buffer containing the data to write
+// count : the number of bytes of data in the buffer
+// returns the number of bytes consumed
+static ssize_t timer_store(struct device *dev, struct device_attribute *attr,
+    const char *buf, size_t count) {
+  snprintf(dev->init_name, sizeof(dev->init_name), "%.*s",(int)min(count,
+    sizeof(dev->init_name)-1), buf);
+	return count;
+}
+
+// called when the sysfs file is read
+// dev : the device affected
+// attr : the attribute affected
+// buf : the number of bytes you want to pass back
+// returns : the number of bytes placed into the buf
+static ssize_t period_show(struct device *dev, struct device_attribute *attr,
+    char *buf) {
+  return scnprintf(buf, PAGE_SIZE, "%s\n", dev->init_name);
+}
+
+// is called when the sysfs file is written to
+// dev : the device affected
+// attr : the attribute affected
+// buf : a buffer containing the data to write
+// count : the number of bytes of data in the buffer
+// returns the number of bytes consumed
+static ssize_t period_store(struct device *dev, struct device_attribute *attr,
+    const char *buf, size_t count) {
+  snprintf(dev->init_name, sizeof(dev->init_name), "%.*s",(int)min(count,
+    sizeof(dev->init_name)-1), buf);
+	return count;
 }
 
 // Called by kernel when a platform device is detected that matches the
@@ -228,12 +282,25 @@ static int pit_probe(struct platform_device *pdev) {
   }
   dev.dev = device;
 
+  /********ADDED CODE********/
+  root = &(dev.dev->kobj);
+  if(sysfs_create_group(root,&(my_attr_grp))) {
+    pr_info("Failure creating group!\nRollback changes...\\n");
+    device_destroy(pit,dev_nums); // device_destroy
+    cdev_del(&cdev);
+    platform_driver_unregister(&pit_platform_driver);
+    class_destroy(pit);
+    unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
+    return PROBE_ERR;
+  }
+  /******END ADDED CODE******/
+
   // Get the physical device address from the device tree
   res = platform_get_resource(pdev,IORESOURCE_MEM,FIRST_RESOURCE);
   if(res == NULL) { // if the resource returns null, then we hit an error
     pr_info("Failure Getting Resources 01!\nRollback changes...\\n");
+    sysfs_remove_group(root,&(my_attr_grp));
     device_destroy(pit,dev_nums); // device_destroy
-    root_device_unregister(dev.dev); // maybe?
     cdev_del(&cdev);
     platform_driver_unregister(&pit_platform_driver);
     class_destroy(pit);
@@ -246,6 +313,7 @@ static int pit_probe(struct platform_device *pdev) {
   res_mem = request_mem_region(dev.phys_addr,dev.mem_size,MODULE_NAME);
   if(res_mem == NULL) { // if the resource returns null, then we hit an error
     pr_info("Failure Requesting Memory Region!\nRollback changes...\n");
+    sysfs_remove_group(root,&(my_attr_grp));
     device_destroy(pit,dev_nums); // device_destroy
     cdev_del(&cdev);
     platform_driver_unregister(&pit_platform_driver);
@@ -254,35 +322,8 @@ static int pit_probe(struct platform_device *pdev) {
   }
   // Get a (virtual memory) pointer to the device -- ioremap
   dev.virt_addr = ioremap(res->start,dev.mem_size);
+  dev.pdev = pdev; // sets the platform driver
 
-//  // Get the IRQ number from the device tree -- platform_get_resource
-//   res_irq = platform_get_resource(pdev,IORESOURCE_IRQ,FIRST_RESOURCE);
-//   irq_num = res_irq->start;
-//   if(res_irq == NULL){ // if the resource returns null, then we hit an error
-//     pr_info("Failure Getting Resources 02!\nRollback changes...\\n");
-//     release_mem_region(dev.phys_addr,dev.mem_size); // release_mem_region
-// //     device_destroy(pit,dev_nums); // device_destroy COMMENTED OUT FROM LAST LAB
-//     root_device_unregister(dev.dev); // maybe?
-//     cdev_del(&cdev);
-//     platform_driver_unregister(&pit_platform_driver);
-//     class_destroy(pit);
-//     unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
-//     return PROBE_ERR;
-//   }
-  dev.pdev = pdev;
-  // Register your interrupt service routine -- request_irq
-//   int irq_err = request_irq(irq_num,irq_isr,0,MODULE_NAME,NULL);
-//   if(irq_err < PROBE_SUCCESS) { // failed to register the platform driver
-//     pr_info("Failure calling the request_irq !\nRollback changes...\\n");
-//     release_mem_region(dev.phys_addr,dev.mem_size); // release_mem_region
-// //     device_destroy(pit,dev_nums); // device_destroy COMMENTED OUT FROM LAST LAB
-//     root_device_unregister(dev.dev); // maybe?
-//     cdev_del(&cdev);
-//     platform_driver_unregister(&pit_platform_driver);
-//     class_destroy(pit);
-//     unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
-//     return PROBE_ERR;
-//   }
   pit_probe_called_once = true; // makes certain we don't run probe twice
   pr_info("%s: PIT Driver probing success!\n", MODULE_NAME);
   pr_info("%s: Major Number: %zu\n", MODULE_NAME, MAJOR(dev_nums));
@@ -295,12 +336,10 @@ static int pit_probe(struct platform_device *pdev) {
 // returns : an int signalling success or failure
 static int pit_remove(struct platform_device * pdev) {
   pr_info("%s: Removing PIT Driver!\n", MODULE_NAME);
-  //free_irq(irq_num,NULL); // free the irq to allow interrupts to continue
-  sysfs_remove_group( s1, &my_attr_grp );
   ioport_unmap(dev.virt_addr); // iounmap
+  sysfs_remove_group(root,&(my_attr_grp)); // remove the group
   release_mem_region(dev.phys_addr,dev.mem_size); // release_mem_region
   device_destroy(pit,dev_nums); // device_destroy
-  root_device_unregister(dev.dev); // maybe?
   cdev_del(&cdev); // cdev_del
   pr_info("%s: Removing PIT Driver success!\n", MODULE_NAME);
   return REMOVE_SUCCESS;
