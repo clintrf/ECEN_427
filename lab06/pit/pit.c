@@ -98,7 +98,7 @@ static struct platform_driver pit_platform_driver = {
 };
 
 /****************************** global variables ****************************/
-static pit_dev dev; // global pit device
+static pit_dev pit_device; // global pit device
 static bool pit_probe_called_once = false; // makes pit_probe call once
 static dev_t dev_nums; // contains major and minor numbers"byu,ecen427-pit"
 static struct class *pit;
@@ -117,8 +117,6 @@ static struct kobject * ko;
 static int pit_init(void);
 static void pit_exit(void);
 static const char pitname[] = "ecen427_user_pit";
-static s32* kp;             // kernel pointer
-static uint16_t kp_alloc;   // if kp is allocated
 static uint32_t control_signal = 0;
 module_init(pit_init);
 module_exit(pit_exit);
@@ -136,7 +134,7 @@ static int pit_init(void) {
     return INIT_ERR;
   }
   int minor_num = MINOR(dev_nums); // returns the minor number of a dev_t type
-  dev.minor_num = minor_num;
+  pit_device.minor_num = minor_num;
   // Create a device class. -- class_create()
   pit = class_create(THIS_MODULE,pitname);
   if(pit == NULL) { // failed to create the class, undo allocation
@@ -175,7 +173,8 @@ static void pit_exit(void) {
 // returns : the number of bytes placed into the buf
 static ssize_t int_show(struct device *dev, struct device_attribute *attr,
     char *buf) {
-  pr_info("Value Read: 0x%x\n\r",ioread32(dev.virt_addr+PIT_CTRL_OFFSET));
+  pr_info("Value Read: 0x%x\n\r",
+    ioread32(pit_device.virt_addr+PIT_CTRL_OFFSET));
   return SHOW_SUCCESS;
 }
 
@@ -188,14 +187,15 @@ static ssize_t int_show(struct device *dev, struct device_attribute *attr,
 static ssize_t int_store(struct device *dev, struct device_attribute *attr,
     const char *buf, size_t count) {
   int32_t enable;
-  kstrtou32(buf, BUFFER_SIZE, &enable); // converts input from command line
+  // converts input from command line
+  int write_count = kstrtou32(buf, BUFFER_SIZE, &enable);
   pr_info("enable: %d\n\r", enable);
   uint32_t writeVal = PIT_INT_ENABLE; // writes an enable value to the int reg
   control_signal = (enable) ? (writeVal | control_signal) :
     (~writeVal & control_signal); // compute control signal
   pr_info("control_signal: 0x%x\n\r", control_signal);
-  iowrite32(control_signal, dev.virt_addr+PIT_CTRL_OFFSET); // write sig
-  return count;
+  iowrite32(control_signal, pit_device.virt_addr+PIT_CTRL_OFFSET); // write sig
+  return write_count;
 }
 
 // called when the sysfs file is read
@@ -205,7 +205,8 @@ static ssize_t int_store(struct device *dev, struct device_attribute *attr,
 // returns : the number of bytes placed into the buf
 static ssize_t timer_show(struct device *dev, struct device_attribute *attr,
     char *buf) {
-  pr_info("Value Read: 0x%x\n\r",ioread32(dev.virt_addr+PIT_CTRL_OFFSET));
+  pr_info("Value Read: 0x%x\n\r",
+    ioread32(pit_device.virt_addr+PIT_CTRL_OFFSET));
   return SHOW_SUCCESS;
 }
 
@@ -219,14 +220,15 @@ static ssize_t timer_store(struct device *dev, struct device_attribute *attr,
     const char *buf, size_t count) {
   pr_info("\tPIT COUNTDOWN WRITE HAPPENED\n\r");
   int32_t enable;
-  kstrtou32(buf, BUFFER_SIZE, &enable); // converts input from command line
+  // converts input from command line
+  int write_count = kstrtou32(buf, BUFFER_SIZE, &enable);
   pr_info("enable: %d\n\r", enable);
   uint32_t writeVal = PIT_CNTDWN_ENABLE; // writes an enable value to the reg
   control_signal = (enable) ? (writeVal | control_signal) :
     (~writeVal & control_signal); // compute control signal
   pr_info("\tcontrol_signal: 0x%x\n\r", control_signal);
-  iowrite32(control_signal, dev.virt_addr+PIT_CTRL_OFFSET); // write sig
-  return count;
+  iowrite32(control_signal, pit_device.virt_addr+PIT_CTRL_OFFSET); // write sig
+  return write_count;
 }
 
 // called when the sysfs file is read
@@ -236,7 +238,8 @@ static ssize_t timer_store(struct device *dev, struct device_attribute *attr,
 // returns : the number of bytes placed into the buf
 static ssize_t period_show(struct device *dev, struct device_attribute *attr,
     char *buf) {
-  pr_info("Value Read: 0x%x\n\r",ioread32(dev.virt_addr+PIT_CNTR_OFFSET));
+  pr_info("Value Read: 0x%x\n\r",
+    ioread32(pit_device.virt_addr+PIT_CNTR_OFFSET));
   return SHOW_SUCCESS;
 }
 
@@ -250,12 +253,13 @@ static ssize_t period_store(struct device *dev, struct device_attribute *attr,
     const char *buf, size_t count) {
   pr_info("\tPIT COUNTER WRITE HAPPENED\n\r");
   int32_t writeVal; // the value to be written to the reg
-  kstrtou32(buf, BUFFER_SIZE, &writeVal); // converts the value from str to int
+  // converts the value from str to int
+  int write_count = kstrtou32(buf, BUFFER_SIZE, &writeVal);
   pr_info("Value to be written: %d\n\r", writeVal);
-  iowrite32(writeVal, dev.virt_addr+PIT_CNTR_OFFSET); // writes the val
+  iowrite32(writeVal, pit_device.virt_addr+PIT_CNTR_OFFSET); // writes the val
   pr_info("Wrote %d to the counter\n\r",
-    ioread32(dev.virt_addr+PIT_CNTR_OFFSET));
-  return count;
+    ioread32(pit_device.virt_addr+PIT_CNTR_OFFSET));
+  return write_count;
 }
 
 // Called by kernel when a platform device is detected that matches the
@@ -280,7 +284,7 @@ static int pit_probe(struct platform_device *pdev) {
     unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
     return PROBE_ERR;
   }
-  dev.cdev = cdev;
+  pit_device.cdev = cdev;
 
   // Create a device file in /dev so that the character device can be accessed
   // from user space -- COMMENTED OUT FROM LAST LAB
@@ -293,7 +297,7 @@ static int pit_probe(struct platform_device *pdev) {
     unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
     return PROBE_ERR;
   }
-  dev.dev = device;
+  pit_device.dev = device;
 
 
   // Get the physical device address from the device tree
@@ -307,10 +311,11 @@ static int pit_probe(struct platform_device *pdev) {
     unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
     return PROBE_ERR;
   }
-  dev.phys_addr = res->start;
+  pit_device.phys_addr = res->start;
   // Reserve the memory region -- request_mem_region
-  dev.mem_size = (res->end)-(res->start)+1;
-  res_mem = request_mem_region(dev.phys_addr,dev.mem_size,MODULE_NAME);
+  pit_device.mem_size = (res->end)-(res->start)+1;
+  res_mem = request_mem_region(pit_device.phys_addr,pit_device.mem_size,
+    MODULE_NAME);
   if(res_mem == NULL) { // if the resource returns null, then we hit an error
     pr_info("Failure Requesting Memory Region!\nRollback changes...\n");
     device_destroy(pit,dev_nums); // device_destroy
@@ -320,10 +325,10 @@ static int pit_probe(struct platform_device *pdev) {
     unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
   }
   // Get a (virtual memory) pointer to the device -- ioremap
-  dev.virt_addr = ioremap(res->start,dev.mem_size);
-  dev.pdev = pdev; // sets the platform driver
+  pit_device.virt_addr = ioremap(res->start,pit_device.mem_size);
+  pit_device.pdev = pdev; // sets the platform driver
 
-  ko = &(dev.dev->kobj);
+  ko = &(pit_device.dev->kobj);
   struct attribute* bundle[BUNDLE_NUMBER]; // need 3 attributes and NULL
 
   // Take attributes and bundle them together
@@ -347,8 +352,8 @@ static int pit_probe(struct platform_device *pdev) {
   pit_probe_called_once = true; // makes certain we don't run probe twice
   pr_info("%s: PIT Driver probing success!\n", MODULE_NAME);
   pr_info("%s: Major Number: %zu\n", MODULE_NAME, MAJOR(dev_nums));
-  pr_info("%s: Physical Addr: %zu\n", MODULE_NAME, dev.phys_addr);
-  pr_info("%s: Virtual Addr: %p\n", MODULE_NAME, dev.virt_addr);
+  pr_info("%s: Physical Addr: %zu\n", MODULE_NAME, pit_device.phys_addr);
+  pr_info("%s: Virtual Addr: %p\n", MODULE_NAME, pit_device.virt_addr);
   return PROBE_SUCCESS;
 }
 
@@ -356,9 +361,9 @@ static int pit_probe(struct platform_device *pdev) {
 // returns : an int signalling success or failure
 static int pit_remove(struct platform_device * pdev) {
   pr_info("%s: Removing PIT Driver!\n", MODULE_NAME);
-  ioport_unmap(dev.virt_addr); // iounmap
-  sysfs_remove_group(root,&(my_attr_grp)); // remove the group
-  release_mem_region(dev.phys_addr,dev.mem_size); // release_mem_region
+  ioport_unmap(pit_device.virt_addr); // iounmap
+  sysfs_remove_group(ko,&(my_attr_grp)); // remove the group
+  release_mem_region(pit_device.phys_addr,pit_device.mem_size);
   device_destroy(pit,dev_nums); // device_destroy
   cdev_del(&cdev); // cdev_del
   pr_info("%s: Removing PIT Driver success!\n", MODULE_NAME);
