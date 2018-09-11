@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/xilinx/ECEN_427/lab03
+CMAKE_SOURCE_DIR = /home/xilinx/ECEN_427/lab06/space_invaders
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/xilinx/ECEN_427/lab03
+CMAKE_BINARY_DIR = /home/xilinx/ECEN_427/lab06/space_invaders
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,14 +80,14 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	cd /home/xilinx/ECEN_427/lab03 && $(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles /home/xilinx/ECEN_427/lab03/image_render/CMakeFiles/progress.marks
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f CMakeFiles/Makefile2 image_render/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles 0
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab06/space_invaders/CMakeFiles /home/xilinx/ECEN_427/lab06/space_invaders/image_render/CMakeFiles/progress.marks
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f CMakeFiles/Makefile2 image_render/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab06/space_invaders/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f CMakeFiles/Makefile2 image_render/clean
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f CMakeFiles/Makefile2 image_render/clean
 .PHONY : clean
 
 # The main clean target
@@ -97,22 +97,22 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f CMakeFiles/Makefile2 image_render/preinstall
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f CMakeFiles/Makefile2 image_render/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f CMakeFiles/Makefile2 image_render/preinstall
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f CMakeFiles/Makefile2 image_render/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /home/xilinx/ECEN_427/lab03 && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
 # Convenience name for target.
 image_render/CMakeFiles/render.dir/rule:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f CMakeFiles/Makefile2 image_render/CMakeFiles/render.dir/rule
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f CMakeFiles/Makefile2 image_render/CMakeFiles/render.dir/rule
 .PHONY : image_render/CMakeFiles/render.dir/rule
 
 # Convenience name for target.
@@ -122,7 +122,7 @@ render: image_render/CMakeFiles/render.dir/rule
 
 # fast build rule for target.
 render/fast:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f image_render/CMakeFiles/render.dir/build.make image_render/CMakeFiles/render.dir/build
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f image_render/CMakeFiles/render.dir/build.make image_render/CMakeFiles/render.dir/build
 .PHONY : render/fast
 
 image_render.o: image_render.c.o
@@ -131,7 +131,7 @@ image_render.o: image_render.c.o
 
 # target to build an object file
 image_render.c.o:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f image_render/CMakeFiles/render.dir/build.make image_render/CMakeFiles/render.dir/image_render.c.o
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f image_render/CMakeFiles/render.dir/build.make image_render/CMakeFiles/render.dir/image_render.c.o
 .PHONY : image_render.c.o
 
 image_render.i: image_render.c.i
@@ -140,7 +140,7 @@ image_render.i: image_render.c.i
 
 # target to preprocess a source file
 image_render.c.i:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f image_render/CMakeFiles/render.dir/build.make image_render/CMakeFiles/render.dir/image_render.c.i
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f image_render/CMakeFiles/render.dir/build.make image_render/CMakeFiles/render.dir/image_render.c.i
 .PHONY : image_render.c.i
 
 image_render.s: image_render.c.s
@@ -149,7 +149,7 @@ image_render.s: image_render.c.s
 
 # target to generate assembly for a file
 image_render.c.s:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f image_render/CMakeFiles/render.dir/build.make image_render/CMakeFiles/render.dir/image_render.c.s
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f image_render/CMakeFiles/render.dir/build.make image_render/CMakeFiles/render.dir/image_render.c.s
 .PHONY : image_render.c.s
 
 # Help Target
@@ -175,6 +175,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /home/xilinx/ECEN_427/lab03 && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

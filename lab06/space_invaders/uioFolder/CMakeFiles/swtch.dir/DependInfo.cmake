@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_C
-  "/home/xilinx/ECEN_427/lab03/uioFolder/switch_uio.c" "/home/xilinx/ECEN_427/lab03/uioFolder/CMakeFiles/swtch.dir/switch_uio.c.o"
+  "/home/xilinx/ECEN_427/lab06/space_invaders/uioFolder/switch_uio.c" "/home/xilinx/ECEN_427/lab06/space_invaders/uioFolder/CMakeFiles/swtch.dir/switch_uio.c.o"
   )
 set(CMAKE_C_COMPILER_ID "GNU")
 

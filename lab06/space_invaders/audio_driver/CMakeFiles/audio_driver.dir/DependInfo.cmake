@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_C
-  "/home/xilinx/ECEN_427/lab03/audio_driver/audio_driver.c" "/home/xilinx/ECEN_427/lab03/audio_driver/CMakeFiles/audio_driver.dir/audio_driver.c.o"
+  "/home/xilinx/ECEN_427/lab06/space_invaders/audio_driver/audio_driver.c" "/home/xilinx/ECEN_427/lab06/space_invaders/audio_driver/CMakeFiles/audio_driver.dir/audio_driver.c.o"
   )
 set(CMAKE_C_COMPILER_ID "GNU")
 

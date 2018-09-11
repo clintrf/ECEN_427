@@ -6,11 +6,11 @@
 
 #IncludeRegexTransform: 
 
-/home/xilinx/ECEN_427/lab03/audio_driver/audio_driver.h
+/home/xilinx/ECEN_427/lab06/space_invaders/audio_driver/audio_driver.h
 stdint.h
 -
 
-/home/xilinx/ECEN_427/lab03/globals/globals.h
+/home/xilinx/ECEN_427/lab06/space_invaders/globals/globals.h
 stdio.h
 -
 stdint.h
@@ -18,13 +18,13 @@ stdint.h
 stdbool.h
 -
 
-/home/xilinx/ECEN_427/lab03/image_render/image_render.h
+/home/xilinx/ECEN_427/lab06/space_invaders/image_render/image_render.h
 stdint.h
 -
 stdio.h
 -
 
-/home/xilinx/ECEN_427/lab03/sound_state/sound_state.c
+/home/xilinx/ECEN_427/lab06/space_invaders/sound_state/sound_state.c
 stdint.h
 -
 stdio.h
@@ -52,17 +52,17 @@ sys/ioctl.h
 err.h
 -
 ../audio_driver/audio_driver.h
-/home/xilinx/ECEN_427/lab03/audio_driver/audio_driver.h
+/home/xilinx/ECEN_427/lab06/space_invaders/audio_driver/audio_driver.h
 sound_state.h
-/home/xilinx/ECEN_427/lab03/sound_state/sound_state.h
+/home/xilinx/ECEN_427/lab06/space_invaders/sound_state/sound_state.h
 stdbool.h
 -
 ../globals/globals.h
-/home/xilinx/ECEN_427/lab03/globals/globals.h
+/home/xilinx/ECEN_427/lab06/space_invaders/globals/globals.h
 ../image_render/image_render.h
-/home/xilinx/ECEN_427/lab03/image_render/image_render.h
+/home/xilinx/ECEN_427/lab06/space_invaders/image_render/image_render.h
 
-/home/xilinx/ECEN_427/lab03/sound_state/sound_state.h
+/home/xilinx/ECEN_427/lab06/space_invaders/sound_state/sound_state.h
 stdint.h
 -
 

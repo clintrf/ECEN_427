@@ -1,15 +1,16 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../lab03/globals/globals.h"
-#include "image_render.h"
+#include "globals/globals.h"
+#include "image_render/image_render.h"
 #include "image_render/sprites/sprites.h"
 #include "image_render/score_board/score_board.h"
 #include "intcFolder/intc.h"
 #include "uioFolder/button_uio.h"
 #include "uioFolder/switch_uio.h"
-#include "../sound_state/sound_state.h"
+#include "sound_state/sound_state.h"
 #include "audio_driver/audio_driver.h"
+//#include "../pit/pit.c"// probably wrong interrupt
 
 /*********************************** macros ***********************************/
 #define MOVE_ONE_SPACE 2
@@ -192,8 +193,8 @@ void increment_sound(){}
 
 // handles the FIT interrupts, moves the saucer, alien block, and bullets
 void isr_fit() {
-  intc_ack_interrupt(INTC_FIT_MASK); // acknowledges the received FIT interrupt
-
+  intc_ack_interrupt(INTC_PIT_MASK); // acknowledges the received FIT interrupt
+  intc_ack_interrupt(INTC_FIT_MASK);
   if(globals_get_tank_dead()) { // checks to see if the tank is dead or not
     globals_set_tank_ex_flag(true);
   }
@@ -353,10 +354,10 @@ void isr_switches(){
   switch_uio_acknowledge(SWITCH_UIO_CHANNEL_ONE_MASK); /* acknowledges an interrupt from the GPIO */
   intc_ack_interrupt(INTC_SWITCHES_MASK); /* acknowledges an interrupt from the interrupt controller */
 }
-
 /*********************************** main ***********************************/
 int main() {
   intc_init(INTC_GPIO_FILE_PATH); // intializes interrupts
+  //pit_init();
   button_uio_init(BUTTON_UIO_GPIO_FILE_PATH); // initializes buttons
   switch_uio_init(SWITCH_UIO_GPIO_FILE_PATH);  // Initialize switches
   image_render_init(); // initializes image making abilities
@@ -369,10 +370,13 @@ int main() {
     // Call interrupt controller function to wait for interrupt
     uint32_t interrupts = intc_wait_for_interrupt();
     // Check which interrupt lines are high and call the appropriate ISR functions
-
-    if(interrupts & INTC_FIT_MASK) { // FIT Interrupt
+    printf("interrupt is:%zu\n",interrupts);
+    
+    if(interrupts & INTC_PIT_MASK) { // FIT Interrupt
       isr_fit();
+      //pit();
       sound_state_machine();
+      printf("exit sound");
     }
     if(interrupts & INTC_SWITCHES_MASK) {
       isr_switches();
@@ -385,6 +389,7 @@ int main() {
       move_tank(buttonPressed);
 
     }
+    intc_ack_interrupt(interrupts);
   }
   globals_set_alien_walk_flag(false);
   globals_set_saucer_zoom_flag(false);

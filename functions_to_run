@@ -13,3 +13,9 @@ sudo rmmod audio.ko // removes the sudio kernel driver from the /dev folder
 
 /* sysfs stuff */
 mount -t sysfs sysfs /sys
+
+/*slowing down/speeding up the pit*/
+sudo bash -c "echo 100000 > /sys/class/ecen427_user_pit/ecen427_user_pit/pit_counter"
+sudo bash -c "echo 1000000 > /sys/class/ecen427_user_pit/ecen427_user_pit/pit_counter"
+sudo bash -c "echo 10000000 > /sys/class/ecen427_user_pit/ecen427_user_pit/pit_counter"
+sudo bash -c "echo 100000000 > /sys/class/ecen427_user_pit/ecen427_user_pit/pit_counter"

@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/xilinx/ECEN_427/lab03/audio_driver/audio_driver.c
+/home/xilinx/ECEN_427/lab06/space_invaders/audio_driver/audio_driver.c
 stdint.h
 -
 stdio.h
@@ -34,15 +34,15 @@ sys/ioctl.h
 err.h
 -
 audio_driver.h
-/home/xilinx/ECEN_427/lab03/audio_driver/audio_driver.h
+/home/xilinx/ECEN_427/lab06/space_invaders/audio_driver/audio_driver.h
 ../i2cps/i2cps.h
-/home/xilinx/ECEN_427/lab03/i2cps/i2cps.h
+/home/xilinx/ECEN_427/lab06/space_invaders/i2cps/i2cps.h
 
-/home/xilinx/ECEN_427/lab03/audio_driver/audio_driver.h
+/home/xilinx/ECEN_427/lab06/space_invaders/audio_driver/audio_driver.h
 stdint.h
 -
 
-/home/xilinx/ECEN_427/lab03/i2cps/i2cps.h
+/home/xilinx/ECEN_427/lab06/space_invaders/i2cps/i2cps.h
 linux/i2c-dev.h
 -
 

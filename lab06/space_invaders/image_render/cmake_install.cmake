@@ -1,4 +1,4 @@
-# Install script for directory: /home/xilinx/ECEN_427/lab03/image_render
+# Install script for directory: /home/xilinx/ECEN_427/lab06/space_invaders/image_render
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

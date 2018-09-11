@@ -1,4 +1,4 @@
-# Install script for directory: /home/xilinx/ECEN_427/lab03/audio_driver
+# Install script for directory: /home/xilinx/ECEN_427/lab06/space_invaders/audio_driver
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

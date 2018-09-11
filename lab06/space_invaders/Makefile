@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/xilinx/ECEN_427/lab03
+CMAKE_SOURCE_DIR = /home/xilinx/ECEN_427/lab06/space_invaders
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/xilinx/ECEN_427/lab03
+CMAKE_BINARY_DIR = /home/xilinx/ECEN_427/lab06/space_invaders
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,9 +80,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles /home/xilinx/ECEN_427/lab03/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab06/space_invaders/CMakeFiles /home/xilinx/ECEN_427/lab06/space_invaders/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab06/space_invaders/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -146,7 +146,7 @@ hdmi: cmake_check_build_system
 
 # fast build rule for target.
 hdmi/fast:
-	$(MAKE) -f image_render/hdmi/CMakeFiles/hdmi.dir/build.make image_render/hdmi/CMakeFiles/hdmi.dir/build
+	$(MAKE) -f /home/xilinx/ECEN_427/lab03/image_render/hdmi/CMakeFiles/hdmi.dir/build.make /home/xilinx/ECEN_427/lab03/image_render/hdmi/CMakeFiles/hdmi.dir/build
 .PHONY : hdmi/fast
 
 #=============================================================================
@@ -159,7 +159,7 @@ sprites: cmake_check_build_system
 
 # fast build rule for target.
 sprites/fast:
-	$(MAKE) -f image_render/sprites/CMakeFiles/sprites.dir/build.make image_render/sprites/CMakeFiles/sprites.dir/build
+	$(MAKE) -f /home/xilinx/ECEN_427/lab03/image_render/sprites/CMakeFiles/sprites.dir/build.make /home/xilinx/ECEN_427/lab03/image_render/sprites/CMakeFiles/sprites.dir/build
 .PHONY : sprites/fast
 
 #=============================================================================
@@ -172,7 +172,7 @@ score_board: cmake_check_build_system
 
 # fast build rule for target.
 score_board/fast:
-	$(MAKE) -f image_render/score_board/CMakeFiles/score_board.dir/build.make image_render/score_board/CMakeFiles/score_board.dir/build
+	$(MAKE) -f /home/xilinx/ECEN_427/lab03/image_render/score_board/CMakeFiles/score_board.dir/build.make /home/xilinx/ECEN_427/lab03/image_render/score_board/CMakeFiles/score_board.dir/build
 .PHONY : score_board/fast
 
 #=============================================================================

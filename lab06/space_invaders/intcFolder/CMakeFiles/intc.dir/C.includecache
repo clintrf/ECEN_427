@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/xilinx/ECEN_427/lab03/intcFolder/intc.c
+/home/xilinx/ECEN_427/lab06/space_invaders/intcFolder/intc.c
 stdint.h
 -
 stdio.h
@@ -18,9 +18,9 @@ fcntl.h
 sys/mman.h
 -
 intc.h
-/home/xilinx/ECEN_427/lab03/intcFolder/intc.h
+/home/xilinx/ECEN_427/lab06/space_invaders/intcFolder/intc.h
 
-/home/xilinx/ECEN_427/lab03/intcFolder/intc.h
+/home/xilinx/ECEN_427/lab06/space_invaders/intcFolder/intc.h
 stdint.h
 -
 

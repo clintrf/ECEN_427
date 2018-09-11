@@ -17,12 +17,12 @@
 /*********************************** macros ***********************************/
 #define INTC_MMAP_SIZE 0x1000 /* size of memory to allocate */
 #define FOUR_BYTES_SIZE 4 /* 32 bits to write to fd */
-#define SIE_REG_OFFSET 0x10 /* sets the register bits in the IER */
-#define CIE_REG_OFFSET 0x14 /* clears the resgiter bits in the IER */
+#define SIE_REG_OFFSET 0x8 /* sets the register bits in the IER */
+#define CIE_REG_OFFSET 0x14 /* clears the register bits in the IER */
 #define IAR_REG_OFFSET 0xC /* acknowledges interrupts */
 #define MER_REG_OFFSET 0x1C /* Master Enable Register */
 #define ISR_REG_OFFSET 0x0 /* ISR offset */
-#define GPIO_BITS 0x7 /* turns on all GPIO interrupts */
+#define GPIO_BITS 0xe /* turns on all GPIO interrupts */
 #define MER_BITS 0x3 /* need to turn on lower two bits to enable interrupts */
 
 

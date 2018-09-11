@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/xilinx/ECEN_427/lab03/i2cps/i2cps.c
+/home/xilinx/ECEN_427/lab06/space_invaders/i2cps/i2cps.c
 fcntl.h
 -
 stdio.h
@@ -20,9 +20,9 @@ unistd.h
 sys/ioctl.h
 -
 i2cps.h
-/home/xilinx/ECEN_427/lab03/i2cps/i2cps.h
+/home/xilinx/ECEN_427/lab06/space_invaders/i2cps/i2cps.h
 
-/home/xilinx/ECEN_427/lab03/i2cps/i2cps.h
+/home/xilinx/ECEN_427/lab06/space_invaders/i2cps/i2cps.h
 linux/i2c-dev.h
 -
 

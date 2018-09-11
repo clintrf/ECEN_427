@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_C
-  "/home/xilinx/ECEN_427/lab03/i2cps/i2cps.c" "/home/xilinx/ECEN_427/lab03/i2cps/CMakeFiles/i2cps.dir/i2cps.c.o"
+  "/home/xilinx/ECEN_427/lab06/space_invaders/i2cps/i2cps.c" "/home/xilinx/ECEN_427/lab06/space_invaders/i2cps/CMakeFiles/i2cps.dir/i2cps.c.o"
   )
 set(CMAKE_C_COMPILER_ID "GNU")
 

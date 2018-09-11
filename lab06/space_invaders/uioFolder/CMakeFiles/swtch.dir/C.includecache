@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/xilinx/ECEN_427/lab03/uioFolder/switch_uio.c
+/home/xilinx/ECEN_427/lab06/space_invaders/uioFolder/switch_uio.c
 stdint.h
 -
 fcntl.h
@@ -16,9 +16,9 @@ unistd.h
 sys/mman.h
 -
 switch_uio.h
-/home/xilinx/ECEN_427/lab03/uioFolder/switch_uio.h
+/home/xilinx/ECEN_427/lab06/space_invaders/uioFolder/switch_uio.h
 
-/home/xilinx/ECEN_427/lab03/uioFolder/switch_uio.h
+/home/xilinx/ECEN_427/lab06/space_invaders/uioFolder/switch_uio.h
 stdint.h
 -
 

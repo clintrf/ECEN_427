@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/xilinx/ECEN_427/lab03
+CMAKE_SOURCE_DIR = /home/xilinx/ECEN_427/lab06/space_invaders
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/xilinx/ECEN_427/lab03
+CMAKE_BINARY_DIR = /home/xilinx/ECEN_427/lab06/space_invaders
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,14 +80,14 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	cd /home/xilinx/ECEN_427/lab03 && $(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles /home/xilinx/ECEN_427/lab03/i2cps/CMakeFiles/progress.marks
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f CMakeFiles/Makefile2 i2cps/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles 0
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab06/space_invaders/CMakeFiles /home/xilinx/ECEN_427/lab06/space_invaders/i2cps/CMakeFiles/progress.marks
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f CMakeFiles/Makefile2 i2cps/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab06/space_invaders/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f CMakeFiles/Makefile2 i2cps/clean
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f CMakeFiles/Makefile2 i2cps/clean
 .PHONY : clean
 
 # The main clean target
@@ -97,22 +97,22 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f CMakeFiles/Makefile2 i2cps/preinstall
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f CMakeFiles/Makefile2 i2cps/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f CMakeFiles/Makefile2 i2cps/preinstall
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f CMakeFiles/Makefile2 i2cps/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /home/xilinx/ECEN_427/lab03 && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
 # Convenience name for target.
 i2cps/CMakeFiles/i2cps.dir/rule:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f CMakeFiles/Makefile2 i2cps/CMakeFiles/i2cps.dir/rule
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f CMakeFiles/Makefile2 i2cps/CMakeFiles/i2cps.dir/rule
 .PHONY : i2cps/CMakeFiles/i2cps.dir/rule
 
 # Convenience name for target.
@@ -122,7 +122,7 @@ i2cps: i2cps/CMakeFiles/i2cps.dir/rule
 
 # fast build rule for target.
 i2cps/fast:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f i2cps/CMakeFiles/i2cps.dir/build.make i2cps/CMakeFiles/i2cps.dir/build
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f i2cps/CMakeFiles/i2cps.dir/build.make i2cps/CMakeFiles/i2cps.dir/build
 .PHONY : i2cps/fast
 
 i2cps.o: i2cps.c.o
@@ -131,7 +131,7 @@ i2cps.o: i2cps.c.o
 
 # target to build an object file
 i2cps.c.o:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f i2cps/CMakeFiles/i2cps.dir/build.make i2cps/CMakeFiles/i2cps.dir/i2cps.c.o
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f i2cps/CMakeFiles/i2cps.dir/build.make i2cps/CMakeFiles/i2cps.dir/i2cps.c.o
 .PHONY : i2cps.c.o
 
 i2cps.i: i2cps.c.i
@@ -140,7 +140,7 @@ i2cps.i: i2cps.c.i
 
 # target to preprocess a source file
 i2cps.c.i:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f i2cps/CMakeFiles/i2cps.dir/build.make i2cps/CMakeFiles/i2cps.dir/i2cps.c.i
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f i2cps/CMakeFiles/i2cps.dir/build.make i2cps/CMakeFiles/i2cps.dir/i2cps.c.i
 .PHONY : i2cps.c.i
 
 i2cps.s: i2cps.c.s
@@ -149,7 +149,7 @@ i2cps.s: i2cps.c.s
 
 # target to generate assembly for a file
 i2cps.c.s:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f i2cps/CMakeFiles/i2cps.dir/build.make i2cps/CMakeFiles/i2cps.dir/i2cps.c.s
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f i2cps/CMakeFiles/i2cps.dir/build.make i2cps/CMakeFiles/i2cps.dir/i2cps.c.s
 .PHONY : i2cps.c.s
 
 # Help Target
@@ -175,6 +175,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /home/xilinx/ECEN_427/lab03 && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

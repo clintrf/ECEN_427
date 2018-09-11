@@ -1,4 +1,4 @@
-# Install script for directory: /home/xilinx/ECEN_427/lab03
+# Install script for directory: /home/xilinx/ECEN_427/lab06/space_invaders
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -34,13 +34,13 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/xilinx/ECEN_427/lab03/image_render/cmake_install.cmake")
-  include("/home/xilinx/ECEN_427/lab03/intcFolder/cmake_install.cmake")
-  include("/home/xilinx/ECEN_427/lab03/uioFolder/cmake_install.cmake")
-  include("/home/xilinx/ECEN_427/lab03/globals/cmake_install.cmake")
-  include("/home/xilinx/ECEN_427/lab03/sound_state/cmake_install.cmake")
-  include("/home/xilinx/ECEN_427/lab03/audio_driver/cmake_install.cmake")
-  include("/home/xilinx/ECEN_427/lab03/i2cps/cmake_install.cmake")
+  include("/home/xilinx/ECEN_427/lab06/space_invaders/image_render/cmake_install.cmake")
+  include("/home/xilinx/ECEN_427/lab06/space_invaders/intcFolder/cmake_install.cmake")
+  include("/home/xilinx/ECEN_427/lab06/space_invaders/uioFolder/cmake_install.cmake")
+  include("/home/xilinx/ECEN_427/lab06/space_invaders/globals/cmake_install.cmake")
+  include("/home/xilinx/ECEN_427/lab06/space_invaders/sound_state/cmake_install.cmake")
+  include("/home/xilinx/ECEN_427/lab06/space_invaders/audio_driver/cmake_install.cmake")
+  include("/home/xilinx/ECEN_427/lab06/space_invaders/i2cps/cmake_install.cmake")
 
 endif()
 
@@ -52,5 +52,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/xilinx/ECEN_427/lab03/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/xilinx/ECEN_427/lab06/space_invaders/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

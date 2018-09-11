@@ -6,5 +6,5 @@ C_FLAGS =
 
 C_DEFINES = 
 
-C_INCLUDES = -I/home/xilinx/ECEN_427/lab03/image_render -I/home/xilinx/ECEN_427/lab03/intcFolder -I/home/xilinx/ECEN_427/lab03/uioFolder -I/home/xilinx/ECEN_427/lab03/globals -I/home/xilinx/ECEN_427/lab03/sound_state -I/home/xilinx/ECEN_427/lab03/audio_driver -I/home/xilinx/ECEN_427/lab03/i2cps 
+C_INCLUDES = -I/home/xilinx/ECEN_427/lab06/space_invaders/image_render -I/home/xilinx/ECEN_427/lab06/space_invaders/intcFolder -I/home/xilinx/ECEN_427/lab06/space_invaders/uioFolder -I/home/xilinx/ECEN_427/lab06/space_invaders/globals -I/home/xilinx/ECEN_427/lab06/space_invaders/sound_state -I/home/xilinx/ECEN_427/lab06/space_invaders/audio_driver -I/home/xilinx/ECEN_427/lab06/space_invaders/i2cps 
 

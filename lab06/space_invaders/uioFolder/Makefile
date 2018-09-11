@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/xilinx/ECEN_427/lab03
+CMAKE_SOURCE_DIR = /home/xilinx/ECEN_427/lab06/space_invaders
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/xilinx/ECEN_427/lab03
+CMAKE_BINARY_DIR = /home/xilinx/ECEN_427/lab06/space_invaders
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,14 +80,14 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	cd /home/xilinx/ECEN_427/lab03 && $(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles /home/xilinx/ECEN_427/lab03/uioFolder/CMakeFiles/progress.marks
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f CMakeFiles/Makefile2 uioFolder/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles 0
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab06/space_invaders/CMakeFiles /home/xilinx/ECEN_427/lab06/space_invaders/uioFolder/CMakeFiles/progress.marks
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f CMakeFiles/Makefile2 uioFolder/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab06/space_invaders/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f CMakeFiles/Makefile2 uioFolder/clean
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f CMakeFiles/Makefile2 uioFolder/clean
 .PHONY : clean
 
 # The main clean target
@@ -97,22 +97,22 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f CMakeFiles/Makefile2 uioFolder/preinstall
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f CMakeFiles/Makefile2 uioFolder/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f CMakeFiles/Makefile2 uioFolder/preinstall
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f CMakeFiles/Makefile2 uioFolder/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /home/xilinx/ECEN_427/lab03 && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
 # Convenience name for target.
 uioFolder/CMakeFiles/swtch.dir/rule:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f CMakeFiles/Makefile2 uioFolder/CMakeFiles/swtch.dir/rule
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f CMakeFiles/Makefile2 uioFolder/CMakeFiles/swtch.dir/rule
 .PHONY : uioFolder/CMakeFiles/swtch.dir/rule
 
 # Convenience name for target.
@@ -122,12 +122,12 @@ swtch: uioFolder/CMakeFiles/swtch.dir/rule
 
 # fast build rule for target.
 swtch/fast:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f uioFolder/CMakeFiles/swtch.dir/build.make uioFolder/CMakeFiles/swtch.dir/build
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f uioFolder/CMakeFiles/swtch.dir/build.make uioFolder/CMakeFiles/swtch.dir/build
 .PHONY : swtch/fast
 
 # Convenience name for target.
 uioFolder/CMakeFiles/btn.dir/rule:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f CMakeFiles/Makefile2 uioFolder/CMakeFiles/btn.dir/rule
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f CMakeFiles/Makefile2 uioFolder/CMakeFiles/btn.dir/rule
 .PHONY : uioFolder/CMakeFiles/btn.dir/rule
 
 # Convenience name for target.
@@ -137,7 +137,7 @@ btn: uioFolder/CMakeFiles/btn.dir/rule
 
 # fast build rule for target.
 btn/fast:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f uioFolder/CMakeFiles/btn.dir/build.make uioFolder/CMakeFiles/btn.dir/build
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f uioFolder/CMakeFiles/btn.dir/build.make uioFolder/CMakeFiles/btn.dir/build
 .PHONY : btn/fast
 
 button_uio.o: button_uio.c.o
@@ -146,7 +146,7 @@ button_uio.o: button_uio.c.o
 
 # target to build an object file
 button_uio.c.o:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f uioFolder/CMakeFiles/btn.dir/build.make uioFolder/CMakeFiles/btn.dir/button_uio.c.o
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f uioFolder/CMakeFiles/btn.dir/build.make uioFolder/CMakeFiles/btn.dir/button_uio.c.o
 .PHONY : button_uio.c.o
 
 button_uio.i: button_uio.c.i
@@ -155,7 +155,7 @@ button_uio.i: button_uio.c.i
 
 # target to preprocess a source file
 button_uio.c.i:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f uioFolder/CMakeFiles/btn.dir/build.make uioFolder/CMakeFiles/btn.dir/button_uio.c.i
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f uioFolder/CMakeFiles/btn.dir/build.make uioFolder/CMakeFiles/btn.dir/button_uio.c.i
 .PHONY : button_uio.c.i
 
 button_uio.s: button_uio.c.s
@@ -164,7 +164,7 @@ button_uio.s: button_uio.c.s
 
 # target to generate assembly for a file
 button_uio.c.s:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f uioFolder/CMakeFiles/btn.dir/build.make uioFolder/CMakeFiles/btn.dir/button_uio.c.s
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f uioFolder/CMakeFiles/btn.dir/build.make uioFolder/CMakeFiles/btn.dir/button_uio.c.s
 .PHONY : button_uio.c.s
 
 switch_uio.o: switch_uio.c.o
@@ -173,7 +173,7 @@ switch_uio.o: switch_uio.c.o
 
 # target to build an object file
 switch_uio.c.o:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f uioFolder/CMakeFiles/swtch.dir/build.make uioFolder/CMakeFiles/swtch.dir/switch_uio.c.o
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f uioFolder/CMakeFiles/swtch.dir/build.make uioFolder/CMakeFiles/swtch.dir/switch_uio.c.o
 .PHONY : switch_uio.c.o
 
 switch_uio.i: switch_uio.c.i
@@ -182,7 +182,7 @@ switch_uio.i: switch_uio.c.i
 
 # target to preprocess a source file
 switch_uio.c.i:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f uioFolder/CMakeFiles/swtch.dir/build.make uioFolder/CMakeFiles/swtch.dir/switch_uio.c.i
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f uioFolder/CMakeFiles/swtch.dir/build.make uioFolder/CMakeFiles/swtch.dir/switch_uio.c.i
 .PHONY : switch_uio.c.i
 
 switch_uio.s: switch_uio.c.s
@@ -191,7 +191,7 @@ switch_uio.s: switch_uio.c.s
 
 # target to generate assembly for a file
 switch_uio.c.s:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f uioFolder/CMakeFiles/swtch.dir/build.make uioFolder/CMakeFiles/swtch.dir/switch_uio.c.s
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f uioFolder/CMakeFiles/swtch.dir/build.make uioFolder/CMakeFiles/swtch.dir/switch_uio.c.s
 .PHONY : switch_uio.c.s
 
 # Help Target
@@ -221,6 +221,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /home/xilinx/ECEN_427/lab03 && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

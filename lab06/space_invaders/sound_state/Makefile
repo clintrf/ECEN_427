@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/xilinx/ECEN_427/lab03
+CMAKE_SOURCE_DIR = /home/xilinx/ECEN_427/lab06/space_invaders
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/xilinx/ECEN_427/lab03
+CMAKE_BINARY_DIR = /home/xilinx/ECEN_427/lab06/space_invaders
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,14 +80,14 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	cd /home/xilinx/ECEN_427/lab03 && $(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles /home/xilinx/ECEN_427/lab03/sound_state/CMakeFiles/progress.marks
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f CMakeFiles/Makefile2 sound_state/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles 0
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab06/space_invaders/CMakeFiles /home/xilinx/ECEN_427/lab06/space_invaders/sound_state/CMakeFiles/progress.marks
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f CMakeFiles/Makefile2 sound_state/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab06/space_invaders/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f CMakeFiles/Makefile2 sound_state/clean
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f CMakeFiles/Makefile2 sound_state/clean
 .PHONY : clean
 
 # The main clean target
@@ -97,22 +97,22 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f CMakeFiles/Makefile2 sound_state/preinstall
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f CMakeFiles/Makefile2 sound_state/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f CMakeFiles/Makefile2 sound_state/preinstall
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f CMakeFiles/Makefile2 sound_state/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /home/xilinx/ECEN_427/lab03 && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
 # Convenience name for target.
 sound_state/CMakeFiles/sound.dir/rule:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f CMakeFiles/Makefile2 sound_state/CMakeFiles/sound.dir/rule
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f CMakeFiles/Makefile2 sound_state/CMakeFiles/sound.dir/rule
 .PHONY : sound_state/CMakeFiles/sound.dir/rule
 
 # Convenience name for target.
@@ -122,7 +122,7 @@ sound: sound_state/CMakeFiles/sound.dir/rule
 
 # fast build rule for target.
 sound/fast:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f sound_state/CMakeFiles/sound.dir/build.make sound_state/CMakeFiles/sound.dir/build
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f sound_state/CMakeFiles/sound.dir/build.make sound_state/CMakeFiles/sound.dir/build
 .PHONY : sound/fast
 
 sound_state.o: sound_state.c.o
@@ -131,7 +131,7 @@ sound_state.o: sound_state.c.o
 
 # target to build an object file
 sound_state.c.o:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f sound_state/CMakeFiles/sound.dir/build.make sound_state/CMakeFiles/sound.dir/sound_state.c.o
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f sound_state/CMakeFiles/sound.dir/build.make sound_state/CMakeFiles/sound.dir/sound_state.c.o
 .PHONY : sound_state.c.o
 
 sound_state.i: sound_state.c.i
@@ -140,7 +140,7 @@ sound_state.i: sound_state.c.i
 
 # target to preprocess a source file
 sound_state.c.i:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f sound_state/CMakeFiles/sound.dir/build.make sound_state/CMakeFiles/sound.dir/sound_state.c.i
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f sound_state/CMakeFiles/sound.dir/build.make sound_state/CMakeFiles/sound.dir/sound_state.c.i
 .PHONY : sound_state.c.i
 
 sound_state.s: sound_state.c.s
@@ -149,7 +149,7 @@ sound_state.s: sound_state.c.s
 
 # target to generate assembly for a file
 sound_state.c.s:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f sound_state/CMakeFiles/sound.dir/build.make sound_state/CMakeFiles/sound.dir/sound_state.c.s
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f sound_state/CMakeFiles/sound.dir/build.make sound_state/CMakeFiles/sound.dir/sound_state.c.s
 .PHONY : sound_state.c.s
 
 # Help Target
@@ -175,6 +175,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /home/xilinx/ECEN_427/lab03 && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/xilinx/ECEN_427/lab03
+CMAKE_SOURCE_DIR = /home/xilinx/ECEN_427/lab06/space_invaders
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/xilinx/ECEN_427/lab03
+CMAKE_BINARY_DIR = /home/xilinx/ECEN_427/lab06/space_invaders
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,14 +80,14 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	cd /home/xilinx/ECEN_427/lab03 && $(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles /home/xilinx/ECEN_427/lab03/globals/CMakeFiles/progress.marks
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f CMakeFiles/Makefile2 globals/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab03/CMakeFiles 0
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab06/space_invaders/CMakeFiles /home/xilinx/ECEN_427/lab06/space_invaders/globals/CMakeFiles/progress.marks
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f CMakeFiles/Makefile2 globals/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/xilinx/ECEN_427/lab06/space_invaders/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f CMakeFiles/Makefile2 globals/clean
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f CMakeFiles/Makefile2 globals/clean
 .PHONY : clean
 
 # The main clean target
@@ -97,22 +97,22 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f CMakeFiles/Makefile2 globals/preinstall
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f CMakeFiles/Makefile2 globals/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f CMakeFiles/Makefile2 globals/preinstall
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f CMakeFiles/Makefile2 globals/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /home/xilinx/ECEN_427/lab03 && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
 # Convenience name for target.
 globals/CMakeFiles/global.dir/rule:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f CMakeFiles/Makefile2 globals/CMakeFiles/global.dir/rule
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f CMakeFiles/Makefile2 globals/CMakeFiles/global.dir/rule
 .PHONY : globals/CMakeFiles/global.dir/rule
 
 # Convenience name for target.
@@ -122,7 +122,7 @@ global: globals/CMakeFiles/global.dir/rule
 
 # fast build rule for target.
 global/fast:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f globals/CMakeFiles/global.dir/build.make globals/CMakeFiles/global.dir/build
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f globals/CMakeFiles/global.dir/build.make globals/CMakeFiles/global.dir/build
 .PHONY : global/fast
 
 globals.o: globals.c.o
@@ -131,7 +131,7 @@ globals.o: globals.c.o
 
 # target to build an object file
 globals.c.o:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f globals/CMakeFiles/global.dir/build.make globals/CMakeFiles/global.dir/globals.c.o
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f globals/CMakeFiles/global.dir/build.make globals/CMakeFiles/global.dir/globals.c.o
 .PHONY : globals.c.o
 
 globals.i: globals.c.i
@@ -140,7 +140,7 @@ globals.i: globals.c.i
 
 # target to preprocess a source file
 globals.c.i:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f globals/CMakeFiles/global.dir/build.make globals/CMakeFiles/global.dir/globals.c.i
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f globals/CMakeFiles/global.dir/build.make globals/CMakeFiles/global.dir/globals.c.i
 .PHONY : globals.c.i
 
 globals.s: globals.c.s
@@ -149,7 +149,7 @@ globals.s: globals.c.s
 
 # target to generate assembly for a file
 globals.c.s:
-	cd /home/xilinx/ECEN_427/lab03 && $(MAKE) -f globals/CMakeFiles/global.dir/build.make globals/CMakeFiles/global.dir/globals.c.s
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(MAKE) -f globals/CMakeFiles/global.dir/build.make globals/CMakeFiles/global.dir/globals.c.s
 .PHONY : globals.c.s
 
 # Help Target
@@ -175,6 +175,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /home/xilinx/ECEN_427/lab03 && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /home/xilinx/ECEN_427/lab06/space_invaders && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

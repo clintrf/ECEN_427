@@ -16,6 +16,7 @@
 #define INTC_FIT_MASK 0x1 /* interrupt handler's first bit: corresponds to fit */
 #define INTC_BTNS_MASK 0x2 /* interrupt handler's second bit: corresponds to buttons */
 #define INTC_SWITCHES_MASK 0x4 /* interrupt handler's third bit: corresponds to switches */
+#define INTC_PIT_MASK 0x8 /*Interrupt handlers 4th bith: corresponds to pit*/
 
 /**************************** function prototypes *****************************/
 // Initializes the driver (opens UIO file and calls mmap)
