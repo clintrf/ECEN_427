@@ -1,4 +1,4 @@
-#include <stdint.h>
+#include "sprites.h"
 
 // Packs each horizontal line of the figures into a single 1 bit word.
 #define packWord1(b0) \
