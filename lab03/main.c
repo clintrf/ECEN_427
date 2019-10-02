@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
+#include "hdmi.h"
+#include "sprites.h"
 #define ALIEN_HEIGHT 16
 
 // Packs each horizontal line of the figures into a single 32 bit word.
