@@ -3,7 +3,8 @@
 
 
 struct player_stats{
-  unint32_r name[3];
+  unint32_r name_char[3];
+  unint32_t score_char[3]
   unint32_t score;
 }
 
