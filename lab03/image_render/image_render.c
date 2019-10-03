@@ -1,5 +1,6 @@
 #include "hdmi.h"
 #include "sprites.h"
+#include "score_board.h"
 
 /********************************** macros ***********************************/
 #define IMAGE_RENDER_SCREEN_WIDTH 640 /* number of pixels across the screen */
