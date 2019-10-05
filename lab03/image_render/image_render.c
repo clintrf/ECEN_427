@@ -12,72 +12,96 @@
 #define NUMBER_OF_CHARS_FOR_NAME 3
 #define NUMBER_OF_BITS_PER_CHAR 25
 #define LETTER_A 11
+#define ALIEN_DEPTH ALIEN_SIZE*SPRITES_ALIEN_HEIGHT
 #define ALIEN_BLOCK_ROW_0 IMAGE_RENDER_SCREEN_WIDTH*45
+#define ALIEN_BLOCK_ROW_1 ALIEN_BLOCK_ROW_0+IMAGE_RENDER_SCREEN_WIDTH*(ALIEN_DEPTH+15)
+#define ALIEN_BLOCK_ROW_2 ALIEN_BLOCK_ROW_1+IMAGE_RENDER_SCREEN_WIDTH*(ALIEN_DEPTH+15)
+#define ALIEN_BLOCK_ROW_3 ALIEN_BLOCK_ROW_2+IMAGE_RENDER_SCREEN_WIDTH*(ALIEN_DEPTH+15)
+#define ALIEN_BLOCK_ROW_4 ALIEN_BLOCK_ROW_3+IMAGE_RENDER_SCREEN_WIDTH*(ALIEN_DEPTH+15)
 #define ALIEN_TOP_POINTS 40
+#define ALIEN_MIDDLE_POINTS 20
+#define ALIEN_BOTTOM_POINTS 10
 #define ROW_0_TOP 0
+#define ROW_1 11
+#define ROW_2 22
+#define ROW_3 33
+#define ROW_4_BOTTOM 44
 #define COLUMN_O_LEFT 0
+#define COLUMN_1 1
+#define COLUMN_2 2
+#define COLUMN_3 3
+#define COLUMN_4 4
+#define COLUMN_5 5
+#define COLUMN_6 6
+#define COLUMN_7 7
+#define COLUMN_8 8
+#define COLUMN_9 9
+#define COLUMN_10_RIGHT 10
+#define ALIEN_SIZE 3
+#define ALIEN_OFFSET SPRITES_ALIEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE
+#define ALIEN_BLOCK_SIZE 55
 
 /********************************** globals **********************************/
 char full_screen_black[IMAGE_RENDER_WHOLE_SCREEN];
 char black[3] = {0x00, 0x00, 0x00};
 char pink[3] = {0xFF, 0x69, 0xB4};
 char white[3] = {0xFF, 0xFF, 0xFF};
-Alien alien_0_0;
-Alien alien_0_1;
-Alien alien_0_2;
-Alien alien_0_3;
-Alien alien_0_4;
-Alien alien_0_5;
-Alien alien_0_6;
-Alien alien_0_7;
-Alien alien_0_8;
-Alien alien_0_9;
-Alien alien_0_10;
-Alien alien_1_0;
-Alien alien_1_1;
-Alien alien_1_2;
-Alien alien_1_3;
-Alien alien_1_4;
-Alien alien_1_5;
-Alien alien_1_6;
-Alien alien_1_7;
-Alien alien_1_8;
-Alien alien_1_9;
-Alien alien_1_10;
-Alien alien_2_0;
-Alien alien_2_1;
-Alien alien_2_2;
-Alien alien_2_3;
-Alien alien_2_4;
-Alien alien_2_5;
-Alien alien_2_6;
-Alien alien_2_7;
-Alien alien_2_8;
-Alien alien_2_9;
-Alien alien_2_10;
-Alien alien_3_0;
-Alien alien_3_1;
-Alien alien_3_2;
-Alien alien_3_3;
-Alien alien_3_4;
-Alien alien_3_5;
-Alien alien_3_6;
-Alien alien_3_7;
-Alien alien_3_8;
-Alien alien_3_9;
-Alien alien_3_10;
-Alien alien_4_0;
-Alien alien_4_1;
-Alien alien_4_2;
-Alien alien_4_3;
-Alien alien_4_4;
-Alien alien_4_5;
-Alien alien_4_6;
-Alien alien_4_7;
-Alien alien_4_8;
-Alien alien_4_9;
-Alien alien_4_10;
-
+// Alien alien_0_0;
+// Alien alien_0_1;
+// Alien alien_0_2;
+// Alien alien_0_3;
+// Alien alien_0_4;
+// Alien alien_0_5;
+// Alien alien_0_6;
+// Alien alien_0_7;
+// Alien alien_0_8;
+// Alien alien_0_9;
+// Alien alien_0_10;
+// Alien alien_1_0;
+// Alien alien_1_1;
+// Alien alien_1_2;
+// Alien alien_1_3;
+// Alien alien_1_4;
+// Alien alien_1_5;
+// Alien alien_1_6;
+// Alien alien_1_7;
+// Alien alien_1_8;
+// Alien alien_1_9;
+// Alien alien_1_10;
+// Alien alien_2_0;
+// Alien alien_2_1;
+// Alien alien_2_2;
+// Alien alien_2_3;
+// Alien alien_2_4;
+// Alien alien_2_5;
+// Alien alien_2_6;
+// Alien alien_2_7;
+// Alien alien_2_8;
+// Alien alien_2_9;
+// Alien alien_2_10;
+// Alien alien_3_0;
+// Alien alien_3_1;
+// Alien alien_3_2;
+// Alien alien_3_3;
+// Alien alien_3_4;
+// Alien alien_3_5;
+// Alien alien_3_6;
+// Alien alien_3_7;
+// Alien alien_3_8;
+// Alien alien_3_9;
+// Alien alien_3_10;
+// Alien alien_4_0;
+// Alien alien_4_1;
+// Alien alien_4_2;
+// Alien alien_4_3;
+// Alien alien_4_4;
+// Alien alien_4_5;
+// Alien alien_4_6;
+// Alien alien_4_7;
+// Alien alien_4_8;
+// Alien alien_4_9;
+// Alien alien_4_10;
+Alien alien_block[ALIEN_BLOCK_SIZE];
 
 /**************************** function prototypes ****************************/
 void image_render_print_black_screen();
@@ -110,15 +134,15 @@ void image_render_print_black_screen() {
 Alien image_render_create_alien(const uint32_t image[], uint32_t starting_location, uint32_t points, uint32_t placement) {
   Alien alien;
   for (int i = 0; i < IMAGE_RENDER_ALIEN_PIXEL_TOTAL; i++) { // sets the alien image
-    alien.alien_image[i] = image[i];
+    alien.image[i] = image[i];
   }
-  alien.alien_current_location = starting_location;
-  alien.alien_points = points;
-  alien.alien_block_placement = placement;
-  alien.alien_position = IMAGE_RENDER_ALIEN_OUT;
-  alien.alien_width = SPRITES_ALIEN_WIDTH;
-  alien.alien_height = SPRITES_ALIEN_HEIGHT;
-  alien.alien_alive = IMAGE_RENDER_ALIEN_ALIVE;
+  alien.current_location = starting_location;
+  alien.points = points;
+  alien.block_placement = placement;
+  alien.position = IMAGE_RENDER_ALIEN_OUT;
+  alien.width = SPRITES_ALIEN_WIDTH;
+  alien.height = SPRITES_ALIEN_HEIGHT;
+  alien.alive = IMAGE_RENDER_ALIEN_ALIVE;
   return alien;
 }
 
@@ -131,61 +155,61 @@ void image_render_modify_alien(Alien alien, uint16_t modifier) {
 
 // creates the entire alien block
 void image_render_create_alien_block() {
-  alien_0_0 = image_render_create_alien(alien_top_out_12x8,ALIEN_BLOCK_ROW_0,ALIEN_TOP_POINTS,ROW_0_TOP+COLUMN_O_LEFT);
-  alien_0_1;
-  alien_0_2;
-  alien_0_3;
-  alien_0_4;
-  alien_0_5;
-  alien_0_6;
-  alien_0_7;
-  alien_0_8;
-  alien_0_9;
-  alien_0_10;
-  alien_1_0;
-  alien_1_1;
-  alien_1_2;
-  alien_1_3;
-  alien_1_4;
-  alien_1_5;
-  alien_1_6;
-  alien_1_7;
-  alien_1_8;
-  alien_1_9;
-  alien_1_10;
-  alien_2_0;
-  alien_2_1;
-  alien_2_2;
-  alien_2_3;
-  alien_2_4;
-  alien_2_5;
-  alien_2_6;
-  alien_2_7;
-  alien_2_8;
-  alien_2_9;
-  alien_2_10;
-  alien_3_0;
-  alien_3_1;
-  alien_3_2;
-  alien_3_3;
-  alien_3_4;
-  alien_3_5;
-  alien_3_6;
-  alien_3_7;
-  alien_3_8;
-  alien_3_9;
-  alien_3_10;
-  alien_4_0;
-  alien_4_1;
-  alien_4_2;
-  alien_4_3;
-  alien_4_4;
-  alien_4_5;
-  alien_4_6;
-  alien_4_7;
-  alien_4_8;
-  alien_4_9;
-  alien_4_10;
+  alien_block[ROW_0_TOP+COLUMN_0_LEFT)] = image_render_create_alien(alien_top_out_12x8,ALIEN_BLOCK_ROW_0,ALIEN_TOP_POINTS,ROW_0_TOP+COLUMN_O_LEFT);
+  alien_block[ROW_0_TOP+COLUMN_1] = image_render_create_alien(alien_top_out_12x8,ALIEN_BLOCK_ROW_0+ALIEN_OFFSET*COLUMN_1,ALIEN_TOP_POINTS,ROW_0_TOP+COLUMN_1);
+  alien_block[ROW_0_TOP+COLUMN_2] = image_render_create_alien(alien_top_out_12x8,ALIEN_BLOCK_ROW_0+ALIEN_OFFSET*COLUMN_2,ALIEN_TOP_POINTS,ROW_0_TOP+COLUMN_2);
+  alien_block[ROW_0_TOP+COLUMN_3] = image_render_create_alien(alien_top_out_12x8,ALIEN_BLOCK_ROW_0+ALIEN_OFFSET*COLUMN_3,ALIEN_TOP_POINTS,ROW_0_TOP+COLUMN_3);
+  alien_block[ROW_0_TOP+COLUMN_4] = image_render_create_alien(alien_top_out_12x8,ALIEN_BLOCK_ROW_0+ALIEN_OFFSET*COLUMN_4,ALIEN_TOP_POINTS,ROW_0_TOP+COLUMN_4);
+  alien_block[ROW_0_TOP+COLUMN_5] = image_render_create_alien(alien_top_out_12x8,ALIEN_BLOCK_ROW_0+ALIEN_OFFSET*COLUMN_5,ALIEN_TOP_POINTS,ROW_0_TOP+COLUMN_5);
+  alien_block[ROW_0_TOP+COLUMN_6] = image_render_create_alien(alien_top_out_12x8,ALIEN_BLOCK_ROW_0+ALIEN_OFFSET*COLUMN_6,ALIEN_TOP_POINTS,ROW_0_TOP+COLUMN_6);
+  alien_block[ROW_0_TOP+COLUMN_7] = image_render_create_alien(alien_top_out_12x8,ALIEN_BLOCK_ROW_0+ALIEN_OFFSET*COLUMN_7,ALIEN_TOP_POINTS,ROW_0_TOP+COLUMN_7);
+  alien_block[ROW_0_TOP+COLUMN_8] = image_render_create_alien(alien_top_out_12x8,ALIEN_BLOCK_ROW_0+ALIEN_OFFSET*COLUMN_8,ALIEN_TOP_POINTS,ROW_0_TOP+COLUMN_8);
+  alien_block[ROW_0_TOP+COLUMN_9] = image_render_create_alien(alien_top_out_12x8,ALIEN_BLOCK_ROW_0+ALIEN_OFFSET*COLUMN_9,ALIEN_TOP_POINTS,ROW_0_TOP+COLUMN_9);
+  alien_block[ROW_0_TOP+COLUMN_10_RIGHT] = image_render_create_alien(alien_top_out_12x8,ALIEN_BLOCK_ROW_0+ALIEN_OFFSET*COLUMN_10_RIGHT,ALIEN_TOP_POINTS,ROW_0_TOP+COLUMN_10_RIGHT);
+  alien_block[ROW_1+COLUMN_0_LEFT)] = image_render_create_alien(alien_middle_out_12x8,ALIEN_BLOCK_ROW_1,ALIEN_MIDDLE_POINTS,ROW_1+COLUMN_0_LEFT);
+  alien_block[ROW_1+COLUMN_1] = image_render_create_alien(alien_middle_out_12x8,ALIEN_BLOCK_ROW_1+ALIEN_OFFSET*COLUMN_1,ALIEN_MIDDLE_POINTS,ROW_1+COLUMN_1);
+  alien_block[ROW_1+COLUMN_2] = image_render_create_alien(alien_middle_out_12x8,ALIEN_BLOCK_ROW_1+ALIEN_OFFSET*COLUMN_2,ALIEN_MIDDLE_POINTS,ROW_1+COLUMN_2);
+  alien_block[ROW_1+COLUMN_3] = image_render_create_alien(alien_middle_out_12x8,ALIEN_BLOCK_ROW_1+ALIEN_OFFSET*COLUMN_3,ALIEN_MIDDLE_POINTS,ROW_1+COLUMN_3);
+  alien_block[ROW_1+COLUMN_4] = image_render_create_alien(alien_middle_out_12x8,ALIEN_BLOCK_ROW_1+ALIEN_OFFSET*COLUMN_4,ALIEN_MIDDLE_POINTS,ROW_1+COLUMN_4);
+  alien_block[ROW_1+COLUMN_5] = image_render_create_alien(alien_middle_out_12x8,ALIEN_BLOCK_ROW_1+ALIEN_OFFSET*COLUMN_5,ALIEN_MIDDLE_POINTS,ROW_1+COLUMN_5);
+  alien_block[ROW_1+COLUMN_6] = image_render_create_alien(alien_middle_out_12x8,ALIEN_BLOCK_ROW_1+ALIEN_OFFSET*COLUMN_6,ALIEN_MIDDLE_POINTS,ROW_1+COLUMN_6);
+  alien_block[ROW_1+COLUMN_7] = image_render_create_alien(alien_middle_out_12x8,ALIEN_BLOCK_ROW_1+ALIEN_OFFSET*COLUMN_7,ALIEN_MIDDLE_POINTS,ROW_1+COLUMN_7);
+  alien_block[ROW_1+COLUMN_8] = image_render_create_alien(alien_middle_out_12x8,ALIEN_BLOCK_ROW_1+ALIEN_OFFSET*COLUMN_8,ALIEN_MIDDLE_POINTS,ROW_1+COLUMN_8);
+  alien_block[ROW_1+COLUMN_9] = image_render_create_alien(alien_middle_out_12x8,ALIEN_BLOCK_ROW_1+ALIEN_OFFSET*COLUMN_9,ALIEN_MIDDLE_POINTS,ROW_1+COLUMN_9);
+  alien_block[ROW_1+COLUMN_10_RIGHT] = image_render_create_alien(alien_middle_out_12x8,ALIEN_BLOCK_ROW_1+ALIEN_OFFSET*COLUMN_10_RIGHT,ALIEN_MIDDLE_POINTS,ROW_1+COLUMN_10_RIGHT);
+  alien_block[ROW_2+COLUMN_0_LEFT)] = image_render_create_alien(alien_middle_out_12x8,ALIEN_BLOCK_ROW_2,ALIEN_MIDDLE_POINTS,ROW_2+COLUMN_0_LEFT);
+  alien_block[ROW_2+COLUMN_1] = image_render_create_alien(alien_middle_out_12x8,ALIEN_BLOCK_ROW_2+ALIEN_OFFSET*COLUMN_1,ALIEN_MIDDLE_POINTS,ROW_2+COLUMN_1);
+  alien_block[ROW_2+COLUMN_2] = image_render_create_alien(alien_middle_out_12x8,ALIEN_BLOCK_ROW_2+ALIEN_OFFSET*COLUMN_2,ALIEN_MIDDLE_POINTS,ROW_2+COLUMN_2);
+  alien_block[ROW_2+COLUMN_3] = image_render_create_alien(alien_middle_out_12x8,ALIEN_BLOCK_ROW_2+ALIEN_OFFSET*COLUMN_3,ALIEN_MIDDLE_POINTS,ROW_2+COLUMN_3);
+  alien_block[ROW_2+COLUMN_4] = image_render_create_alien(alien_middle_out_12x8,ALIEN_BLOCK_ROW_2+ALIEN_OFFSET*COLUMN_4,ALIEN_MIDDLE_POINTS,ROW_2+COLUMN_4);
+  alien_block[ROW_2+COLUMN_5] = image_render_create_alien(alien_middle_out_12x8,ALIEN_BLOCK_ROW_2+ALIEN_OFFSET*COLUMN_5,ALIEN_MIDDLE_POINTS,ROW_2+COLUMN_5);
+  alien_block[ROW_2+COLUMN_6] = image_render_create_alien(alien_middle_out_12x8,ALIEN_BLOCK_ROW_2+ALIEN_OFFSET*COLUMN_6,ALIEN_MIDDLE_POINTS,ROW_2+COLUMN_6);
+  alien_block[ROW_2+COLUMN_7] = image_render_create_alien(alien_middle_out_12x8,ALIEN_BLOCK_ROW_2+ALIEN_OFFSET*COLUMN_7,ALIEN_MIDDLE_POINTS,ROW_2+COLUMN_7);
+  alien_block[ROW_2+COLUMN_8] = image_render_create_alien(alien_middle_out_12x8,ALIEN_BLOCK_ROW_2+ALIEN_OFFSET*COLUMN_8,ALIEN_MIDDLE_POINTS,ROW_2+COLUMN_8);
+  alien_block[ROW_2+COLUMN_9] = image_render_create_alien(alien_middle_out_12x8,ALIEN_BLOCK_ROW_2+ALIEN_OFFSET*COLUMN_9,ALIEN_MIDDLE_POINTS,ROW_2+COLUMN_9);
+  alien_block[ROW_2+COLUMN_10_RIGHT] = image_render_create_alien(alien_middle_out_12x8,ALIEN_BLOCK_ROW_2+ALIEN_OFFSET*COLUMN_10_RIGHT,ALIEN_MIDDLE_POINTS,ROW_2+COLUMN_10_RIGHT);
+  alien_block[ROW_3+COLUMN_0_LEFT)] = image_render_create_alien(alien_bottom_out_12x8,ALIEN_BLOCK_ROW_3,ALIEN_BOTTOM_POINTS,ROW_3+COLUMN_0_LEFT);
+  alien_block[ROW_3+COLUMN_1] = image_render_create_alien(alien_bottom_out_12x8,ALIEN_BLOCK_ROW_3+ALIEN_OFFSET*COLUMN_1,ALIEN_BOTTOM_POINTS,ROW_3+COLUMN_1);
+  alien_block[ROW_3+COLUMN_2] = image_render_create_alien(alien_bottom_out_12x8,ALIEN_BLOCK_ROW_3+ALIEN_OFFSET*COLUMN_2,ALIEN_BOTTOM_POINTS,ROW_3+COLUMN_2);
+  alien_block[ROW_3+COLUMN_3] = image_render_create_alien(alien_bottom_out_12x8,ALIEN_BLOCK_ROW_3+ALIEN_OFFSET*COLUMN_3,ALIEN_BOTTOM_POINTS,ROW_3+COLUMN_3);
+  alien_block[ROW_3+COLUMN_4] = image_render_create_alien(alien_bottom_out_12x8,ALIEN_BLOCK_ROW_3+ALIEN_OFFSET*COLUMN_4,ALIEN_BOTTOM_POINTS,ROW_3+COLUMN_4);
+  alien_block[ROW_3+COLUMN_5] = image_render_create_alien(alien_bottom_out_12x8,ALIEN_BLOCK_ROW_3+ALIEN_OFFSET*COLUMN_5,ALIEN_BOTTOM_POINTS,ROW_3+COLUMN_5);
+  alien_block[ROW_3+COLUMN_6] = image_render_create_alien(alien_bottom_out_12x8,ALIEN_BLOCK_ROW_3+ALIEN_OFFSET*COLUMN_6,ALIEN_BOTTOM_POINTS,ROW_3+COLUMN_6);
+  alien_block[ROW_3+COLUMN_7] = image_render_create_alien(alien_bottom_out_12x8,ALIEN_BLOCK_ROW_3+ALIEN_OFFSET*COLUMN_7,ALIEN_BOTTOM_POINTS,ROW_3+COLUMN_7);
+  alien_block[ROW_3+COLUMN_8] = image_render_create_alien(alien_bottom_out_12x8,ALIEN_BLOCK_ROW_3+ALIEN_OFFSET*COLUMN_8,ALIEN_BOTTOM_POINTS,ROW_3+COLUMN_8);
+  alien_block[ROW_3+COLUMN_9] = image_render_create_alien(alien_bottom_out_12x8,ALIEN_BLOCK_ROW_3+ALIEN_OFFSET*COLUMN_9,ALIEN_BOTTOM_POINTS,ROW_3+COLUMN_9);
+  alien_block[ROW_3+COLUMN_10_RIGHT] = image_render_create_alien(alien_bottom_out_12x8,ALIEN_BLOCK_ROW_4+ALIEN_OFFSET*COLUMN_10_RIGHT,ALIEN_BOTTOM_POINTS,ROW_3+COLUMN_10_RIGHT);
+  alien_block[ROW_4_BOTTOM+COLUMN_0_LEFT)] = image_render_create_alien(alien_bottom_out_12x8,ALIEN_BLOCK_ROW_4,ALIEN_BOTTOM_POINTS,ROW_4+COLUMN_0_LEFT);
+  alien_block[ROW_4_BOTTOM+COLUMN_1] = image_render_create_alien(alien_bottom_out_12x8,ALIEN_BLOCK_ROW_4+ALIEN_OFFSET*COLUMN_1,ALIEN_BOTTOM_POINTS,ROW_4+COLUMN_1);
+  alien_block[ROW_4_BOTTOM+COLUMN_2] = image_render_create_alien(alien_bottom_out_12x8,ALIEN_BLOCK_ROW_4+ALIEN_OFFSET*COLUMN_2,ALIEN_BOTTOM_POINTS,ROW_4+COLUMN_2);
+  alien_block[ROW_4_BOTTOM+COLUMN_3] = image_render_create_alien(alien_bottom_out_12x8,ALIEN_BLOCK_ROW_4+ALIEN_OFFSET*COLUMN_3,ALIEN_BOTTOM_POINTS,ROW_4+COLUMN_3);
+  alien_block[ROW_4_BOTTOM+COLUMN_4] = image_render_create_alien(alien_bottom_out_12x8,ALIEN_BLOCK_ROW_4+ALIEN_OFFSET*COLUMN_4,ALIEN_BOTTOM_POINTS,ROW_4+COLUMN_4);
+  alien_block[ROW_4_BOTTOM+COLUMN_5] = image_render_create_alien(alien_bottom_out_12x8,ALIEN_BLOCK_ROW_4+ALIEN_OFFSET*COLUMN_5,ALIEN_BOTTOM_POINTS,ROW_4+COLUMN_5);
+  alien_block[ROW_4_BOTTOM+COLUMN_6] = image_render_create_alien(alien_bottom_out_12x8,ALIEN_BLOCK_ROW_4+ALIEN_OFFSET*COLUMN_6,ALIEN_BOTTOM_POINTS,ROW_4+COLUMN_6);
+  alien_block[ROW_4_BOTTOM+COLUMN_7] = image_render_create_alien(alien_bottom_out_12x8,ALIEN_BLOCK_ROW_4+ALIEN_OFFSET*COLUMN_7,ALIEN_BOTTOM_POINTS,ROW_4+COLUMN_7);
+  alien_block[ROW_4_BOTTOM+COLUMN_8] = image_render_create_alien(alien_bottom_out_12x8,ALIEN_BLOCK_ROW_4+ALIEN_OFFSET*COLUMN_8,ALIEN_BOTTOM_POINTS,ROW_4+COLUMN_8);
+  alien_block[ROW_4_BOTTOM+COLUMN_9] = image_render_create_alien(alien_bottom_out_12x8,ALIEN_BLOCK_ROW_4+ALIEN_OFFSET*COLUMN_9,ALIEN_BOTTOM_POINTS,ROW_4+COLUMN_9);
+  alien_block[ROW_4_BOTTOM+COLUMN_10_RIGHT] = image_render_create_alien(alien_bottom_out_12x8,ALIEN_BLOCK_ROW_4+ALIEN_OFFSET*COLUMN_10_RIGHT,ALIEN_BOTTOM_POINTS,ROW_4+COLUMN_10_RIGHT);
 }
 
 // prints the first part of the game over screen
@@ -251,7 +275,13 @@ void image_render_print_game_over_screen_high_scores() {
   sprites_render_image(letterS_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SPRITES_S2_START_LOCATION_HS,SPRITES_NORMAL_CHARACTER_SCALING,white);
 }
 
-void image_render_print_start_screen() {}
+// prints the start screen and everything on it
+void image_render_print_start_screen() {
+  for(int i = 0; i < ALIEN_BLOCK_SIZE; i++) { // prints the alien block completely
+    Alien alien_temp = alien_block[i];
+    sprites_render_image(alien_temp.image,alien_temp.height,alien_temp.width,alien_temp.current_location,ALIEN_SIZE,white);
+  }
+}
 
 void image_render_update_screen() {}
 

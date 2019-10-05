@@ -16,14 +16,14 @@
 // a struct containing the data for an individual alien
 typedef struct Alien Alien;
 struct Alien {
-  uint32_t alien_image[IMAGE_RENDER_ALIEN_PIXEL_TOTAL];
-  uint32_t alien_position;
-  uint32_t alien_width;
-  uint32_t alien_height;
-  uint32_t alien_current_location;
-  uint16_t alien_alive;
-  uint32_t alien_points;
-  uint32_t alien_block_placement;
+  uint32_t image[IMAGE_RENDER_ALIEN_PIXEL_TOTAL];
+  uint32_t position;
+  uint32_t width;
+  uint32_t height;
+  uint32_t current_location;
+  uint16_t alive;
+  uint32_t points;
+  uint32_t block_placement;
 };
 
 // initializes a few of our necessary variables and starts the screen black
@@ -55,6 +55,7 @@ void image_render_print_game_over_screen_enter_name();
 // this will display "GAME OVER" and "High Scores" and the list of high scores
 void image_render_print_game_over_screen_high_scores();
 
+// prints the start screen and everything on it
 void image_render_print_start_screen();
 
 void image_render_update_screen();
