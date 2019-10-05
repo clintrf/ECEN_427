@@ -40,67 +40,25 @@
 #define ALIEN_SIZE 3
 #define ALIEN_OFFSET SPRITES_ALIEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE
 #define ALIEN_BLOCK_SIZE 55
+#define S_START_LOCATION_SC 60
+#define C_START_LOCATION_SC S_START_LOCATION_SC+30
+#define O_START_LOCATION_SC C_START_LOCATION_SC+30
+#define R_START_LOCATION_SC O_START_LOCATION_SC+30
+#define E_START_LOCATION_SC R_START_LOCATION_SC+30
+#define SCORE_0_START_LOCATION E_START_LOCATION_SC+30
+#define SCORE_1_START_LOCATION SCORE_0_START_LOCATION+30
+#define SCORE_2_START_LOCATION SCORE_1_START_LOCATION+30
+#define SCORE_3_START_LOCATION SCORE_2_START_LOCATION+30
+#define SCORE_4_START_LOCATION SCORE_3_START_LOCATION+30
+#define CHARACTER_ZERO 0
 
 /********************************** globals **********************************/
 char full_screen_black[IMAGE_RENDER_WHOLE_SCREEN];
 char black[3] = {0x00, 0x00, 0x00};
 char pink[3] = {0xFF, 0x69, 0xB4};
 char white[3] = {0xFF, 0xFF, 0xFF};
-// Alien alien_0_0;
-// Alien alien_0_1;
-// Alien alien_0_2;
-// Alien alien_0_3;
-// Alien alien_0_4;
-// Alien alien_0_5;
-// Alien alien_0_6;
-// Alien alien_0_7;
-// Alien alien_0_8;
-// Alien alien_0_9;
-// Alien alien_0_10;
-// Alien alien_1_0;
-// Alien alien_1_1;
-// Alien alien_1_2;
-// Alien alien_1_3;
-// Alien alien_1_4;
-// Alien alien_1_5;
-// Alien alien_1_6;
-// Alien alien_1_7;
-// Alien alien_1_8;
-// Alien alien_1_9;
-// Alien alien_1_10;
-// Alien alien_2_0;
-// Alien alien_2_1;
-// Alien alien_2_2;
-// Alien alien_2_3;
-// Alien alien_2_4;
-// Alien alien_2_5;
-// Alien alien_2_6;
-// Alien alien_2_7;
-// Alien alien_2_8;
-// Alien alien_2_9;
-// Alien alien_2_10;
-// Alien alien_3_0;
-// Alien alien_3_1;
-// Alien alien_3_2;
-// Alien alien_3_3;
-// Alien alien_3_4;
-// Alien alien_3_5;
-// Alien alien_3_6;
-// Alien alien_3_7;
-// Alien alien_3_8;
-// Alien alien_3_9;
-// Alien alien_3_10;
-// Alien alien_4_0;
-// Alien alien_4_1;
-// Alien alien_4_2;
-// Alien alien_4_3;
-// Alien alien_4_4;
-// Alien alien_4_5;
-// Alien alien_4_6;
-// Alien alien_4_7;
-// Alien alien_4_8;
-// Alien alien_4_9;
-// Alien alien_4_10;
+char green[3] = {0x00,0x80,0x00};
+char red[3] = {0xFF,0x00,0x00};
 Alien alien_block[ALIEN_BLOCK_SIZE];
 
 /**************************** function prototypes ****************************/
@@ -277,38 +235,26 @@ void image_render_print_game_over_screen_high_scores() {
 
 // prints the start screen and everything on it
 void image_render_print_start_screen() {
-  for(int i = 0; i < ALIEN_BLOCK_SIZE; i++) { // prints the alien block completely
+  /* Print the word score in the top left corner and then print the score */
+  sprites_render_image(letterS_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,S_START_LOCATION_SC,SPRITES_NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterC_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,C_START_LOCATION_SC,SPRITES_NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterO_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,O_START_LOCATION_SC,SPRITES_NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterR_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,R_START_LOCATION_SC,SPRITES_NORMAL_CHARACTER_SCALING,white);
+  sprites_render_image(letterE_5x5,SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,E_START_LOCATION_SC,SPRITES_NORMAL_CHARACTER_SCALING,white);
+  /* Print the current score on the screen (starts at 00000) */
+  sprites_render_image(char_array[CHARACTER_ZERO],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SCORE_0_START_LOCATION,SPRITES_NORMAL_CHARACTER_SCALING,green);
+  sprites_render_image(char_array[CHARACTER_ZERO],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SCORE_1_START_LOCATION,SPRITES_NORMAL_CHARACTER_SCALING,green);
+  sprites_render_image(char_array[CHARACTER_ZERO],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SCORE_2_START_LOCATION,SPRITES_NORMAL_CHARACTER_SCALING,green);
+  sprites_render_image(char_array[CHARACTER_ZERO],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SCORE_3_START_LOCATION,SPRITES_NORMAL_CHARACTER_SCALING,green);
+  sprites_render_image(char_array[CHARACTER_ZERO],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SCORE_4_START_LOCATION,SPRITES_NORMAL_CHARACTER_SCALING,green);
+  /* Prints the alien block completely */
+  for(int i = 0; i < ALIEN_BLOCK_SIZE; i++) {
     Alien alien_temp = alien_block[i];
     sprites_render_image(alien_temp.image,alien_temp.height,alien_temp.width,alien_temp.current_location,ALIEN_SIZE,white);
   }
 }
 
 void image_render_update_screen() {}
-
-// ONLY FOR TESTING, DELETE LATER
-void image_render_test_image() {
-  // uint32_t image[], uint32_t width, uint32_t height, uint32_t starting_location,
-  // uint32_t scaling_factor, const void *color
-  sprites_render_image(saucer_16x7,16,7,0,1,white);
-  sprites_render_image(alien_explosion_12x10,12,10,60,1,white);
-  sprites_render_image(alien_top_in_12x8,12,8,108,1,pink);
-  sprites_render_image(alien_top_out_12x8,12,8,156,1,pink);
-  sprites_render_image(alien_middle_in_12x8,12,8,204,1,pink);
-  sprites_render_image(alien_middle_out_12x8,12,8,252,1,pink);
-  sprites_render_image(alien_bottom_in_12x8,12,8,300,1,pink);
-  sprites_render_image(alien_bottom_out_12x8,12,8,348,1,pink);
-  sprites_render_image(tank_15x8,15,8,405,1,white);
-  sprites_render_image(bunker_24x18,24,18,462,1,white);
-  sprites_render_image(bunkerDamage0_6x6,6,6,546,1,white);
-  sprites_render_image(tankbullet_1x5,1,5,576,1,pink);
-  sprites_render_image(alienbullet1_down_3x5,3,5,591,1,pink);
-  sprites_render_image(alienbullet2_up_3x5,3,5,612,1,pink);
-  sprites_render_image(letterD_5x5,5,5,633,1,white);
-  sprites_render_image(letterA_5x5,5,5,660,1,white);
-  sprites_render_image(letterX_5x5,5,5,687,1,white);
-  sprites_render_image(number2_5x5,5,5,714,1,white);
-  sprites_render_image(number1_5x5,5,5,741,1,white);
-}
 
 // closes the hdmi connection
 void image_render_close() {
