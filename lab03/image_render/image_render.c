@@ -77,6 +77,8 @@ char green[3] = {0x00,0x80,0x00};
 char red[3] = {0xFF,0x00,0x00};
 Alien alien_block[ALIEN_BLOCK_SIZE];
 
+uint32_t tank_start_pos = 200;
+
 /**************************** function prototypes ****************************/
 void image_render_print_black_screen();
 
@@ -287,6 +289,21 @@ void image_render_print_start_screen() {
 }
 
 void image_render_update_screen() {}
+
+void image_render_tank(uint32_t move, char dir){
+  if(dir == 1){
+    tank_pos = tank_pos+move;
+    sprites_render_image(tank_17x10,17,10,640*3*450+(tank_start_pos*3),2,white);
+
+  }
+  if(dir == 0){
+    tank_pos = tank_pos-move;
+    sprites_render_image(tank_17x10,17,10,640*3*450+(tank_start_pos*3),2,white);
+  }
+  else{
+    printf("not move");
+  }
+};
 
 // closes the hdmi connection
 void image_render_close() {
