@@ -108,6 +108,41 @@ void run_game_over() {
   print_high_scores(); // prints out the high scores
 }
 
+void move_tank( uint32_t buttonPressed){
+  switch(buttonPressed) { // reads in which button was pressed
+    case BTN_0_MASK:
+      printf("%s moving right\r\n", "tank");
+      image_render_tank(1, 1);
+      break;
+    case BTN_1_MASK:
+      printf("%s shooting\r\n", "tank");
+      break;
+    case BTN_2_MASK:
+      printf("%s moving left\r\n", "tank");
+      image_render_tank(1, 0);
+      break;
+  }
+}
+
+void isr_buttons() {
+  uint32_t buttonPressed = button_uio_read(BUTTON_UIO_GPIO_DATA_OFFSET); // reads data from buttons
+  // debounces the buttons
+  while(button_counter < BOUNCE) {
+      button_counter++;
+  }
+
+  // while we are holding down the button, do auto increment
+  while (buttonPressed == button_uio_read(BUTTON_UIO_GPIO_DATA_OFFSET) && buttonPressed != 0){
+    move_tank(buttonPressed);
+  }
+  printf("%s moving or shooting\r\n", "not");
+  // reset all counters
+  //multiple_buttons = 0;
+  button_counter = 0;
+  button_uio_acknowledge(BUTTON_UIO_CHANNEL_ONE_MASK); /* acknowledges an interrupt from the GPIO */
+  intc_ack_interrupt(INTC_BTNS_MASK); /* acknowledges an interrupt from the interrupt controller */
+}
+
 // main function that contains the main basic state machine
 int main() {
   intc_init(INTC_GPIO_FILE_PATH); // intializes interrupts
@@ -120,11 +155,13 @@ int main() {
   while(1) {
     /* need to run this each time that we block, because this function will unblock */
     intc_enable_uio_interrupts(); /* enables Linux interrupts */
-    interrupts = intc_wait_for_interrupt(); // actively awaits interrupts from pynq
-
-    if(interrupts & INTC_BTNS_MASK) { // if a button is pressed, run this function
-      run_game_over();
-      break;
+    uint32_t interrupts = intc_wait_for_interrupt();
+    // Check which interrupt lines are high and call the appropriate ISR functions
+    if(interrupts & INTC_FIT_MASK) {
+      //isr_fit();
+    }
+    if(interrupts & INTC_BTNS_MASK) {
+      isr_buttons();
     }
   }
   image_render_close(); // closes the image file
