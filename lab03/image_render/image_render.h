@@ -62,5 +62,7 @@ void image_render_print_start_screen();
 
 void image_render_update_screen();
 
+void image_render_tank(uint32_t move, char dir);
+
 // closes the hdmi connection
 void image_render_close();
