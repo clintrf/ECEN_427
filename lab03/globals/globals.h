@@ -68,3 +68,12 @@ void globals_decrement_total_alien_count();
 
 // resets the total alien amount
 void globals_reset_total_alien_count();
+
+// prints current score
+void globals_print_current_score();
+
+// get the lives counter
+uint32_t globals_get_current_lives();
+
+// prints lives to screen
+void globals_print_current_lives();
