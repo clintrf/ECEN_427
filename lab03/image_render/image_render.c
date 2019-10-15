@@ -311,8 +311,8 @@ void image_render_print_start_screen() {
   sprites_render_buffer(tank_15x8,15,8,FIRST_LIFE_START_LOCATION,ALIEN_SIZE,green);
   sprites_render_buffer(tank_15x8,15,8,SECOND_LIFE_START_LOCATION,ALIEN_SIZE,green);
   sprites_render_buffer(tank_15x8,15,8,THIRD_LIFE_START_LOCATION,ALIEN_SIZE,green);
-  sprites_render_buffer(tank_15x8,15,8,FOURTH_LIFE_START_LOCATION,ALIEN_SIZE,green);
-  sprites_render_buffer(tank_15x8,15,8,FIFTH_LIFE_START_LOCATION,ALIEN_SIZE,green);
+  //sprites_render_buffer(tank_15x8,15,8,FOURTH_LIFE_START_LOCATION,ALIEN_SIZE,green);
+  //sprites_render_buffer(tank_15x8,15,8,FIFTH_LIFE_START_LOCATION,ALIEN_SIZE,green);
   /* Prints bunkers */
   sprites_render_buffer(bunker_24x18,SPRITES_BUNKER_WIDTH,SPRITES_BUNKER_HEIGHT,BUNKER_ONE,ALIEN_SIZE,green);
   sprites_render_buffer(bunker_24x18,SPRITES_BUNKER_WIDTH,SPRITES_BUNKER_HEIGHT,BUNKER_TWO,ALIEN_SIZE,green);
