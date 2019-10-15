@@ -178,6 +178,8 @@ void isr_fit() {
     image_render_move_alien_block();
     alien_counter = 0;
   }
+  globals_print_current_score();
+  globals_print_current_lives();
 }
 
 // handles the button interrupts in the main game
