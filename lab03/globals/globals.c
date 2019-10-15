@@ -1,4 +1,5 @@
 #include "globals.h"
+#include "../image_render/score_board/score_board.c"
 
 /********************************** macros ***********************************/
 #define STARTING_LEFT_COLUMN 0
