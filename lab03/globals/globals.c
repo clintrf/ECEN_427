@@ -106,6 +106,11 @@ uint16_t globals_get_alien_bullet_fired_1(){
 uint16_t globals_get_alien_bullet_fired_2(){
   return alien_bullet_fired_2;
 }
+// fetch whether the tank bullet has been fired or not
+// returns : a 1 if the bullet is still on the screen or a 0 if there is no bullet on screen
+uint16_t globals_get_alien_bullet_fired_3(){
+  return alien_bullet_fired_3;
+}
 
 // set this to 1 if a bullet has been fired, keep it asserted until the bullet hits a target or reaches the top of the screen
 void globals_fire_alien_bullet_0(){
@@ -119,6 +124,10 @@ void globals_fire_alien_bullet_1(){
 void globals_fire_alien_bullet_2(){
   alien_bullet_fired_2 = FIRED;
 }
+// set this to 1 if a bullet has been fired, keep it asserted until the bullet hits a target or reaches the top of the screen
+void globals_fire_alien_bullet_3(){
+  alien_bullet_fired_3 = FIRED;
+}
 
 // set this to 0 once the bullet hits a target or reaches the top of the screen, prevents the alien from firing more bullets
 void globals_alien_bullet_stopped_0() {
@@ -131,6 +140,9 @@ void globals_alien_bullet_stopped_1() {
 // set this to 0 once the bullet hits a target or reaches the top of the screen, prevents the alien from firing more bullets
 void globals_alien_bullet_stopped_2() {
   alien_bullet_fired_2 = NOT_FIRED;
+}
+void globals_alien_bullet_stopped_3() {
+  alien_bullet_fired_3 = NOT_FIRED;
 }
 
 // fetch the current alien bullet position
@@ -148,6 +160,11 @@ uint32_t globals_get_alien_bullet_position_1(){
 uint32_t globals_get_alien_bullet_position_2(){
   return alien_bullet_position_2;
 }
+// fetch the current alien bullet position
+// returns : the current tank position
+uint32_t globals_get_alien_bullet_position_3(){
+  return alien_bullet_position_3;
+}
 
 // set a new alien bullet position
 // pos : the new position which you wish to set
@@ -163,6 +180,11 @@ void globals_set_alien_bullet_position_1(uint32_t pos){
 // pos : the new position which you wish to set
 void globals_set_alien_bullet_position_2(uint32_t pos){
   alien_bullet_position_2 = pos;
+}
+// set a new alien bullet position
+// pos : the new position which you wish to set
+void globals_set_alien_bullet_position_3(uint32_t pos){
+  alien_bullet_position_3 = pos;
 }
 
 
