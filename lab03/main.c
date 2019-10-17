@@ -35,6 +35,7 @@
 #define BULLET_DELAY_0 100
 #define BULLET_DELAY_1 120
 #define BULLET_DELAY_2 150
+#define BULLET_DELAY_3 180
 #define TANK_BULLET_DELAY 2
 #define COUNTER_DELAY 10
 #define SAUCER_DELAY 2
@@ -46,6 +47,7 @@ uint32_t button_pressed_counter = 0;
 uint32_t bullet_delay_0 = 0;
 uint32_t bullet_delay_1 = 0;
 uint32_t bullet_delay_2 = 0;
+uint32_t bullet_delay_3 = 0;
 uint32_t counter_delay = 0;
 uint32_t tanks_bullet_delay = 0;
 uint32_t saucer_counter = 0;
@@ -201,9 +203,18 @@ void isr_fit() {
     }
     bullet_delay_2 = 0;
   }
+  if(bullet_delay_3 > BULLET_DELAY_3){
+    if(globals_get_alien_bullet_fired_3() != SHOTS_FIRED){
+      image_render_alien_fire_bullet_3();
+      image_render_fire_alien_bullet_3();
+      bullet_delay_3 = 0;
+    }
+    bullet_delay_3 = 0;
+  }
   bullet_delay_0++;
   bullet_delay_1++;
   bullet_delay_2++;
+  bullet_delay_3++;
 
 
   if(saucer_counter > 1){ //SAUCER_DELAY
@@ -244,6 +255,9 @@ void isr_fit() {
     }
     if(globals_get_alien_bullet_fired_2() == SHOTS_FIRED){
       image_render_move_alien_bullet_2();
+    }
+    if(globals_get_alien_bullet_fired_3() == SHOTS_FIRED){
+      image_render_move_alien_bullet_3();
     }
     counter_delay = 0;
   }
