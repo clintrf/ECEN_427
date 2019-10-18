@@ -12,10 +12,6 @@
 #define IMAGE_RENDER_LEFT_MOVEMENT 0
 #define IMAGE_RENDER_RIGHT_MOVEMENT 1
 #define IMAGE_RENDER_NUM_BUNKER_BLOCKS 12
-#define FOUR_HIT_POINTS 4
-#define ONE_HIT_POINT 1
-#define NO_HIT_POINTS 0
-#define IMAGE_RENDER_ALIEN_BULLET_TOTAL_PIXELS 7*3
 
 
 // a struct containing the data for an individual alien
@@ -39,15 +35,6 @@ struct Bunker {
   uint16_t block_hit_points[IMAGE_RENDER_NUM_BUNKER_BLOCKS]; // status on each of the ten different positions
 };
 
-// a struct that contains the data for an individual alien bullet
-typedef struct AlienBullet AlienBullet;
-struct AlienBullet {
-  uint32_t position;
-  uint32_t image_in[IMAGE_RENDER_ALIEN_BULLET_TOTAL_PIXELS];
-  uint32_t image_out[IMAGE_RENDER_ALIEN_BULLET_TOTAL_PIXELS];
-  uint16_t fired;
-};
-
 // initializes a few of our necessary variables and starts the screen black
 void image_render_init();
 
@@ -60,18 +47,13 @@ void image_render_print_black_screen();
 // starting_location : starting location of the alien
 // points : how many points the alien is worth
 // placement : where the alien is inside the block
+// returns : a newly created alien struct
 Alien image_render_create_alien(const uint32_t image_in[], const uint32_t image_out[], uint32_t starting_location, uint32_t points, uint32_t placement);
 
 // creates the data for a single bunker object
 // pos : the position of the bunker on the screen
+// returns : a newly created Bunker struct
 Bunker image_render_create_bunker(uint32_t pos);
-
-// creates an individual alien bullet
-// pos : position of the bullet
-// image_in : inward image
-// image_out : outward image
-// returns created alien bullet structure
-AlienBullet image_render_create_alien_bullet(uint32_t pos, const uint32_t image_in[], const uint32_t image_out[]);
 
 // creates the entire alien block
 void image_render_create_alien_block();
@@ -98,11 +80,29 @@ void image_render_fire_tank_bullet();
 // moves the tank bullet up the screen
 void image_render_move_tank_bullet();
 
-// fires a bullet from the tank position
-void image_render_fire_alien_bullet();
+// fires a bullet from the first of the alien bullets from a random position
+void image_render_fire_alien_bullet_0();
 
-// moves the tank bullet up the screen
-void image_render_move_alien_bullet();
+// fires a bullet from the second of the alien bullets from a random position
+void image_render_fire_alien_bullet_1();
+
+// fires a bullet from the third of the alien bullets from a random position
+void image_render_fire_alien_bullet_2();
+
+// fires a bullet from the fourth of the alien bullets from a random position
+void image_render_fire_alien_bullet_3();
+
+// moves the alien bullet down the screen
+void image_render_move_alien_bullet_0();
+
+// moves the alien bullet down the screen
+void image_render_move_alien_bullet_1();
+
+// moves the alien bullet down the screen
+void image_render_move_alien_bullet_2();
+
+// moves the alien bullet down the screen
+void image_render_move_alien_bullet_3();
 
 // moves the saucer around the screen
 void image_render_saucer();
@@ -111,7 +111,16 @@ void image_render_saucer();
 void image_render_move_alien_block();
 
 // aliens fire bullets
-void image_render_alien_fire_bullet();
+void image_render_alien_fire_bullet_0();
+
+// aliens fire bullets
+void image_render_alien_fire_bullet_1();
+
+// aliens fire bullets
+void image_render_alien_fire_bullet_2();
+
+// aliens fire bullets
+void image_render_alien_fire_bullet_3();
 
 // closes the hdmi connection
 void image_render_close();

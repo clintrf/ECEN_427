@@ -1,38 +1,29 @@
 #include "globals.h"
 #include "../image_render/score_board/score_board.c"
 
-
 /********************************** macros ***********************************/
-#define STARTING_LEFT_COLUMN 0
-#define STARTING_RIGHT_COLUMN 10
 #define STARTING_ALIEN_AMOUNT 55
-#define ALIEN_ALIVE 1
 #define NOT_FIRED 0
 #define FIRED 1
 #define SAUCER_ALIVE 1
 #define SAUCER_SHOT 0
 #define MAX_LIVES 5
-
 #define S_LOCATION_SC 60
 #define C_LOCATION_SC S_LOCATION_SC+54
 #define O_LOCATION_SC C_LOCATION_SC+54
 #define R_LOCATION_SC O_LOCATION_SC+54
 #define E_LOCATION_SC R_LOCATION_SC+54
-
 #define SCORE_0_LOCATION E_LOCATION_SC+108
 #define SCORE_1_LOCATION SCORE_0_LOCATION+54
 #define SCORE_2_LOCATION SCORE_1_LOCATION+54
 #define SCORE_3_LOCATION SCORE_2_LOCATION+54
 #define SCORE_4_LOCATION SCORE_3_LOCATION+54
-
 #define FIFTH_LIFE_LOCATION ((640*3)-(2*17*3)-9)
 #define FOURTH_LIFE_LOCATION (FIFTH_LIFE_LOCATION-(2*17*3)-9)
 #define THIRD_LIFE_LOCATION (FOURTH_LIFE_LOCATION-(2*17*3)-9)
 #define SECOND_LIFE_LOCATION (THIRD_LIFE_LOCATION-(2*17*3)-9)
 #define FIRST_LIFE_LOCATION (SECOND_LIFE_LOCATION-(2*17*3)-9)
-
 #define GLOBAL_BYTES_PER_PIXEL 3
-
 #define START_LIVES 3
 #define TANK_SIZING 2
 #define ONE_LIFE 1
@@ -44,9 +35,14 @@
 /********************************** globals **********************************/
 static uint16_t tank_bullet_fired = NOT_FIRED;
 static uint32_t tank_bullet_position;
-static uint16_t alien_bullet_fired = NOT_FIRED;
-static uint32_t alien_bullet_position;
-static uint16_t alien_bullets_fired = 0;
+static uint16_t alien_bullet_fired_0 = NOT_FIRED;
+static uint16_t alien_bullet_fired_1 = NOT_FIRED;
+static uint16_t alien_bullet_fired_2 = NOT_FIRED;
+static uint16_t alien_bullet_fired_3 = NOT_FIRED;
+static uint32_t alien_bullet_position_0;
+static uint32_t alien_bullet_position_1;
+static uint32_t alien_bullet_position_2;
+static uint32_t alien_bullet_position_3;
 static uint32_t current_score = 0;
 static uint32_t saucer_pos = GLOBALS_SAUCER_ROW_START_LOCATION;
 static uint16_t saucer_status = SAUCER_ALIVE;
@@ -54,6 +50,7 @@ static uint32_t saucer_shot_count = 0;
 static uint16_t total_alien_count = STARTING_ALIEN_AMOUNT;
 static uint32_t current_lives = START_LIVES;
 static uint16_t alien_overrun_flag = 0;
+static uint32_t dead_alien_loc = 0;
 
 uint32_t global_green[GLOBAL_BYTES_PER_PIXEL] = {0x00,0x80,0x00};
 uint32_t global_black[GLOBAL_BYTES_PER_PIXEL] = {0x00,0x00,0x00};
@@ -70,7 +67,7 @@ void globals_fire_tank_bullet() {
   tank_bullet_fired = FIRED;
 }
 
-// set this to 0 once the bullet hits a target or reaches the top of the screen, prevents the tank from firing more bullets
+// set this to 0 once the bullet hits a target or reaches the top of the screen, allows the tank to fire another bullet
 void globals_tank_bullet_stopped() {
   tank_bullet_fired = NOT_FIRED;
 }
@@ -87,49 +84,116 @@ void globals_set_tank_bullet_position(uint32_t pos) {
   tank_bullet_position = pos;
 }
 
-// fetch whether the tank bullet has been fired or not
+// fetch whether the alien bullet has been fired or not
 // returns : a 1 if the bullet is still on the screen or a 0 if there is no bullet on screen
-uint16_t globals_get_alien_bullet_fired(){
-  return alien_bullet_fired;
+uint16_t globals_get_alien_bullet_fired_0(){
+  return alien_bullet_fired_0;
 }
 
-// set this to 1 if a bullet has been fired, keep it asserted until the bullet hits a target or reaches the top of the screen
-void globals_fire_alien_bullet(){
-  alien_bullet_fired = FIRED;
+// fetch whether the alien bullet has been fired or not
+// returns : a 1 if the bullet is still on the screen or a 0 if there is no bullet on screen
+uint16_t globals_get_alien_bullet_fired_1(){
+  return alien_bullet_fired_1;
 }
 
-// set this to 0 once the bullet hits a target or reaches the top of the screen, prevents the alien from firing more bullets
-void globals_alien_bullet_stopped() {
-  globals_dec_alien_bullets_fired();
-  alien_bullet_fired = NOT_FIRED;
+// fetch whether the alien bullet has been fired or not
+// returns : a 1 if the bullet is still on the screen or a 0 if there is no bullet on screen
+uint16_t globals_get_alien_bullet_fired_2(){
+  return alien_bullet_fired_2;
+}
+
+// fetch whether the alien bullet has been fired or not
+// returns : a 1 if the bullet is still on the screen or a 0 if there is no bullet on screen
+uint16_t globals_get_alien_bullet_fired_3(){
+  return alien_bullet_fired_3;
+}
+
+// set this to 1 if a bullet has been fired, keep it asserted until the bullet hits a target or reaches the bottom of the screen
+void globals_fire_alien_bullet_0(){
+  alien_bullet_fired_0 = FIRED;
+}
+
+// set this to 1 if a bullet has been fired, keep it asserted until the bullet hits a target or reaches the bottom of the screen
+void globals_fire_alien_bullet_1(){
+  alien_bullet_fired_1 = FIRED;
+}
+
+// set this to 1 if a bullet has been fired, keep it asserted until the bullet hits a target or reaches the bottom of the screen
+void globals_fire_alien_bullet_2(){
+  alien_bullet_fired_2 = FIRED;
+}
+
+// set this to 1 if a bullet has been fired, keep it asserted until the bullet hits a target or reaches the bottom of the screen
+void globals_fire_alien_bullet_3(){
+  alien_bullet_fired_3 = FIRED;
+}
+
+// set this to 0 once the bullet hits a target or reaches the bottom of the screen, allows the alien to fire another bullet
+void globals_alien_bullet_stopped_0() {
+  alien_bullet_fired_0 = NOT_FIRED;
+}
+
+// set this to 0 once the bullet hits a target or reaches the bottom of the screen, allows the alien to fire another bullet
+void globals_alien_bullet_stopped_1() {
+  alien_bullet_fired_1 = NOT_FIRED;
+}
+
+// set this to 0 once the bullet hits a target or reaches the bottom of the screen, allows the alien to fire another bullet
+void globals_alien_bullet_stopped_2() {
+  alien_bullet_fired_2 = NOT_FIRED;
+}
+
+// set this to 0 once the bullet hits a target or reaches the bottom of the screen, allows the alien to fire another bullet
+void globals_alien_bullet_stopped_3() {
+  alien_bullet_fired_3 = NOT_FIRED;
 }
 
 // fetch the current alien bullet position
-// returns : the current tank position
-uint32_t globals_get_alien_bullet_position(){
-  return alien_bullet_position;
+// returns : the current alien bullet position
+uint32_t globals_get_alien_bullet_position_0(){
+  return alien_bullet_position_0;
+}
+
+// fetch the current alien bullet position
+// returns : the current alien bullet position
+uint32_t globals_get_alien_bullet_position_1(){
+  return alien_bullet_position_1;
+}
+
+// fetch the current alien bullet position
+// returns : the current alien bullet position
+uint32_t globals_get_alien_bullet_position_2(){
+  return alien_bullet_position_2;
+}
+
+// fetch the current alien bullet position
+// returns : the current alien bullet position
+uint32_t globals_get_alien_bullet_position_3(){
+  return alien_bullet_position_3;
 }
 
 // set a new alien bullet position
 // pos : the new position which you wish to set
-void globals_set_alien_bullet_position(uint32_t pos){
-  alien_bullet_position = pos;
+void globals_set_alien_bullet_position_0(uint32_t pos){
+  alien_bullet_position_0 = pos;
 }
 
-// fetches the amount of alien bullets there are
-// returns how many alien bullets are currently in the air
-uint16_t globals_get_alien_bullets_fired() {
-  return alien_bullets_fired;
+// set a new alien bullet position
+// pos : the new position which you wish to set
+void globals_set_alien_bullet_position_1(uint32_t pos){
+  alien_bullet_position_1 = pos;
 }
 
-// increments the amount of alien bullets there are
-void globals_inc_alien_bullets_fired() {
-  alien_bullets_fired++;
+// set a new alien bullet position
+// pos : the new position which you wish to set
+void globals_set_alien_bullet_position_2(uint32_t pos){
+  alien_bullet_position_2 = pos;
 }
 
-// decrements the amount of alien bullets there are
-void globals_dec_alien_bullets_fired() {
-  alien_bullets_fired--;
+// set a new alien bullet position
+// pos : the new position which you wish to set
+void globals_set_alien_bullet_position_3(uint32_t pos){
+  alien_bullet_position_3 = pos;
 }
 
 // fetches the current score of the current game
@@ -208,16 +272,12 @@ void globals_print_current_score(){
   uint32_t digit_100 = 0;
   uint32_t digit_1000 = 0;
   uint32_t digit_10000 = 0;
-
   uint32_t temp = globals_get_current_score();
-
   digit_10000 = ((temp)/TEN_THOUSAND_SCALE);
   digit_1000 = ((temp-digit_10000*TEN_THOUSAND_SCALE)/THOUSAND_SCALE);
   digit_100 = ((temp-digit_10000*TEN_THOUSAND_SCALE-digit_1000*THOUSAND_SCALE)/HUNDRED_SCALE);
   digit_10 = ((temp-digit_10000*TEN_THOUSAND_SCALE-digit_1000*THOUSAND_SCALE-digit_100*HUNDRED_SCALE)/TEN_SCALE);
   digit_1 = ((temp-digit_10000*TEN_THOUSAND_SCALE-digit_1000*THOUSAND_SCALE-digit_100*HUNDRED_SCALE-digit_10*TEN_SCALE)/ONE_SCALE);
-
-
   sprites_render_buffer(char_array[digit_10000],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SCORE_0_LOCATION,SPRITES_NORMAL_CHARACTER_SCALING,global_green);
   sprites_render_buffer(char_array[digit_1000],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SCORE_1_LOCATION,SPRITES_NORMAL_CHARACTER_SCALING,global_green);
   sprites_render_buffer(char_array[digit_100],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SCORE_2_LOCATION,SPRITES_NORMAL_CHARACTER_SCALING,global_green);
@@ -255,42 +315,53 @@ void globals_assert_alien_overrun_flag() {
   alien_overrun_flag = 1;
 }
 
+// sets the location of the most recently killed alien
+// loc : location of the most recently killed alien
+void globals_set_dead_alien_loc(uint32_t loc) {
+  dead_alien_loc = loc;
+}
+
+// fetches the location of the most recently killed alien
+// returns the locaiton of the most recently killed alien
+uint32_t globals_get_dead_alien_loc() {
+  return dead_alien_loc;
+}
+
 // prints lives to screen
 void globals_print_current_lives(){
-  if(current_lives == ONE_LIFE){
+  if(current_lives == ONE_LIFE){ // if we have one life left, delete four tanks and write one
     sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FIRST_LIFE_LOCATION,TANK_SIZING,global_green);
     sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,SECOND_LIFE_LOCATION,TANK_SIZING,global_black);
     sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,THIRD_LIFE_LOCATION,TANK_SIZING,global_black);
     sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FOURTH_LIFE_LOCATION,TANK_SIZING,global_black);
     sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FIFTH_LIFE_LOCATION,TANK_SIZING,global_black);
   }
-  if(current_lives == TWO_LIFE){
+  if(current_lives == TWO_LIFE){ // if we have two lives left, delete three tanks and write two
     sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FIRST_LIFE_LOCATION,TANK_SIZING,global_green);
     sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,SECOND_LIFE_LOCATION,TANK_SIZING,global_green);
     sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,THIRD_LIFE_LOCATION,TANK_SIZING,global_black);
     sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FOURTH_LIFE_LOCATION,TANK_SIZING,global_black);
     sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FIFTH_LIFE_LOCATION,TANK_SIZING,global_black);
   }
-  if(current_lives == THREE_LIFE){
+  if(current_lives == THREE_LIFE){ // if we have three lives left, delete two tanks and write three
     sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FIRST_LIFE_LOCATION,TANK_SIZING,global_green);
     sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,SECOND_LIFE_LOCATION,TANK_SIZING,global_green);
     sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,THIRD_LIFE_LOCATION,TANK_SIZING,global_green);
     sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FOURTH_LIFE_LOCATION,TANK_SIZING,global_black);
     sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FIFTH_LIFE_LOCATION,TANK_SIZING,global_black);
   }
-  if(current_lives == FOUR_LIFE){
+  if(current_lives == FOUR_LIFE){ // if we have four lives left, delete one tanks and write four
     sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FIRST_LIFE_LOCATION,TANK_SIZING,global_green);
     sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,SECOND_LIFE_LOCATION,TANK_SIZING,global_green);
     sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,THIRD_LIFE_LOCATION,TANK_SIZING,global_green);
     sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FOURTH_LIFE_LOCATION,TANK_SIZING,global_green);
     sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FIFTH_LIFE_LOCATION,TANK_SIZING,global_black);
   }
-  if(current_lives == FIVE_LIFE){
+  if(current_lives == FIVE_LIFE){ // if we have no lives left, write five tanks
     sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FIRST_LIFE_LOCATION,TANK_SIZING,global_green);
     sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,SECOND_LIFE_LOCATION,TANK_SIZING,global_green);
     sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,THIRD_LIFE_LOCATION,TANK_SIZING,global_green);
     sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FOURTH_LIFE_LOCATION,TANK_SIZING,global_green);
     sprites_render_buffer(tank_15x8,SPRITES_TANK_WIDTH-TANK_SIZING,SPRITES_TANK_HEIGHT-TANK_SIZING,FIFTH_LIFE_LOCATION,TANK_SIZING,global_green);
   }
-
 }
