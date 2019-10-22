@@ -63,7 +63,7 @@ static int audio_init(void) {
 
 audio_device create_audio_device() {
   audio_device dev;
-  // dev.minor_num = 0;
+  dev.minor_num = 0;
   // dev.cdev = 0;
   // dev.platform_device = 0;
   // dev.phys_addr = 0;
