@@ -2,37 +2,37 @@
 #include <stdio.h>
 
 // from image_render.h
-#define IMAGE_RENDER_ALIEN_PIXEL_TOTAL 14*10
-#define IMAGE_RENDER_ALIEN_ROW 5
-#define IMAGE_RENDER_ALIEN_COLUMN 11
-#define IMAGE_RENDER_ALIEN_OUT 1
-#define IMAGE_RENDER_ALIEN_IN 0
-#define IMAGE_RENDER_ALIEN_ALIVE 1
-#define IMAGE_RENDER_ALIEN_DESTROYED 0
-#define IMAGE_RENDER_LEFT_MOVEMENT 0
-#define IMAGE_RENDER_RIGHT_MOVEMENT 1
-#define IMAGE_RENDER_NUM_BUNKER_BLOCKS 12
+#define IMAGE_RENDER_ALIEN_PIXEL_TOTAL 14*10                                    // total pixels that every alien has
+#define IMAGE_RENDER_ALIEN_ROW 5                                                // number of rows of aliens
+#define IMAGE_RENDER_ALIEN_COLUMN 11                                            // number of columns of aliens
+#define IMAGE_RENDER_ALIEN_OUT 1                                                // flag for when to print the out movment of the aliens
+#define IMAGE_RENDER_ALIEN_IN 0                                                 // flag for when to print the in movment of the aliens
+#define IMAGE_RENDER_ALIEN_ALIVE 1                                              // flag when aliens are alive
+#define IMAGE_RENDER_ALIEN_DESTROYED 0                                          // flag when aliens are dead
+#define IMAGE_RENDER_LEFT_MOVEMENT 0                                            // flag for moving the aliens to the left
+#define IMAGE_RENDER_RIGHT_MOVEMENT 1                                           // flag for moving the aliens to the right
+#define IMAGE_RENDER_NUM_BUNKER_BLOCKS 12                                       // flag for number of sections of the bunker
 
 
 // a struct containing the data for an individual alien
 typedef struct Alien Alien;
 struct Alien {
-  uint32_t image_in[IMAGE_RENDER_ALIEN_PIXEL_TOTAL];
-  uint32_t image_out[IMAGE_RENDER_ALIEN_PIXEL_TOTAL];
-  uint32_t width;
-  uint32_t height;
-  uint32_t current_location;
-  uint16_t alive;
-  uint32_t points;
-  uint32_t block_placement;
-  uint32_t shooter;
+  uint32_t image_in[IMAGE_RENDER_ALIEN_PIXEL_TOTAL];                            // image of the alien moving in
+  uint32_t image_out[IMAGE_RENDER_ALIEN_PIXEL_TOTAL];                           // image of the alien moving out
+  uint32_t width;                                                               // width of the alien
+  uint32_t height;                                                              // height of the alien
+  uint32_t current_location;                                                    // current position of the alien
+  uint16_t alive;                                                               // if the alien is alive or not
+  uint32_t points;                                                              // number of points the alien is worth
+  uint32_t block_placement;                                                     // where to place the alien in the block
+  uint32_t shooter;                                                             // if the alien is a shooter
 };
 
 // a struct containing the data for an individual bunker
 typedef struct Bunker Bunker;
 struct Bunker {
-  uint32_t position; // location of the top left corner
-  uint16_t block_hit_points[IMAGE_RENDER_NUM_BUNKER_BLOCKS]; // status on each of the ten different positions
+  uint32_t position;                                                            // location of the top left corner
+  uint16_t block_hit_points[IMAGE_RENDER_NUM_BUNKER_BLOCKS];                    // status on each of the ten different positions
 };
 
 // initializes a few of our necessary variables and starts the screen black

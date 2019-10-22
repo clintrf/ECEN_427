@@ -1,24 +1,18 @@
 #include <stdint.h>
 #include <stdio.h>
 /********************************** macros ***********************************/
-#define SCORE_BOARD_NUMBER_OF_CHARS_IN_NAME 3
-#define SCORE_BOARD_NUMBER_OF_NUMBERS_IN_SCORE 5
-#define SCORE_BOARD_CHAR_ARRAY_SIZE 25
+#define SCORE_BOARD_NUMBER_OF_CHARS_IN_NAME 3                                   // number of letter in a players name
+#define SCORE_BOARD_NUMBER_OF_NUMBERS_IN_SCORE 5                                // number of numbers in a players score
+#define SCORE_BOARD_CHAR_ARRAY_SIZE 25                                          // number of characters the player has to pick from when picking name
 /*********************************** globals ***********************************/
 // the players stats as he plays the game
 struct player_stats{
-  uint32_t name_char[SCORE_BOARD_NUMBER_OF_CHARS_IN_NAME][SCORE_BOARD_CHAR_ARRAY_SIZE];
-  uint32_t score_char[SCORE_BOARD_NUMBER_OF_NUMBERS_IN_SCORE][SCORE_BOARD_CHAR_ARRAY_SIZE];
-  char letter1;
-  char letter2;
-  char letter3;
-  uint32_t score;
-};
-
-// a map that goes from a value to the index of the array that the value represents
-struct text_map{
-  uint32_t index;
-  char value;
+  uint32_t name_char[SCORE_BOARD_NUMBER_OF_CHARS_IN_NAME][SCORE_BOARD_CHAR_ARRAY_SIZE];// index of which sprites equal the players name
+  uint32_t score_char[SCORE_BOARD_NUMBER_OF_NUMBERS_IN_SCORE][SCORE_BOARD_CHAR_ARRAY_SIZE];// index of which sprites equal the players score
+  char letter1;                                                                 // first letter of players name
+  char letter2;                                                                 // second letter of playrs name
+  char letter3;                                                                 // third letter of players name
+  uint32_t score;                                                               // the integer score of player
 };
 
 /*********************************** functions ***********************************/

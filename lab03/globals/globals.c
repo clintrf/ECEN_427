@@ -2,58 +2,58 @@
 #include "../image_render/score_board/score_board.c"
 
 /********************************** macros ***********************************/
-#define STARTING_ALIEN_AMOUNT 55
-#define NOT_FIRED 0
-#define FIRED 1
-#define SAUCER_ALIVE 1
-#define SAUCER_SHOT 0
-#define MAX_LIVES 5
-#define S_LOCATION_SC 60
-#define C_LOCATION_SC S_LOCATION_SC+54
-#define O_LOCATION_SC C_LOCATION_SC+54
-#define R_LOCATION_SC O_LOCATION_SC+54
-#define E_LOCATION_SC R_LOCATION_SC+54
-#define SCORE_0_LOCATION E_LOCATION_SC+108
-#define SCORE_1_LOCATION SCORE_0_LOCATION+54
-#define SCORE_2_LOCATION SCORE_1_LOCATION+54
-#define SCORE_3_LOCATION SCORE_2_LOCATION+54
-#define SCORE_4_LOCATION SCORE_3_LOCATION+54
-#define FIFTH_LIFE_LOCATION ((640*3)-(2*17*3)-9)
-#define FOURTH_LIFE_LOCATION (FIFTH_LIFE_LOCATION-(2*17*3)-9)
-#define THIRD_LIFE_LOCATION (FOURTH_LIFE_LOCATION-(2*17*3)-9)
-#define SECOND_LIFE_LOCATION (THIRD_LIFE_LOCATION-(2*17*3)-9)
-#define FIRST_LIFE_LOCATION (SECOND_LIFE_LOCATION-(2*17*3)-9)
-#define GLOBAL_BYTES_PER_PIXEL 3
-#define START_LIVES 3
-#define TANK_SIZING 2
-#define ONE_LIFE 1
-#define TWO_LIFE 2
-#define THREE_LIFE 3
-#define FOUR_LIFE 4
-#define FIVE_LIFE 5
+#define STARTING_ALIEN_AMOUNT 55                                                // number of aliens at the start of the game
+#define NOT_FIRED 0                                                             // indicates bullet not fired
+#define FIRED 1                                                                 // indicates if bullet was fired
+#define SAUCER_ALIVE 1                                                          // indicates if Saucer is alive
+#define SAUCER_SHOT 0                                                           // indicates if saucer is dead
+#define MAX_LIVES 5                                                             // indicates what the Max number of lives if
+#define S_LOCATION_SC 60                                                        // indicates the location of the S character
+#define C_LOCATION_SC S_LOCATION_SC+54                                          // indicates the location of the C character
+#define O_LOCATION_SC C_LOCATION_SC+54                                          // indicates the location of the O character
+#define R_LOCATION_SC O_LOCATION_SC+54                                          // indicates the locaiton of the R character
+#define E_LOCATION_SC R_LOCATION_SC+54                                          // indicates the location of the E character
+#define SCORE_0_LOCATION E_LOCATION_SC+108                                      // indicates the location of the score location
+#define SCORE_1_LOCATION SCORE_0_LOCATION+54                                    // indicates the location of the score location
+#define SCORE_2_LOCATION SCORE_1_LOCATION+54                                    // indicates the location of the score location
+#define SCORE_3_LOCATION SCORE_2_LOCATION+54                                    // indicates the location of the score location
+#define SCORE_4_LOCATION SCORE_3_LOCATION+54                                    // indicates the location of the score location
+#define FIFTH_LIFE_LOCATION ((640*3)-(2*17*3)-9)                                // indicates the location of the tank life
+#define FOURTH_LIFE_LOCATION (FIFTH_LIFE_LOCATION-(2*17*3)-9)                   // indicates the location of the tank life
+#define THIRD_LIFE_LOCATION (FOURTH_LIFE_LOCATION-(2*17*3)-9)                   // indicates the location of the tank life
+#define SECOND_LIFE_LOCATION (THIRD_LIFE_LOCATION-(2*17*3)-9)                   // indicates the location of the tank life
+#define FIRST_LIFE_LOCATION (SECOND_LIFE_LOCATION-(2*17*3)-9)                   // indicates the location of the tank life
+#define GLOBAL_BYTES_PER_PIXEL 3                                                // Global number of bytes per pixel
+#define START_LIVES 3                                                           // number of lives you start with
+#define TANK_SIZING 2                                                           // scaling for tank sprite
+#define ONE_LIFE 1                                                              // indicates one life
+#define TWO_LIFE 2                                                              // indicates that there are 2 lives
+#define THREE_LIFE 3                                                            // indicates that there are 3 lives
+#define FOUR_LIFE 4                                                             // indicates that there are 4 lives
+#define FIVE_LIFE 5                                                             // indicates that there are 5 lives
 
 /********************************** globals **********************************/
-static uint16_t tank_bullet_fired = NOT_FIRED;
-static uint32_t tank_bullet_position;
-static uint16_t alien_bullet_fired_0 = NOT_FIRED;
-static uint16_t alien_bullet_fired_1 = NOT_FIRED;
-static uint16_t alien_bullet_fired_2 = NOT_FIRED;
-static uint16_t alien_bullet_fired_3 = NOT_FIRED;
-static uint32_t alien_bullet_position_0;
-static uint32_t alien_bullet_position_1;
-static uint32_t alien_bullet_position_2;
-static uint32_t alien_bullet_position_3;
-static uint32_t current_score = 0;
-static uint32_t saucer_pos = GLOBALS_SAUCER_ROW_START_LOCATION;
-static uint16_t saucer_status = SAUCER_ALIVE;
-static uint32_t saucer_shot_count = 0;
-static uint16_t total_alien_count = STARTING_ALIEN_AMOUNT;
-static uint32_t current_lives = START_LIVES;
-static uint16_t alien_overrun_flag = 0;
-static uint32_t dead_alien_loc = 0;
+static uint16_t tank_bullet_fired = NOT_FIRED;                                  // flag for if tank bullet had been fired
+static uint32_t tank_bullet_position;                                           // position of the tank bullet position
+static uint16_t alien_bullet_fired_0 = NOT_FIRED;                               // flag for if alien bullet 0 has been shot
+static uint16_t alien_bullet_fired_1 = NOT_FIRED;                               // flag for if alien bullet 1 has been shot
+static uint16_t alien_bullet_fired_2 = NOT_FIRED;                               // flag for if alien bullet 2 has been shot
+static uint16_t alien_bullet_fired_3 = NOT_FIRED;                               // flag for if alien bullet 3 has been shot
+static uint32_t alien_bullet_position_0;                                        // Position of the alien bullet number 0
+static uint32_t alien_bullet_position_1;                                        // Position of the alien bullet number 1
+static uint32_t alien_bullet_position_2;                                        // Position of the alien bullet number 2
+static uint32_t alien_bullet_position_3;                                        // Position of the alien bullet number 3
+static uint32_t current_score = 0;                                              // The current score of the user, starts at zero
+static uint32_t saucer_pos = GLOBALS_SAUCER_ROW_START_LOCATION;                 // Position of the saucer
+static uint16_t saucer_status = SAUCER_ALIVE;                                   // flag for if saucer is alive
+static uint32_t saucer_shot_count = 0;                                          // counter for how long the saucer has been shot for
+static uint16_t total_alien_count = STARTING_ALIEN_AMOUNT;                      // tracks how many aliens are still alive
+static uint32_t current_lives = START_LIVES;                                    // tracks the current number of lives
+static uint16_t alien_overrun_flag = 0;                                         // tracks if the aliens have gon past the bunker line
+static uint32_t dead_alien_loc = 0;                                             // tracks which aliens are dead
 
-uint32_t global_green[GLOBAL_BYTES_PER_PIXEL] = {0x00,0x80,0x00};
-uint32_t global_black[GLOBAL_BYTES_PER_PIXEL] = {0x00,0x00,0x00};
+uint32_t global_green[GLOBAL_BYTES_PER_PIXEL] = {0x00,0x80,0x00};               // Global variable for the color green
+uint32_t global_black[GLOBAL_BYTES_PER_PIXEL] = {0x00,0x00,0x00};               // Global variable for the color black
 
 /********************************* functions *********************************/
 // fetch whether the tank bullet has been fired or not
@@ -267,40 +267,46 @@ void globals_reset_total_alien_count() {
 
 // prints current score
 void globals_print_current_score(){
-  uint32_t digit_1 = 0;
-  uint32_t digit_10 = 0;
-  uint32_t digit_100 = 0;
-  uint32_t digit_1000 = 0;
-  uint32_t digit_10000 = 0;
-  uint32_t temp = globals_get_current_score();
-  digit_10000 = ((temp)/TEN_THOUSAND_SCALE);
-  digit_1000 = ((temp-digit_10000*TEN_THOUSAND_SCALE)/THOUSAND_SCALE);
-  digit_100 = ((temp-digit_10000*TEN_THOUSAND_SCALE-digit_1000*THOUSAND_SCALE)/HUNDRED_SCALE);
-  digit_10 = ((temp-digit_10000*TEN_THOUSAND_SCALE-digit_1000*THOUSAND_SCALE-digit_100*HUNDRED_SCALE)/TEN_SCALE);
-  digit_1 = ((temp-digit_10000*TEN_THOUSAND_SCALE-digit_1000*THOUSAND_SCALE-digit_100*HUNDRED_SCALE-digit_10*TEN_SCALE)/ONE_SCALE);
+  uint32_t digit_1 = 0;                                                         // tracks the o 1's digit place of score
+  uint32_t digit_10 = 0;                                                        // tracks the o 10's digit place of score
+  uint32_t digit_100 = 0;                                                       // tracks the o 100's digit place of score
+  uint32_t digit_1000 = 0;                                                      // tracks the o 1000's digit place of score
+  uint32_t digit_10000 = 0;                                                     // tracks the o 10000's digit place of score
+  uint32_t temp = globals_get_current_score();                                  // get the current score of the player
+  digit_10000 = ((temp)/TEN_THOUSAND_SCALE);                                    // calculates the 10000 digit place of the score
+  digit_1000 = ((temp-digit_10000*TEN_THOUSAND_SCALE)/THOUSAND_SCALE);          // calculates the 1000 digit place of the score
+  digit_100 = ((temp-digit_10000*TEN_THOUSAND_SCALE-digit_1000*THOUSAND_SCALE)/HUNDRED_SCALE);// calculates the 100 digit place of the score
+  digit_10 = ((temp-digit_10000*TEN_THOUSAND_SCALE-digit_1000*THOUSAND_SCALE-digit_100*HUNDRED_SCALE)/TEN_SCALE);// calculates the 10 digit place of the score
+  digit_1 = ((temp-digit_10000*TEN_THOUSAND_SCALE-digit_1000*THOUSAND_SCALE-digit_100*HUNDRED_SCALE-digit_10*TEN_SCALE)/ONE_SCALE);// calculates the 1 digit place of the score
+  //renders the 10000th digit place of score to screen
   sprites_render_buffer(char_array[digit_10000],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SCORE_0_LOCATION,SPRITES_NORMAL_CHARACTER_SCALING,global_green);
+  //renders the 1000th digit place of score to screen
   sprites_render_buffer(char_array[digit_1000],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SCORE_1_LOCATION,SPRITES_NORMAL_CHARACTER_SCALING,global_green);
+  //renders the 100th digit place of score to screen
   sprites_render_buffer(char_array[digit_100],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SCORE_2_LOCATION,SPRITES_NORMAL_CHARACTER_SCALING,global_green);
+  //renders the 10th digit place of score to screen
   sprites_render_buffer(char_array[digit_10],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SCORE_3_LOCATION,SPRITES_NORMAL_CHARACTER_SCALING,global_green);
+  //renders the 1th digit place of score to screen
   sprites_render_buffer(char_array[digit_1],SPRITES_CHARACTER_WIDTH,SPRITES_CHARACTER_HEIGHT,SCORE_4_LOCATION,SPRITES_NORMAL_CHARACTER_SCALING,global_green);
 }
 
 // get the lives counter
+// returns : the current lives of player
 uint32_t globals_get_current_lives(){
   return current_lives;
 }
 
 // increments the current amount of lives upon defeating an entire alien block if you have less than five
 void globals_increment_current_lives() {
-  if(current_lives < MAX_LIVES)  { // checks to see if we have reached the max amount of lives
-    current_lives++;
+  if(current_lives < MAX_LIVES)  {                                              // checks to see if we have reached the max amount of lives
+    current_lives++;                                                            // increments current lives
   }
 }
 
 // decrements the current lives if the tank gets shot
 void globals_decrement_current_lives() {
-  if (current_lives > 0) {
-    current_lives--;
+  if (current_lives > 0) {                                                      // checks to see if there are still lives
+    current_lives--;                                                            // decrements current lives
   }
 }
 

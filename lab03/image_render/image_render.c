@@ -9,116 +9,116 @@
 #include <inttypes.h>
 
 /********************************** macros ***********************************/
-#define IMAGE_RENDER_SCREEN_WIDTH 640
-#define IMAGE_RENDER_SCREEN_HEIGHT 480
-#define IMAGE_RENDER_BYTES_PER_PIXEL 3
-#define IMAGE_RENDER_WHOLE_SCREEN IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_SCREEN_HEIGHT*IMAGE_RENDER_BYTES_PER_PIXEL
-#define LETTER_A 11
-#define ALIEN_DEAD 0
-#define ALIEN_DEPTH ALIEN_SIZE*SPRITES_ALIEN_HEIGHT
-#define ALIEN_BLOCK_ROW_0 (15+(IMAGE_RENDER_SCREEN_WIDTH*3)*39)
-#define ALIEN_BLOCK_ROW_1 ALIEN_BLOCK_ROW_0+(IMAGE_RENDER_SCREEN_WIDTH*3)*(ALIEN_DEPTH+15)
-#define ALIEN_BLOCK_ROW_2 ALIEN_BLOCK_ROW_1+(IMAGE_RENDER_SCREEN_WIDTH*3)*(ALIEN_DEPTH+15)
-#define ALIEN_BLOCK_ROW_3 ALIEN_BLOCK_ROW_2+(IMAGE_RENDER_SCREEN_WIDTH*3)*(ALIEN_DEPTH+15)
-#define ALIEN_BLOCK_ROW_4 ALIEN_BLOCK_ROW_3+(IMAGE_RENDER_SCREEN_WIDTH*3)*(ALIEN_DEPTH+15)
-#define FIFTH_LIFE_START_LOCATION ((IMAGE_RENDER_SCREEN_WIDTH*3)-(ALIEN_SIZE*SPRITES_TANK_WIDTH*3)-9)
-#define FOURTH_LIFE_START_LOCATION (FIFTH_LIFE_START_LOCATION-(ALIEN_SIZE*SPRITES_TANK_WIDTH*3)-9)
-#define THIRD_LIFE_START_LOCATION (FOURTH_LIFE_START_LOCATION-(ALIEN_SIZE*SPRITES_TANK_WIDTH*3)-9)
-#define SECOND_LIFE_START_LOCATION (THIRD_LIFE_START_LOCATION-(ALIEN_SIZE*SPRITES_TANK_WIDTH*3)-9)
-#define FIRST_LIFE_START_LOCATION (SECOND_LIFE_START_LOCATION-(ALIEN_SIZE*SPRITES_TANK_WIDTH*3)-9)
-#define S_START_LOCATION_LVS (FIRST_LIFE_START_LOCATION-(ALIEN_SIZE*SPRITES_TANK_WIDTH*3)-9)
-#define E_START_LOCATION_LVS (S_START_LOCATION_LVS-(SPRITES_NORMAL_CHARACTER_SCALING*SPRITES_CHARACTER_WIDTH*3)-9)
-#define V_START_LOCATION_LVS (E_START_LOCATION_LVS-(SPRITES_NORMAL_CHARACTER_SCALING*SPRITES_CHARACTER_WIDTH*3)-9)
-#define I_START_LOCATION_LVS (V_START_LOCATION_LVS-(SPRITES_NORMAL_CHARACTER_SCALING*SPRITES_CHARACTER_WIDTH*3)-9)
-#define L_START_LOCATION_LVS (I_START_LOCATION_LVS-(SPRITES_NORMAL_CHARACTER_SCALING*SPRITES_CHARACTER_WIDTH*3)-9)
-#define SAUCER_POINTS 250
-#define ALIEN_TOP_POINTS 40
-#define ALIEN_MIDDLE_POINTS 20
-#define ALIEN_BOTTOM_POINTS 10
-#define ROW_1 11
-#define ROW_2 22
-#define ROW_3 33
-#define ROW_ONE 0
-#define ROW_TWO 1
-#define ROW_THREE 2
-#define ROW_FOUR 3
-#define ROW_FIVE 4
-#define FIVE_ROWS 5
-#define ELEVEN_COLUMNS 11
-#define COLUMN_0_LEFT 0
-#define COLUMN_1 1
-#define COLUMN_2 2
-#define COLUMN_3 3
-#define COLUMN_4 4
-#define COLUMN_5 5
-#define COLUMN_6 6
-#define COLUMN_7 7
-#define COLUMN_8 8
-#define COLUMN_9 9
-#define COLUMN_10_RIGHT 10
-#define ALIEN_BUFFER_AREA 15
-#define ALIEN_SIZE 2
-#define ALIEN_OFFSET ((SPRITES_ALIEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE)+30)
-#define ALIEN_BLOCK_SIZE 55
-#define S_START_LOCATION_SC 60
-#define C_START_LOCATION_SC S_START_LOCATION_SC+54
-#define O_START_LOCATION_SC C_START_LOCATION_SC+54
-#define R_START_LOCATION_SC O_START_LOCATION_SC+54
-#define E_START_LOCATION_SC R_START_LOCATION_SC+54
-#define SCORE_0_START_LOCATION E_START_LOCATION_SC+108
-#define SCORE_1_START_LOCATION SCORE_0_START_LOCATION+54
-#define SCORE_2_START_LOCATION SCORE_1_START_LOCATION+54
-#define SCORE_3_START_LOCATION SCORE_2_START_LOCATION+54
-#define SCORE_4_START_LOCATION SCORE_3_START_LOCATION+54
-#define BOTTOM_LEFT_CORNER_OF_SCREEN 640*3*450
-#define CHARACTER_ZERO 0
-#define LEFT_BOUND 2
-#define RIGHT_BOUND_TANK 604
-#define COLUMN_ZERO_LEFT_BOUND ALIEN_BLOCK_ROW_0
+#define IMAGE_RENDER_SCREEN_WIDTH 640                                           // number of pixels for width of screen
+#define IMAGE_RENDER_SCREEN_HEIGHT 480                                          // number of pixels for height of screen
+#define IMAGE_RENDER_BYTES_PER_PIXEL 3                                          // number of bytes in pixel
+#define IMAGE_RENDER_WHOLE_SCREEN IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_SCREEN_HEIGHT*IMAGE_RENDER_BYTES_PER_PIXEL //number of pixels in the entire screen
+#define LETTER_A 11                                                             // mapping for letter A
+#define ALIEN_DEAD 0                                                            // flag for if alien is dead
+#define ALIEN_DEPTH ALIEN_SIZE*SPRITES_ALIEN_HEIGHT                             // after scaling, height of alien
+#define ALIEN_BLOCK_ROW_0 (15+(IMAGE_RENDER_SCREEN_WIDTH*3)*39)                 // where to start the first row of aliens
+#define ALIEN_BLOCK_ROW_1 ALIEN_BLOCK_ROW_0+(IMAGE_RENDER_SCREEN_WIDTH*3)*(ALIEN_DEPTH+15) // where to start the second row of aliens
+#define ALIEN_BLOCK_ROW_2 ALIEN_BLOCK_ROW_1+(IMAGE_RENDER_SCREEN_WIDTH*3)*(ALIEN_DEPTH+15) // where to start the third row of aliens
+#define ALIEN_BLOCK_ROW_3 ALIEN_BLOCK_ROW_2+(IMAGE_RENDER_SCREEN_WIDTH*3)*(ALIEN_DEPTH+15) // where to start the fourth row of aliens
+#define ALIEN_BLOCK_ROW_4 ALIEN_BLOCK_ROW_3+(IMAGE_RENDER_SCREEN_WIDTH*3)*(ALIEN_DEPTH+15) // where to start the fifth row of aliens
+#define FIFTH_LIFE_START_LOCATION ((IMAGE_RENDER_SCREEN_WIDTH*3)-(ALIEN_SIZE*SPRITES_TANK_WIDTH*3)-9) // where to start the tank life position
+#define FOURTH_LIFE_START_LOCATION (FIFTH_LIFE_START_LOCATION-(ALIEN_SIZE*SPRITES_TANK_WIDTH*3)-9) // where to start the tank life position
+#define THIRD_LIFE_START_LOCATION (FOURTH_LIFE_START_LOCATION-(ALIEN_SIZE*SPRITES_TANK_WIDTH*3)-9) // where to start the tank life position
+#define SECOND_LIFE_START_LOCATION (THIRD_LIFE_START_LOCATION-(ALIEN_SIZE*SPRITES_TANK_WIDTH*3)-9) // where to start the tank life position
+#define FIRST_LIFE_START_LOCATION (SECOND_LIFE_START_LOCATION-(ALIEN_SIZE*SPRITES_TANK_WIDTH*3)-9) // where to start the tank life position
+#define S_START_LOCATION_LVS (FIRST_LIFE_START_LOCATION-(ALIEN_SIZE*SPRITES_TANK_WIDTH*3)-9) // where to start the S
+#define E_START_LOCATION_LVS (S_START_LOCATION_LVS-(SPRITES_NORMAL_CHARACTER_SCALING*SPRITES_CHARACTER_WIDTH*3)-9) // where to start the E
+#define V_START_LOCATION_LVS (E_START_LOCATION_LVS-(SPRITES_NORMAL_CHARACTER_SCALING*SPRITES_CHARACTER_WIDTH*3)-9) // where to start the V
+#define I_START_LOCATION_LVS (V_START_LOCATION_LVS-(SPRITES_NORMAL_CHARACTER_SCALING*SPRITES_CHARACTER_WIDTH*3)-9) // where to start the I
+#define L_START_LOCATION_LVS (I_START_LOCATION_LVS-(SPRITES_NORMAL_CHARACTER_SCALING*SPRITES_CHARACTER_WIDTH*3)-9) // where to start the L
+#define SAUCER_POINTS 250                                                       // number of points for saucer
+#define ALIEN_TOP_POINTS 40                                                     // points for the top row of aliens
+#define ALIEN_MIDDLE_POINTS 20                                                  // points for the middle row of aliens
+#define ALIEN_BOTTOM_POINTS 10                                                  // points for the bottom row of aliens
+#define ROW_1 11                                                                // index for where to start the 1st row of aliens
+#define ROW_2 22                                                                // index for where to start the 2nd row of aliens
+#define ROW_3 33                                                                // index for where to start the 3rd row of aliens
+#define ROW_ONE 0                                                               // index for row one
+#define ROW_TWO 1                                                               // index for row two
+#define ROW_THREE 2                                                             // index for row three
+#define ROW_FOUR 3                                                              // index for row four
+#define ROW_FIVE 4                                                              // index for row five
+#define FIVE_ROWS 5                                                             // number of rows total
+#define ELEVEN_COLUMNS 11                                                       // number of columns total
+#define COLUMN_0_LEFT 0                                                         // column index
+#define COLUMN_1 1                                                              // column index
+#define COLUMN_2 2                                                              // column index
+#define COLUMN_3 3                                                              // column index
+#define COLUMN_4 4                                                              // column index
+#define COLUMN_5 5                                                              // column index
+#define COLUMN_6 6                                                              // column index
+#define COLUMN_7 7                                                              // column index
+#define COLUMN_8 8                                                              // column index
+#define COLUMN_9 9                                                              // column index
+#define COLUMN_10_RIGHT 10                                                      // column index
+#define ALIEN_BUFFER_AREA 15                                                    // area of buffered sprite alien
+#define ALIEN_SIZE 2                                                            // scaler for aliens
+#define ALIEN_OFFSET ((SPRITES_ALIEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE)+30) // offset for aliens
+#define ALIEN_BLOCK_SIZE 55                                                     // total number of aliens in block
+#define S_START_LOCATION_SC 60                                                  // start location of S
+#define C_START_LOCATION_SC S_START_LOCATION_SC+54                              // start location of C
+#define O_START_LOCATION_SC C_START_LOCATION_SC+54                              // start location of O
+#define R_START_LOCATION_SC O_START_LOCATION_SC+54                              // start location of R
+#define E_START_LOCATION_SC R_START_LOCATION_SC+54                              // start location of E
+#define SCORE_0_START_LOCATION E_START_LOCATION_SC+108                          // start location of 0
+#define SCORE_1_START_LOCATION SCORE_0_START_LOCATION+54                        // start location of 1
+#define SCORE_2_START_LOCATION SCORE_1_START_LOCATION+54                        // start location of 2
+#define SCORE_3_START_LOCATION SCORE_2_START_LOCATION+54                        // start location of 3
+#define SCORE_4_START_LOCATION SCORE_3_START_LOCATION+54                        // start location of 4
+#define BOTTOM_LEFT_CORNER_OF_SCREEN 640*3*450                                  // position of bottom left corner of screen
+#define CHARACTER_ZERO 0                                                        // defining character 0
+#define LEFT_BOUND 2                                                            // left most bound of screen
+#define RIGHT_BOUND_TANK 604                                                    // right most bound for tank
+#define COLUMN_ZERO_LEFT_BOUND ALIEN_BLOCK_ROW_0                                // Bound for alien column
 #define COLUMN_ZERO_RIGHT_BOUND ALIEN_BLOCK_ROW_0+ALIEN_SIZE*IMAGE_RENDER_BYTES_PER_PIXEL*SPRITES_ALIEN_WIDTH
-#define COLUMN_ONE_LEFT_BOUND COLUMN_ZERO_LEFT_BOUND+ALIEN_OFFSET
-#define COLUMN_ONE_RIGHT_BOUND COLUMN_ZERO_RIGHT_BOUND+ALIEN_OFFSET
-#define COLUMN_TWO_LEFT_BOUND COLUMN_ONE_LEFT_BOUND+ALIEN_OFFSET
-#define COLUMN_TWO_RIGHT_BOUND COLUMN_ONE_RIGHT_BOUND+ALIEN_OFFSET
-#define COLUMN_THREE_LEFT_BOUND COLUMN_TWO_LEFT_BOUND+ALIEN_OFFSET
-#define COLUMN_THREE_RIGHT_BOUND COLUMN_TWO_RIGHT_BOUND+ALIEN_OFFSET
-#define COLUMN_FOUR_LEFT_BOUND COLUMN_THREE_LEFT_BOUND+ALIEN_OFFSET
-#define COLUMN_FOUR_RIGHT_BOUND COLUMN_THREE_RIGHT_BOUND+ALIEN_OFFSET
-#define COLUMN_FIVE_LEFT_BOUND COLUMN_FOUR_LEFT_BOUND+ALIEN_OFFSET
-#define COLUMN_FIVE_RIGHT_BOUND COLUMN_FOUR_RIGHT_BOUND+ALIEN_OFFSET
-#define COLUMN_SIX_LEFT_BOUND COLUMN_FIVE_LEFT_BOUND+ALIEN_OFFSET
-#define COLUMN_SIX_RIGHT_BOUND COLUMN_FIVE_RIGHT_BOUND+ALIEN_OFFSET
-#define COLUMN_SEVEN_LEFT_BOUND COLUMN_SIX_LEFT_BOUND+ALIEN_OFFSET
-#define COLUMN_SEVEN_RIGHT_BOUND COLUMN_SIX_RIGHT_BOUND+ALIEN_OFFSET
-#define COLUMN_EIGHT_LEFT_BOUND COLUMN_SEVEN_LEFT_BOUND+ALIEN_OFFSET
-#define COLUMN_EIGHT_RIGHT_BOUND COLUMN_SEVEN_RIGHT_BOUND+ALIEN_OFFSET
-#define COLUMN_NINE_LEFT_BOUND COLUMN_EIGHT_LEFT_BOUND+ALIEN_OFFSET
-#define COLUMN_NINE_RIGHT_BOUND COLUMN_EIGHT_RIGHT_BOUND+ALIEN_OFFSET
-#define COLUMN_TEN_LEFT_BOUND COLUMN_NINE_LEFT_BOUND+ALIEN_OFFSET
-#define COLUMN_TEN_RIGHT_BOUND COLUMN_NINE_RIGHT_BOUND+ALIEN_OFFSET
-#define TANK_START_POSITION 200
-#define ALIEN_OUT 0
-#define ALIEN_PIXEL_MOVEMENT 2
-#define FULL_ALIEN_MOVEMENT (IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH*ALIEN_PIXEL_MOVEMENT)
-#define SAUCER_END_POSITION 580
-#define BUNKER_HEIGHTS 360*IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL
-#define BUNKER_ONE (360*(IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL)+(72*3))
-#define BUNKER_TWO (360*(IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL)+(3*72*3))
-#define BUNKER_THREE (360*(IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL)+(5*72*3))
-#define BUNKER_FOUR (360*(IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL)+(7*72*3))
-#define BUNKER1 0
-#define BUNKER2 1
-#define BUNKER3 2
-#define BUNKER4 3
-#define TOP_LEFT_CORNER_OF_SCREEN 0
-#define TANK_BULLET_START_POS BOTTOM_LEFT_CORNER_OF_SCREEN+(tank_pos*IMAGE_RENDER_BYTES_PER_PIXEL)-(SPRITES_BULLET_HEIGHT*640*3*ALIEN_SIZE-8*3*ALIEN_SIZE)
-#define BULLET_MOVEMENT_TWO_PIXELS 640*3*2
-#define BULLET_MOVEMENT_ONE_PIXELS 640*3
-#define SAUCER_SHOT 0
-#define ALIEN_EXPLOSION_TIMER 1000000
-#define TANK_EXPLOSION_TIMER 50000000
-#define ALIEN_ALIVE 1
-#define LEFT 1
+#define COLUMN_ONE_LEFT_BOUND COLUMN_ZERO_LEFT_BOUND+ALIEN_OFFSET               // Bound for alien column
+#define COLUMN_ONE_RIGHT_BOUND COLUMN_ZERO_RIGHT_BOUND+ALIEN_OFFSET               // Bound for alien column
+#define COLUMN_TWO_LEFT_BOUND COLUMN_ONE_LEFT_BOUND+ALIEN_OFFSET               // Bound for alien column
+#define COLUMN_TWO_RIGHT_BOUND COLUMN_ONE_RIGHT_BOUND+ALIEN_OFFSET               // Bound for alien column
+#define COLUMN_THREE_LEFT_BOUND COLUMN_TWO_LEFT_BOUND+ALIEN_OFFSET               // Bound for alien column
+#define COLUMN_THREE_RIGHT_BOUND COLUMN_TWO_RIGHT_BOUND+ALIEN_OFFSET               // Bound for alien column
+#define COLUMN_FOUR_LEFT_BOUND COLUMN_THREE_LEFT_BOUND+ALIEN_OFFSET               // Bound for alien column
+#define COLUMN_FOUR_RIGHT_BOUND COLUMN_THREE_RIGHT_BOUND+ALIEN_OFFSET               // Bound for alien column
+#define COLUMN_FIVE_LEFT_BOUND COLUMN_FOUR_LEFT_BOUND+ALIEN_OFFSET               // Bound for alien column
+#define COLUMN_FIVE_RIGHT_BOUND COLUMN_FOUR_RIGHT_BOUND+ALIEN_OFFSET               // Bound for alien column
+#define COLUMN_SIX_LEFT_BOUND COLUMN_FIVE_LEFT_BOUND+ALIEN_OFFSET               // Bound for alien column
+#define COLUMN_SIX_RIGHT_BOUND COLUMN_FIVE_RIGHT_BOUND+ALIEN_OFFSET               // Bound for alien column
+#define COLUMN_SEVEN_LEFT_BOUND COLUMN_SIX_LEFT_BOUND+ALIEN_OFFSET               // Bound for alien column
+#define COLUMN_SEVEN_RIGHT_BOUND COLUMN_SIX_RIGHT_BOUND+ALIEN_OFFSET               // Bound for alien column
+#define COLUMN_EIGHT_LEFT_BOUND COLUMN_SEVEN_LEFT_BOUND+ALIEN_OFFSET               // Bound for alien column
+#define COLUMN_EIGHT_RIGHT_BOUND COLUMN_SEVEN_RIGHT_BOUND+ALIEN_OFFSET               // Bound for alien column
+#define COLUMN_NINE_LEFT_BOUND COLUMN_EIGHT_LEFT_BOUND+ALIEN_OFFSET               // Bound for alien column
+#define COLUMN_NINE_RIGHT_BOUND COLUMN_EIGHT_RIGHT_BOUND+ALIEN_OFFSET               // Bound for alien column
+#define COLUMN_TEN_LEFT_BOUND COLUMN_NINE_LEFT_BOUND+ALIEN_OFFSET               // Bound for alien column
+#define COLUMN_TEN_RIGHT_BOUND COLUMN_NINE_RIGHT_BOUND+ALIEN_OFFSET               // Bound for alien column
+#define TANK_START_POSITION 200                                                 // start position of tank
+#define ALIEN_OUT 0                                                             // alien out flag
+#define ALIEN_PIXEL_MOVEMENT 2                                                  // how many spaces to move alien
+#define FULL_ALIEN_MOVEMENT (IMAGE_RENDER_BYTES_PER_PIXEL*IMAGE_RENDER_SCREEN_WIDTH*ALIEN_PIXEL_MOVEMENT) // how many pixels to move alien
+#define SAUCER_END_POSITION 580                                                 // right most position of saucer
+#define BUNKER_HEIGHTS 360*IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL //height of bunker
+#define BUNKER_ONE (360*(IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL)+(72*3)) // location of bunker 1
+#define BUNKER_TWO (360*(IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL)+(3*72*3)) //  location of bunker 2
+#define BUNKER_THREE (360*(IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL)+(5*72*3)) // location of bunker 3
+#define BUNKER_FOUR (360*(IMAGE_RENDER_SCREEN_WIDTH*IMAGE_RENDER_BYTES_PER_PIXEL)+(7*72*3)) // location of bunker 4
+#define BUNKER1 0                                                               // index of bunker
+#define BUNKER2 1                                                               // index of bunker
+#define BUNKER3 2                                                               // index of bunker
+#define BUNKER4 3                                                               // index of bunker
+#define TOP_LEFT_CORNER_OF_SCREEN 0                                             // top left corner of screen
+#define TANK_BULLET_START_POS BOTTOM_LEFT_CORNER_OF_SCREEN+(tank_pos*IMAGE_RENDER_BYTES_PER_PIXEL)-(SPRITES_BULLET_HEIGHT*640*3*ALIEN_SIZE-8*3*ALIEN_SIZE) // postion of where tank bullets start from
+#define BULLET_MOVEMENT_TWO_PIXELS 640*3*2                                      // how many pixels to move bullets
+#define BULLET_MOVEMENT_ONE_PIXELS 640*3                                        // anouther option for how many pixels to move bullets
+#define SAUCER_SHOT 0                                                           // flag for if saucer is shot
+#define ALIEN_EXPLOSION_TIMER 1000000                                           // how long to make the alien explode for
+#define TANK_EXPLOSION_TIMER 50000000                                           // how long to make the tank explode for
+#define ALIEN_ALIVE 1                                                           // flag if alien is alive
+#define LEFT 1                                                                  // flag to indicate
 #define RIGHT 0
 #define FOUR_HIT_POINTS 4
 #define ONE_HIT_POINT 1

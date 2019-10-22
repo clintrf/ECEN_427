@@ -40,6 +40,9 @@ uint32_t hdmi_set_offset(uint32_t offset) {
   return lseek(fd, offset, SEEK_SET);
 }
 
+// use to change the offset without reading or writing
+// offset : desired offset to change to
+// return : returns the current offset, -1 if an error occurs
 uint32_t hdmi_cur_offset(uint32_t offset) {
   return lseek(fd, offset, SEEK_CUR);
 }
