@@ -155,6 +155,7 @@ static void audio_exit(void) {
   // platform_driver_unregister
   platform_unregister_drivers(&audio_platform_driver); //cf
   // class_unregister and class_destroy
+  //class_unregister(&audio);
   class_destroy(audio);
   // unregister_chrdev_region
   unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
