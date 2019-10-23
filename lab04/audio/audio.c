@@ -8,6 +8,9 @@
 #include <linux/fs.h>
 #include <stdbool.h>
 
+#include <linux/err.h>
+#include <linux/string.h>
+
 /*********************************** macros *********************************/
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Dax Eckles & Clint Frandsen");
@@ -34,6 +37,8 @@ MODULE_DESCRIPTION("ECEn 427 Audio Driver");
 #define NUM_OF_CONTIGUOUS_DEVS 1
 #define INIT_SUCCESS 0
 #define INIT_ERR -1
+
+//#define platform_register_drivers(drivers, count) //cf (change)
 
 /**************************** function definitions ***************************/
 static int audio_init(void);
@@ -87,8 +92,26 @@ static struct file_operations audio_fops = {
   .write = audio_write
 };
 
+// Link between the hardware and its driver
+static struct of_device_id audio_of_match[] __devinitdata = {
+  { .compatible = "ecen427_audio_codec", },
+  {}
+};
+
+// struct containing the platform driver
+static struct platform_driver audio_platform_driver = {
+  .probe = audio_probe,
+  .remove = audio_remove,
+  .driver = {
+    .name = MODULE_NAME,
+    .owner = THIS_MODULE,
+    .of_match_table = audio_of_match,
+  },
+};
+
 /****************************** global variables ****************************/
 static audio_device dev; // global audio device
+static platform_device pdev; // global platform device
 static bool audio_probe_called_once = false; // makes audio_probe call once
 static dev_t dev_nums; // contains major and minor numbers
 static struct class *audio;
@@ -109,6 +132,7 @@ static int audio_init(void) {
   int major_num = MAJOR(dev_nums); // returns the major number of a dev_t type
   int minor_num = MINOR(dev_nums); // returns the minor number of a dev_t type
   dev.minor_num = minor_num;
+  
   // Create a device class. -- class_create()
   audio = class_create(THIS_MODULE,MODULE_NAME);
   if(audio == NULL) { // failed to create the class, undo allocation
@@ -117,6 +141,8 @@ static int audio_init(void) {
     return INIT_ERR;
   }
   // Register the driver as a platform driver -- platform_driver_register
+  pdev = platform_driver_register(&audio_platform_driver);
+  dev.pdev = &pdev;
 
   // If any of the above functions fail, return an appropriate linux error code, and make sure
   // you reverse any function calls that were successful.
@@ -127,7 +153,9 @@ static int audio_init(void) {
 // This is called when Linux unloads your driver
 static void audio_exit(void) {
   // platform_driver_unregister
+  platform_unregister_drivers(&audio_platform_driver); //cf
   // class_unregister and class_destroy
+  class_destroy(audio);
   // unregister_chrdev_region
   unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
   return;
