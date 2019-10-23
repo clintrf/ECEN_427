@@ -142,6 +142,12 @@ static int audio_init(void) {
   }
   // Register the driver as a platform driver -- platform_driver_register
   pdev = platform_driver_register(&audio_platform_driver);
+  if(pdev == NULL) { // failed to create the class, undo allocation
+    pr_info("Failure registering platform driver!\nUnregistering...\n");
+    class_destroy(audio);
+    unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
+    return INIT_ERR;
+  }
   dev.pdev = &pdev;
 
   // If any of the above functions fail, return an appropriate linux error code, and make sure
