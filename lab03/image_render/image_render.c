@@ -119,41 +119,41 @@
 #define TANK_EXPLOSION_TIMER 50000000                                           // how long to make the tank explode for
 #define ALIEN_ALIVE 1                                                           // flag if alien is alive
 #define LEFT 1                                                                  // flag to indicate
-#define RIGHT 0
-#define FOUR_HIT_POINTS 4
-#define ONE_HIT_POINT 1
-#define NO_HIT_POINTS 0
-#define BUNKER_BLOCK_0 0
-#define BUNKER_BLOCK_3 3
-#define BUNKER_BLOCK_5 5
-#define BUNKER_BLOCK_6 6
-#define BUNKER_BLOCK_9 9
-#define BUNKER_BLOCK_10 10
-#define NUM_BUNKERS 4
-#define BLOCK_ROWS_PER_BUNKER 3
-#define BLOCKS_PER_ROW 4
-#define BLOCK_THREE_OFFSET SPRITES_BUNKER_DAMAGE_WIDTH*ALIEN_SIZE*IMAGE_RENDER_BYTES_PER_PIXEL*3
-#define BLOCK_FIVE_OFFSET ((SPRITES_BUNKER_DAMAGE_WIDTH*ALIEN_SIZE*IMAGE_RENDER_BYTES_PER_PIXEL)+IMAGE_RENDER_SCREEN_WIDTH*SPRITES_BUNKER_DAMAGE_HEIGHT*IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE)
-#define BLOCK_SIX_OFFSET ((SPRITES_BUNKER_DAMAGE_WIDTH*ALIEN_SIZE*IMAGE_RENDER_BYTES_PER_PIXEL*2)+IMAGE_RENDER_SCREEN_WIDTH*SPRITES_BUNKER_DAMAGE_HEIGHT*IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE)
-#define THREE_HIT_POINTS 3
-#define TWO_HIT_POINTS 2
-#define TANK_START_DEPTH 440
-#define TANK_FIND_DEPTH 450
-#define RANDOM_SHOOTER 10
-#define ROW_COUNTER 4
-#define ALIEN_SHOOTING 1
-#define ALIEN_BULLET_0 8
-#define ALIEN_BULLET_1 9
-#define ALIEN_BULLET_2 10
-#define ALIEN_BULLET_3 12
-#define TANK_BULLET 11
-#define ONE_PIXEL 3
-#define TWO_PIXELS 6
-#define THREE_PIXELS 9
-#define FOUR_PIXELS 12
-#define FIVE_PIXELS 15
-#define TRUE 1
-#define FALSE 0
+#define RIGHT 0                                                                 // indicate right
+#define FOUR_HIT_POINTS 4                                                       // indicate 4 hit points
+#define ONE_HIT_POINT 1                                                         // indicate 1 hit points
+#define NO_HIT_POINTS 0                                                         // indicate 0 hit points
+#define BUNKER_BLOCK_0 0                                                        // Block bunker number
+#define BUNKER_BLOCK_3 3                                                        // Block bunker number
+#define BUNKER_BLOCK_5 5                                                        // Block bunker number
+#define BUNKER_BLOCK_6 6                                                        // Block bunker number
+#define BUNKER_BLOCK_9 9                                                        // Block bunker number
+#define BUNKER_BLOCK_10 10                                                        // Block bunker number
+#define NUM_BUNKERS 4                                                           // Block bunker number
+#define BLOCK_ROWS_PER_BUNKER 3                                                 // rows in each bunker
+#define BLOCKS_PER_ROW 4                                                        // blocks per row of bunker
+#define BLOCK_THREE_OFFSET SPRITES_BUNKER_DAMAGE_WIDTH*ALIEN_SIZE*IMAGE_RENDER_BYTES_PER_PIXEL*3 // offset for bunker
+#define BLOCK_FIVE_OFFSET ((SPRITES_BUNKER_DAMAGE_WIDTH*ALIEN_SIZE*IMAGE_RENDER_BYTES_PER_PIXEL)+IMAGE_RENDER_SCREEN_WIDTH*SPRITES_BUNKER_DAMAGE_HEIGHT*IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE) // offset for 5th block in bunkers
+#define BLOCK_SIX_OFFSET ((SPRITES_BUNKER_DAMAGE_WIDTH*ALIEN_SIZE*IMAGE_RENDER_BYTES_PER_PIXEL*2)+IMAGE_RENDER_SCREEN_WIDTH*SPRITES_BUNKER_DAMAGE_HEIGHT*IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE) // offset for the 6th block in bunker
+#define THREE_HIT_POINTS 3                                                        // Indicates 3 hitpoints
+#define TWO_HIT_POINTS 2                                                        // indicates 2 high points
+#define TANK_START_DEPTH 440                                                    // tank start depth postion
+#define TANK_FIND_DEPTH 450                                                     // tank start depth plus 10
+#define RANDOM_SHOOTER 10                                                       // set random shooter
+#define ROW_COUNTER 4                                                           // counter for rows
+#define ALIEN_SHOOTING 1                                                        // indicates aliens is shooting
+#define ALIEN_BULLET_0 8                                                        // index for 0th alien bullet
+#define ALIEN_BULLET_1 9                                                        // index for 1st alien bullet
+#define ALIEN_BULLET_2 10                                                        // index for 2nd alien bullet
+#define ALIEN_BULLET_3 12                                                        // index for 3rd alien bullet
+#define TANK_BULLET 11                                                          // index for the tank bullet
+#define ONE_PIXEL 3                                                             // bytes per pixel
+#define TWO_PIXELS 6                                                            // bytes per 2 pixels
+#define THREE_PIXELS 9                                                          // bytes per 3 pixels
+#define FOUR_PIXELS 12                                                          // bytes per 4 pixels
+#define FIVE_PIXELS 15                                                          // bytes per 5 pixels
+#define TRUE 1                                                                  // true
+#define FALSE 0                                                                 // false
 
 /********************************** globals **********************************/
 /* global arrays */
@@ -1405,7 +1405,7 @@ void image_render_alien_fire_bullet_0(){
   for(uint32_t j = 0; j < ALIEN_BLOCK_SIZE; j++){ // iterate through the whole block
     if(alien_block[j].shooter){ // if the alien is a shooter
       if (temp_0 == 0){ // set it as a current shooter
-        current_shooter_0 = alien_block[j].current_location+IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE*SPRITES_CHARACTER_WIDTH+640*3*SPRITES_CHARACTER_HEIGHT*ALIEN_SIZE*ALIEN_SIZE;
+        current_shooter_0 = alien_block[j].current_location+IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE*SPRITES_CHARACTER_WIDTH+IMAGE_RENDER_SCREEN_WIDTH*ONE_PIXEL*SPRITES_CHARACTER_HEIGHT*ALIEN_SIZE*ALIEN_SIZE;
       }
       temp_0--;
     }
@@ -1431,7 +1431,7 @@ void image_render_alien_fire_bullet_1(){
   for(uint32_t j = 0; j < (ALIEN_BLOCK_SIZE); j++){ // iterate through the whole block
     if(alien_block[j].shooter){ // if the alien is a shooter
       if (temp_1 == 0){ // set it as a current shooter
-        current_shooter_1 = alien_block[j].current_location + IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE*SPRITES_CHARACTER_WIDTH+640*3*SPRITES_CHARACTER_HEIGHT*ALIEN_SIZE*ALIEN_SIZE;
+        current_shooter_1 = alien_block[j].current_location + IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE*SPRITES_CHARACTER_WIDTH+IMAGE_RENDER_SCREEN_WIDTH*ONE_PIXEL*SPRITES_CHARACTER_HEIGHT*ALIEN_SIZE*ALIEN_SIZE;
 
       }
       temp_1--;
@@ -1458,7 +1458,7 @@ void image_render_alien_fire_bullet_2(){
   for(uint32_t j = 0; j < (ALIEN_BLOCK_SIZE); j++){ // iterate through the whole block
     if(alien_block[j].shooter){ // if the alien is a shooter
       if (temp_2 == 0){ // set it as a current shooter
-        current_shooter_2 = alien_block[j].current_location + IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE*SPRITES_CHARACTER_WIDTH+640*3*SPRITES_CHARACTER_HEIGHT*ALIEN_SIZE*ALIEN_SIZE;
+        current_shooter_2 = alien_block[j].current_location + IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE*SPRITES_CHARACTER_WIDTH+IMAGE_RENDER_SCREEN_WIDTH*ONE_PIXEL*SPRITES_CHARACTER_HEIGHT*ALIEN_SIZE*ALIEN_SIZE;
       }
       temp_2--;
     }
@@ -1484,7 +1484,7 @@ void image_render_alien_fire_bullet_3() {
   for(uint32_t j = 0; j < (ALIEN_BLOCK_SIZE); j++){ // iterate through the whole block
     if(alien_block[j].shooter){ // if the alien is a shooter
       if (temp_3 == 0){ // set it as a current shooter
-        current_shooter_3 = alien_block[j].current_location + IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE*SPRITES_CHARACTER_WIDTH+640*3*SPRITES_CHARACTER_HEIGHT*ALIEN_SIZE*ALIEN_SIZE;
+        current_shooter_3 = alien_block[j].current_location + IMAGE_RENDER_BYTES_PER_PIXEL*ALIEN_SIZE*SPRITES_CHARACTER_WIDTH+IMAGE_RENDER_SCREEN_WIDTH*ONE_PIXEL*SPRITES_CHARACTER_HEIGHT*ALIEN_SIZE*ALIEN_SIZE;
       }
       temp_3--;
     }
