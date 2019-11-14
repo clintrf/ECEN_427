@@ -26,7 +26,6 @@
 #define AUDIO_DRIVER_NUM_SAMPLE_FILES 9
 #define AUDIO_DRIVER_WRITE_FAILED -1
 #define AUDIO_DRIVER_WRITE_SUCCESS 0
-
 #define AUDIO_DRIVER_INVADER_DIE_AUDIO 0
 #define AUDIO_DRIVER_LASER_AUDIO 1
 #define AUDIO_DRIVER_PLAYER_DIE_AUDIO 2
@@ -36,7 +35,6 @@
 #define AUDIO_DRIVER_WALK2_AUDIO 6
 #define AUDIO_DRIVER_WALK3_AUDIO 7
 #define AUDIO_DRIVER_WALK4_AUDIO 8
-
 
 //ADAU audio controller parameters
 #define _AUDIO_ADAU1761_H_
@@ -105,7 +103,6 @@ enum audio_adau1761_regs {
     R65_CLOCK_ENABLE_0                              = 0xF9,
     R66_CLOCK_ENABLE_1                              = 0xFA
 };
-//#defines for IOCtl files
 #define TURN_ON_LOOPING //example #define WR_VALUE _IOW('a','a',int32_t*)
 #define TURN_OFF_LOOPING // #define RD_VALUE _IOR('a','b',int32_t*)
 
@@ -127,7 +124,7 @@ typedef struct audio_data{ // 48 bytes for the struct itself
    uint32_t data_size; // NumSamples*NumChannels*(BitsPerSample/8)-ChunkSize2
    uint32_t num_samples; // the number of samples inside the file
    uint32_t * sound_data; // a pointer to the start of the data
- }audio_data_header;
+ } audio_data_header;
  struct audio_data audio_data_info;
 
 // array of sound data
@@ -138,11 +135,12 @@ audio_data_header sound_data_array[AUDIO_DRIVER_NUM_SAMPLE_FILES];
 // Returns: A negative error code on error, INTC_SUCCESS otherwise
 // This must be called before calling any other intc_* functions
 int32_t audio_driver_init(char devDevice[]);
+
 // called to increase the audio_driver_volume up or down based on switch_flag
 void audio_driver_volume(int16_t switch_flag);
+
 // Called to exit the driver (unmap and close UIO file)
 void audio_driver_exit();
-
 
 // Called to write to the audio driver
 // len : amount of bytes to write to the driver
@@ -154,12 +152,10 @@ void audio_driver_exit();
 // returns whether a sound is being played (1) or not (0)
 int32_t audio_driver_read();
 
-//--------------
 // Called to control the io device_create
-//long ioctl( "file descriptor","ioctl command","Arguments");
 // cmd : cmd for the switch statment to loop or not to loop.
 // arg :
-//returns a long  variable for success or failure;
+// returns a long  variable for success or failure
 long audio_driver_ioctl(unsigned int cmd,unsigned long arg);
 
 // Call to get the audio header and data out of the data data_array

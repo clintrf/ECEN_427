@@ -58,6 +58,8 @@
 #define VOLUME_MAX 231
 #define VOLUME_MINIMUM 24
 #define VOLUME_UP_DOWN_VALUE 24
+#define SOUND_PLAYING 1
+#define SOUND_NOT_PLAYING 0
 
 /********************************** globals **********************************/
 static uint32_t fd; // this is a file descriptor that describes the UIO device
@@ -81,6 +83,7 @@ int32_t audio_driver_init(char devDevice[]) {
     printf("Audio Driver Error, file cannot open.\n");
     return AUDIO_DRIVER_ERROR;
   }
+  /* Import all of the audio files */
   audio_driver_import_audio(INVADER_DIE_AUDIO,AUDIO_DRIVER_INVADER_DIE_AUDIO);
   printf("INVADER_DIE_AUDIO imported\n\r");
   audio_driver_import_audio(LASER_AUDIO,AUDIO_DRIVER_LASER_AUDIO);
@@ -101,27 +104,26 @@ int32_t audio_driver_init(char devDevice[]) {
   printf("WALK4_AUDIO imported\n\n\r");
   return AUDIO_DRIVER_SUCCESS;
 }
+// controls the volume level of the audio driver
+// switch_flag : state whether the switch is up or down
 void audio_driver_volume(int16_t switch_flag){
   int iic_fd = setI2C(0, IIC_SLAVE_ADDR);
-  if(switch_flag){
-    //printf("volume up, %x \n\r", volume);
-    if(volume<=VOLUME_MAX){
+  if(switch_flag){ // if the switch is high
+    if(volume <= VOLUME_MAX) { // we want to increase the volume
       volume += VOLUME_UP_DOWN_VALUE;
     }
-    write_audio_reg(R29_PLAYBACK_HEADPHONE_LEFT_VOLUME_CONTROL, volume, iic_fd);
-    write_audio_reg(R30_PLAYBACK_HEADPHONE_RIGHT_VOLUME_CONTROL, volume, iic_fd);
+    write_audio_reg(R29_PLAYBACK_HEADPHONE_LEFT_VOLUME_CONTROL,volume,iic_fd);
+    write_audio_reg(R30_PLAYBACK_HEADPHONE_RIGHT_VOLUME_CONTROL,volume,iic_fd);
   }
-  else{
-    //call a function in audio_drivier_volume_UP()
-    //printf("volume Down, %x \n\r", volume);
-    if(volume>VOLUME_MINIMUM)
-    volume -= VOLUME_UP_DOWN_VALUE;
-    write_audio_reg(R29_PLAYBACK_HEADPHONE_LEFT_VOLUME_CONTROL, volume, iic_fd);
-    write_audio_reg(R30_PLAYBACK_HEADPHONE_RIGHT_VOLUME_CONTROL, volume, iic_fd);
+  else{ // if the switch is down
+    if(volume > VOLUME_MINIMUM) { // we want to decrease the volume
+      volume -= VOLUME_UP_DOWN_VALUE;
+    }
+    write_audio_reg(R29_PLAYBACK_HEADPHONE_LEFT_VOLUME_CONTROL,volume,iic_fd);
+    write_audio_reg(R30_PLAYBACK_HEADPHONE_RIGHT_VOLUME_CONTROL,volume,iic_fd);
   }
-
-
 }
+
 // This goes through one audio file, converts it, and puts it in the data_array
 // fileName : the name of the file to import
 // index : the index within data_array to place the imported and converted file
@@ -255,11 +257,7 @@ void audio_driver_exit() {
    printf("Buffer that was passed in was empty!\n");
    return AUDIO_DRIVER_WRITE_FAILED;
   }
-  //printf("************************start audiodriver w**************************************\r\n");
-
   write(fd,buf,len); // call write in the audio driver in kernel space
-  //printf("************************end audiodriver w**************************************\r\n");
-
   return AUDIO_DRIVER_WRITE_SUCCESS;
 }
 
@@ -268,20 +266,22 @@ void audio_driver_exit() {
 int32_t audio_driver_read() {
   uint32_t *buf;
   uint32_t len;
-  //printf("************************startread**************************************\r\n");
   int32_t count = read(fd,buf,len);
-  if(count == 1) { // optimal case success
-    //printf("Sound is currently playing!\n");
-    return 1;
+  if(count == SOUND_PLAYING) { // the sound is playing
+    return SOUND_PLAYING;
   }
-  else { // some kind of error occured if the number is negative
-    //printf("Sound is not currently playing!\n");
-    return 0;
+  else { // the sound is not playing
+    return SOUND_NOT_PLAYING;
   }
 }
 
-long audio_driver_ioctl(unsigned int cmd,unsigned long arg){
+// Called to control the io device_create
+// cmd : cmd for the switch statment to loop or not to loop.
+// arg : not useful for our implementation but required by the prototype
+// returns a long  variable for success or failure
+long audio_driver_ioctl(unsigned int cmd, unsigned long arg){
   printf("audio_driver_ioctl- userspace code\n\r");
+  return audio_ioctl(fd,cmd,arg);
 }
 
 // Call to get the audio header and data out of the data data_array
