@@ -44,7 +44,6 @@ MODULE_DESCRIPTION("ECEn 427 Audio Driver");
 #define I2S_RIGHT_FIFO_STATUS 1
 #define TX_DATACOUNT_L_MASK 2095104 // 0x00000000000111111111100000000000
 #define TX_DATACOUNT_R_MASK 2046    // 0x00000000000000000000011111111110
-// i2s register above
 #define FIRST_MINOR 0
 #define NUM_OF_CONTIGUOUS_DEVS 1
 #define FIRST_RESOURCE 0
@@ -63,10 +62,10 @@ MODULE_DESCRIPTION("ECEn 427 Audio Driver");
 #define WRITE_ERR -1
 #define SOUND_NOT_PLAYING 0
 #define SOUND_PLAYING 1
-//#defines for IOCtl files
 #define IOC_MAGIC  'k'
-#define TURN_ON_LOOPING _IO(IOC_MAGIC, 1)//example #define WR_VALUE _IOW('a','a',int32_t*)
-#define TURN_OFF_LOOPING _IO(IOC_MAGIC, 2)// #define RD_VALUE _IOR('a','b',int32_t*)
+#define TURN_ON_LOOPING _IO(IOC_MAGIC, 1)
+#define TURN_OFF_LOOPING _IO(IOC_MAGIC, 2)
+#define BYTES_PER_WORD 4
 /********************************* prototypes ********************************/
 static ssize_t audio_read(struct file *f, char *buf, size_t len, loff_t *off);
 static ssize_t audio_write(struct file *f, const char *buf, size_t len,
@@ -74,7 +73,7 @@ static ssize_t audio_write(struct file *f, const char *buf, size_t len,
 static void check_full(void);// added by seth
 static int audio_probe(struct platform_device *pdev);
 static int audio_remove(struct platform_device * pdev);
-static long audio_ioctl(struct file *f, unsigned int cmd,unsigned long arg);//needs to be updated
+static long audio_ioctl(struct file *f, unsigned int cmd,unsigned long arg);
 uint32_t fifo_index = 0;
 
 /*********************************** structs *********************************/
@@ -161,7 +160,6 @@ static ssize_t audio_read(struct file *f, char *buf, size_t len, loff_t *off) {
 static ssize_t audio_write(struct file *f, const char *buf, size_t len,
     loff_t *off) {
   printk(KERN_INFO "Driver: Write()\n");
-
   buf_len = len;
   // Immediately disable interrupts from the audio core.
   iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
@@ -175,7 +173,7 @@ static ssize_t audio_write(struct file *f, const char *buf, size_t len,
     printk("Write: First iteration, did not free FIFO.\n");
   }
   // allocate a buffer for the new clip (kmalloc).
-  fifo_data_buffer = kmalloc((len)*4, GFP_KERNEL);
+  fifo_data_buffer = kmalloc((len)*BYTES_PER_WORD, GFP_KERNEL);
   fifo_index = 0;
   fifo_data_buffer_alloc = true;
   if (!fifo_data_buffer) { // allocation failed, need to free pointers
@@ -187,7 +185,8 @@ static ssize_t audio_write(struct file *f, const char *buf, size_t len,
 
   // Copy the audio data from userspace to your newly allocated buffer
   // (including safety checks on the userspace pointer) - LDD page 64.
-  unsigned int bytes_written = copy_from_user(fifo_data_buffer,buf,(len)*4);
+  unsigned int bytes_written = copy_from_user(fifo_data_buffer,buf,
+    (len)*BYTES_PER_WORD);
 
   // check to see if we have written any bytes
   if(bytes_written < ZERO_BYTES_WRITTEN){
@@ -198,7 +197,6 @@ static ssize_t audio_write(struct file *f, const char *buf, size_t len,
   iowrite32(INTERRUPTS_ON,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
   //enable_irq(irq_num);
   pr_info("IRQ_ISR: Interrupts enabled!!\n");
-
   return bytes_written;
 }
 
@@ -225,6 +223,7 @@ static void check_full(void) {
     isEmpty = false;
   }
 }
+
 // function that handles the irq
 // irq : irq number
 // dev_id : the device id
@@ -233,107 +232,64 @@ static irqreturn_t irq_isr(int irq_loc, void *dev_id) {
   pr_info("IRQ_ISR: Calling the irq_isr!\n");
   // Determine how much free space is in the audio FIFOs
   if(fifo_data_buffer_alloc) { // only write if space is allocated to the fifo
-    // uint32_t i = 0;
-    // while(i < buf_len) { // go through the entire buffer
-    //   if(!isFull) { // check to see if the FIFO is full or not
-    //     printk("IRQ_ISR: Data in the FIFO is %x", fifo_data_buffer[i]);
-    //     iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
-    //     iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_R_REG_OFFSET);
-    //     i++;
-    //   }
-    //   check_full();
-    // }
-    // // Once end of the audio clip is reached, disable interrupts
-    // iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
     check_full();
-    while(!isFull) {
-      if(fifo_index < buf_len) {
-        // printk("IRQ_ISR: Data in the FIFO is %x\n", fifo_data_buffer[fifo_index]);
-        // printk("IRQ_ISR: Index at the FIFO is %zu\n", fifo_index);
-        iowrite32(fifo_data_buffer[fifo_index],(dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
-        iowrite32(fifo_data_buffer[fifo_index],(dev.virt_addr)+I2S_DATA_TX_R_REG_OFFSET);
+    while(!isFull) { // while the FIFO is not full, loop here
+      if(fifo_index < buf_len) { // write the info in the buffer until the end
+        iowrite32(fifo_data_buffer[fifo_index],
+          (dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
+        iowrite32(fifo_data_buffer[fifo_index],
+          (dev.virt_addr)+I2S_DATA_TX_R_REG_OFFSET);
         fifo_index++;
       }
-      else {
+      else { // when we reach the end of the buffer, turn off interrupts
         iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
-        printk("IRQ_ISR: Index at the FIFO is %zu\n", fifo_index);
         fifo_index = 0;
         fifo_data_buffer_alloc = false;
-        printk("IRQ_ISR: THIS SHOULD BE CALLED ONCE.\n");
         return IRQ_HANDLED;
       }
-      check_full();
+      check_full(); // check to see if the FIFO is full or not
     }
   }
-  printk("IRQ_ISR: Index at the FIFO is %zu\n", fifo_index);
   return IRQ_HANDLED;
 }
-// Extend your kernel driver to add ioctl to the list of file operations supported by your character device
-//
-//long audio_ioctl(int fd, unsigned int cmd,unsigned long arg)// or ,
-/*_IOC(dir,type,nr,size)_IO(type,nr)
-_IOR(type,nr,size)
-_IOW(type,nr,size)
-_IOWR(type,nr,size)
-Macros used to create anioctl command.
-_IOC_DIR(nr)
- _IOC_TYPE(nr)
- _IOC_NR(nr)
- _IOC_SIZE(nr)
-Macrosusedtodecodeacommand.Inparticular,_IOC_TYPE(nr)isanORcom-bination of_IOC_READ and_IOC_WRITE.*/
-static long audio_ioctl(struct file *f, unsigned int cmd,unsigned long arg)
-{
-  switch(cmd)//You should support two ioctl commands
-  {
-    //Turn on looping for the current audio clip.
+
+// Handles the audio looping for the audio
+// f : necessary for prototype, but serves no purpose in our implementation
+// cmd : the command to turn on looping or turn off looping
+// arg : necessary for prototype, but serves no purpose in our implementation
+// returns a long signalling error or success
+static long audio_ioctl(struct file *f, unsigned int cmd, unsigned long arg) {
+  switch(cmd) { // You should support two ioctl commands
+    // Turn on looping for the current audio clip.
     case TURN_ON_LOOPING:
     {
       printk("AUDIO_IOCTL: TURN_ON_LOOPING");
-      iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);// turn on the register to write
-      //static ssize_t audio_write(struct file *f, const char *buf, size_t len,loff_t *off)
-      //iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
+       // turn on the register to write
+      iowrite32(INTERRUPTS_ON,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
       break;
     }
     //Turn off looping for the current audio clip.
     case TURN_OFF_LOOPING:
     {
       printk("AUDIO_IOCTL: TURN_OFF_LOOPING");
-      iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);// turn off the register
-      //static ssize_t audio_write(struct file *f, const char *buf, size_t len,loff_t *off)
-      ////iowrite32(fifo_data_buffer[i],(dev.virt_addr)+I2S_DATA_TX_L_REG_OFFSET);
+      // turn off the register
+      iowrite32(INTERRUPTS_OFF,(dev.virt_addr)+I2S_STATUS_REG_OFFSET);
       break;
     }
-
-    default:
+    default: // default case, should not reach this point
     {
       printk("AUDIO_IOCTL: Default case, no valid cmd given");
       return IOCTL_ERR;
     }
-
   }
-
-//------------------------- NOT IN KERNAL
-  //Integrate sound into Space Invaders by generating the following sounds during game operation:
-  /*
-    the “marching” sound the aliens make as they move back and forth across the screen
-     (which cycles through each of the 4 walk sounds each time the aliens move),
-    the sound that the red flying saucer makes as it flies across the screen,
-    the explosion noise that occurs when your tank is hit by an alien bullet,
-    the explosion noise that occurs when an alien is hit by a tank bullet,
-    the “ping” sound that the tank makes when you fire a bullet, and
-    the sound the flying saucer makes if you hit it with a bullet.
-Implement volume control in the following manner:
-    To increase volume, slide sw0 up, press btn3. Each press increases the volume a preset amount, such as 10%.
-    To decrease volume, slide sw0 down, press btn3. Each press decreases the volume a preset amount, such as 10%.
-*/
-return IOCTL_SUCCESS;
+  return IOCTL_SUCCESS;
 }
+
 /********************************** functions ********************************/
 // This is called when Linux loadrite (buffer);s your driver
 // returns : an int signalling a successful initialization or an error
 static int audio_init(void) {
   pr_info("%s: Initializing Audio Driver!\n", MODULE_NAME);
-  // sound_playing = false; // flag to indicate that a sound it playing
   // Get a major number for the driver -- alloc_chrdev_region; // pg. 45, LDD3.
   int err = alloc_chrdev_region(&dev_nums,FIRST_MINOR,NUM_OF_CONTIGUOUS_DEVS,
     MODULE_NAME);
