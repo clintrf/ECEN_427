@@ -64,7 +64,7 @@
 /********************************** globals **********************************/
 static uint32_t fd; // this is a file descriptor that describes the UIO device
 static uint16_t off = 0;
-uint16_t volume = 231;//0xE7;
+uint16_t volume = 231; //0xE7;
 
 /******************************** prototypes *********************************/
 void audio_driver_import_audio(char fileName[], uint16_t index);

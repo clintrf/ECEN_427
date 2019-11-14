@@ -208,7 +208,7 @@ static void check_full(void) {
   // Determine how much free space is in the audio FIFOs
   // Only need to check 1 tx_data because they empty at the same time
   unsigned int raw_data = ioread32((dev.virt_addr)+I2S_STATUS_REG_OFFSET);
-  unsigned int DataL = (raw_data&TX_DATACOUNT_L_MASK)>>I2S_LEFT_FIFO_STATUS;
+  uint32_t DataL = (raw_data&TX_DATACOUNT_L_MASK)>>I2S_LEFT_FIFO_STATUS;
 
   if(DataL == 0) { // check if the FIFO is empty
     isFull = false;
