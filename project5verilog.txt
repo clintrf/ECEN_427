@@ -398,107 +398,53 @@
 	    end
 	end    
 
-	// Add user logic here
+	// Add user logic here******************************************************
 	/*slv_reg0 <= slv_reg0; //delay value register
       slv_reg1 <= slv_reg1; // programmable control register
-      slv_reg2 <= slv_reg2; //counter
-      slv_reg3 <= slv_reg3;*/ //interrupt generator/holder
+      slv_reg2 <= slv_reg2; //None
+      slv_reg3 <= slv_reg3;*/ //None
       //wire declaration??
-      
-    
+   
     //reg [31:0] delay_out;
-    reg [31:0] dvr_reg; //input
+    //reg [31:0] dvr_reg; //input
 	// delay value register
-	always@(posedge S_AXI_ACLK)
-	begin
-        //reset?
-        if ( S_AXI_ARESETN == 1'b0 )
-        begin
-            slv_reg0<= 32'b0;
-        end
-        else
-        begin
-            slv_reg0<=dvr_reg;//count should be equal to user input
-        end
-	end
+
 	
-	reg [31:0] pcr_reg; //input
+	//reg [31:0] pcr_reg; //input
 	//reg[1:0] control_reg; // contains enable and interrupt enable
 	//programmable control register
-	always@(posedge S_AXI_ACLK)
-    begin
-        if ( S_AXI_ARESETN == 1'b0 )//reset
-        begin
-            slv_reg1 <= 32'b0;
-        end
-        else
-        begin
-            if(pcr_reg[1]== 0 && pcr_reg[0]== 0)
-            begin
-                slv_reg1 <= 32'b0;//enable the counter
-            end
-            else if (pcr_reg[1]== 0 && pcr_reg[0]== 1)
-            begin
-                slv_reg1 <= 32'b01;//disable the counter
-            end
-            else if (pcr_reg[1]== 1 && pcr_reg[0]== 0)
-            begin
-                slv_reg1 <= 32'b10;//disable the counter
-            end
-            else if (pcr_reg[1]== 1 && pcr_reg[0]== 1)
-            begin 
-                slv_reg1 <= 32'b11;//disable the counter
-            end
-        end
-    end
+
     
-    //reg[31:0] counter_reg;
+    reg[31:0] counter_reg;
+    reg interrupt_out; //out
     //reg interrupt_flag;
 	//timer counter
 	always@(posedge S_AXI_ACLK)
     begin
-        if ( S_AXI_ARESETN == 1'b0 )//reset
-        begin
-            slv_reg2 <= 32'b0;
-            slv_reg1 <= 32'b0;
-            slv_reg3 <= 1'b0;
-        end
-        else if (slv_reg2 == 32'b0)
-        begin
-            slv_reg2 <= slv_reg0;
-            if(slv_reg1[1] == 1'b1)
+        if(counter_reg==32'b0)
+        begin 
+            counter_reg<=slv_reg0;
+            if(slv_reg1[1]==1'b1)
             begin
-                slv_reg3 <= 1'b1;
+                interrupt_out<=1'b1;
             end
-        end
-        else // not reset
-        begin
-            slv_reg3 <= 1'b0;
-            
-            if(slv_reg1[0]== 1'b1) //check controls
-            begin
-                slv_reg2 <= slv_reg2 -1;
-            end
-            else
-            begin
-                slv_reg2 <= slv_reg2;
-            end
-        end
-    end
-    
-    
-    reg interrupt_out; //output
-	//interrupt generator
-    always@(posedge S_AXI_ACLK)
-    begin
-        if(slv_reg3 == 1'b1)
-        begin
-            interrupt_out <= 1'b1;
         end
         else
         begin
-            interrupt_out <= 1'b0;
+            interrupt_out<=1'b0;
+            if(slv_reg1[0]== 1'b1)
+            begin
+                counter_reg<=counter_reg-1;
+            end
+            else
+            begin
+                counter_reg<=counter_reg;
+            end
         end
     end
+
+    
+	//interrupt generator
+
 
 	endmodule
