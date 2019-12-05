@@ -10,3 +10,6 @@ git fsck --full
 sudo insmod audio.ko // inserts the audio kernel driver into the /dev folder
 dmesg // opens the kernel log to display messages from the drivers
 sudo rmmod audio.ko // removes the sudio kernel driver from the /dev folder
+
+/* sysfs stuff */
+mount -t sysfs sysfs /sys
