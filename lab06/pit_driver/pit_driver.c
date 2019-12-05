@@ -27,7 +27,10 @@
 // Returns: A negative error code on error, INTC_SUCCESS otherwise
 // This must be called before calling any other intc_* functions
 int32_t pit_driver_init(char devDevice[]) {
-
+  printf("Initializing PIT Driver\n");
+  /* open the device */
+  fd = open(devDevice, O_RDWR);
+  /* If there is a problem, return an error */
 }
 
 // Called to exit the driver (unmap and close UIO file)
