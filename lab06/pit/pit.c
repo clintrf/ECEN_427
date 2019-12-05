@@ -1,11 +1,17 @@
+#include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/module.h>
-#include <linux/device.h>
-#include <linux/kernel.h>
-#include <linux/cdev.h>
 #include <linux/kdev_t.h>
-#include <linux/types.h>
 #include <linux/fs.h>
+#include <linux/cdev.h>
+#include <linux/device.h>
+#include <linux/slab.h>
+#include <asm/uaccess.h> //possibly #include<linux/uaccess.h>
+#include<linux/sysfs.h> 
+#include<linux/kobject.h> 
+
+// don't need the rest probably
+#include <linux/types.h>
 #include <linux/err.h>
 #include <linux/string.h>
 #include <linux/platform_device.h>
@@ -16,21 +22,42 @@
 #include <linux/ioport.h>
 #include <linux/irqdomain.h>
 #include <linux/interrupt.h>
-#include <linux/slab.h>
 #include <stdbool.h>
 #include <asm/io.h>
-#include <asm/uaccess.h>
 #include <linux/ioctl.h>
-//#include <linux/ioctl.h>// milestone 3 also declared in linux/fs.h
 /*********************************** macros *********************************/
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Seth Becerra, Dax Eckles & Clint Frandsen");
 MODULE_DESCRIPTION("ECEn 427 Pit Driver");
 
 #define MODULE_NAME "pit"
+#define MYIP_REG_OFFSET 0x43C3
+
+#define I2S_STATUS_REG_OFFSET 4
+
+// i2s register above
+#define FIRST_MINOR 0
+#define NUM_OF_CONTIGUOUS_DEVS 1
+#define FIRST_RESOURCE 0
+#define SECOND_RESOURCE 1
+#define INIT_SUCCESS 0
+#define INIT_ERR -1
+#define PROBE_SUCCESS 0
+#define PROBE_ERR -1
+#define REMOVE_SUCCESS 0
+#define INTERRUPTS_OFF 0x0
+#define INTERRUPTS_ON 0x1
+#define ZERO_BYTES_WRITTEN 0
+#define WRITE_ERR -1
+#define SOUND_NOT_PLAYING 0
+#define SOUND_PLAYING 1
+//#defines for IOCtl files
+#define IOC_MAGIC  'k'
+
 
 /********************************* prototypes ********************************/
-
+static int pit_probe(struct platform_device *pdev);
+static int pit_remove(struct platform_device * pdev);
 
 /*********************************** structs *********************************/
 // struct containing the pit_device data
@@ -47,12 +74,11 @@ MODULE_DESCRIPTION("ECEn 427 Pit Driver");
 // struct containing the file operations data
 static struct file_operations pit_fops = {
   .owner = THIS_MODULE,
-  .unlocked_ioctl = pit_ioctl
 };
 
 // Link between the hardware and its driver
 static struct of_device_id pit_of_match[] = {
-  { .compatible = "byu,ecen427-pit_codec", },
+  { .compatible = "byu,ecen427-pit_codec", },    //CHANGE
   {}
 };
 MODULE_DEVICE_TABLE(of, pit_of_match);
@@ -70,14 +96,13 @@ static struct platform_driver pit_platform_driver = {
 
 /****************************** global variables ****************************/
 static pit_dev dev; // global pit device
+static bool audio_probe_called_once = false; // makes audio_probe call once
 static dev_t dev_nums; // contains major and minor numbers
 static struct class *pit;
 static struct device *device;
 static struct cdev cdev; // character device for the driver
 static struct resource *res; // Device Resource Structure
 static struct resource *res_mem; // Device Resource Structure
-static struct resource *res_irq; // Device Resource Structure
-static unsigned int irq_num; // contains the irq number
 
 /***************************** kernel definitions ****************************/
 static int pit_init(void);
@@ -86,30 +111,6 @@ static void pit_exit(void);
 module_init(pit_init);
 module_exit(pit_exit);
 
-// function that handles the irq
-// irq : irq number
-// dev_id : the device id
-// returns a flag stating if the irq was handled properly
-static irqreturn_t irq_isr(int irq_loc, void *dev_id) {
-  pr_info("IRQ_ISR: Calling the irq_isr!\n");
-}
-
-// Extend your kernel driver to add ioctl to the list of file operations supported by your character device
-//
-//long pit_ioctl(int fd, unsigned int cmd,unsigned long arg)// or ,
-/*_IOC(dir,type,nr,size)_IO(type,nr)
-_IOR(type,nr,size)
-_IOW(type,nr,size)
-_IOWR(type,nr,size)
-Macros used to create anioctl command.
-_IOC_DIR(nr)
- _IOC_TYPE(nr)
- _IOC_NR(nr)
- _IOC_SIZE(nr)
-Macrosusedtodecodeacommand.Inparticular,_IOC_TYPE(nr)isanORcom-bination of_IOC_READ and_IOC_WRITE.*/
-static long pit_ioctl(struct file *f, unsigned int cmd,unsigned long arg){
-
-}
 
 /********************************** functions ********************************/
 // This is called when Linux loadrite (buffer);s your driver
