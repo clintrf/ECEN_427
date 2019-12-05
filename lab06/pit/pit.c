@@ -30,8 +30,6 @@ MODULE_DESCRIPTION("ECEn 427 Pit Driver");
 #define MODULE_NAME "pit"
 
 /********************************* prototypes ********************************/
-static ssize_t pit_read(struct file *f, char *buf, size_t len, loff_t *off);
-static ssize_t pit_write(struct file *f, const char *buf, size_t len,loff_t *off);
 
 
 /*********************************** structs *********************************/
@@ -44,14 +42,11 @@ static ssize_t pit_write(struct file *f, const char *buf, size_t len,loff_t *off
     phys_addr_t phys_addr;              // Physical address
     u32 mem_size;                       // Allocated mem space size
     u32* virt_addr;                     // Virtual address
-    // Add any items to this that you need
 } pit_dev;
 
 // struct containing the file operations data
 static struct file_operations pit_fops = {
   .owner = THIS_MODULE,
-  .read = audio_read,
-  .write = audio_write,
   .unlocked_ioctl = pit_ioctl
 };
 
@@ -74,7 +69,7 @@ static struct platform_driver audio_platform_driver = {
 };
 
 /****************************** global variables ****************************/
-static audio_dev dev; // global audio device
+static pit_dev dev; // global audio device
 static dev_t dev_nums; // contains major and minor numbers
 static struct class *pit;
 static struct device *device;
@@ -85,31 +80,11 @@ static struct resource *res_irq; // Device Resource Structure
 static unsigned int irq_num; // contains the irq number
 
 /***************************** kernel definitions ****************************/
-static int audio_init(void);
-static void audio_exit(void);
+static int pit_init(void);
+static void pit_exit(void);
 
-module_init(audio_init);
-module_exit(audio_exit);
-
-// reads a certain amount of bytes from a buffer
-// f : the file to read from
-// buf : the buffer to place the read values into
-// len : the number of bytes to read
-// off : indicates the file position the user is accessing
-// return one byte of data (0 or 1) stating if an audio sample is being played
-static ssize_t pit_read(struct file *f, char *buf, size_t len, loff_t *off) {
-  printk(KERN_INFO "Driver: read()\n");
-}
-
-// reads a certain amount of bytes from a buffer
-// f : the file to read from
-// buf : accepts a signed 32 bit buffer containing an audio clip
-// len : the number of bytes to write
-// off : indicates the file position the user is accessing
-// returns how many byteirq_locs were written
-static ssize_t pit_write(struct file *f, const char *buf, size_t len,loff_t *off) {
-  printk(KERN_INFO "Driver: Write()\n");
-}
+module_init(pit_init);
+module_exit(pit_exit);
 
 // function that handles the irq
 // irq : irq number
@@ -141,7 +116,6 @@ static long pit_ioctl(struct file *f, unsigned int cmd,unsigned long arg){
 // returns : an int signalling a successful initialization or an error
 static int pit_init(void) {
   pr_info("%s: Initializing Audio Driver!\n", MODULE_NAME);
-  // sound_playing = false; // flag to indicate that a sound it playing
   // Get a major number for the driver -- alloc_chrdev_region; // pg. 45, LDD3.
   int err = alloc_chrdev_region(&dev_nums,FIRST_MINOR,NUM_OF_CONTIGUOUS_DEVS,
     MODULE_NAME);
