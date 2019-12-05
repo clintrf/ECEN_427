@@ -178,30 +178,31 @@ static int pit_probe(struct platform_device *pdev) {
     return PROBE_ERR;
   }
   dev.cdev = cdev;
-//   // Create a device file in /dev so that the character device can be accessed
-//   // from user space -- COMMENTED OUT FROM LAST LAB
-//   device = device_create(pit,NULL,dev_nums,NULL,MODULE_NAME);
-//   if(device == NULL) { // if the device returns null, then we hit an error
-//     pr_info("Failure creating device!\nRollback changes...\\n");
-//     cdev_del(&cdev);
-//     platform_driver_unregister(&pit_platform_driver);
-//     class_destroy(pit);
-//     unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
-//     return PROBE_ERR;
-//   }
-//   dev.dev = device;
+
+  // Create a device file in /dev so that the character device can be accessed
+  // from user space -- COMMENTED OUT FROM LAST LAB
+  device = device_create(pit,NULL,dev_nums,NULL,MODULE_NAME);
+  if(device == NULL) { // if the device returns null, then we hit an error
+    pr_info("Failure creating device!\nRollback changes...\\n");
+    cdev_del(&cdev);
+    platform_driver_unregister(&pit_platform_driver);
+    class_destroy(pit);
+    unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
+    return PROBE_ERR;
+  }
+  dev.dev = device;
  
  /********** NEW CODE *********/
- device = root_device_register("my_folder");
- if(device == NULL) {
-   pr_info("Failure registering root device!\nRollback changes....\n");
-   cdev_del(&cdev);
-   platform_driver_unregister(&pit_platform_driver);
-   class_destroy(pit);
-   unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
-   return PROBE_ERR;
- }
- dev.dev = device;
+//  device = root_device_register("my_folder");
+//  if(device == NULL) {
+//    pr_info("Failure registering root device!\nRollback changes....\n");
+//    cdev_del(&cdev);
+//    platform_driver_unregister(&pit_platform_driver);
+//    class_destroy(pit);
+//    unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
+//    return PROBE_ERR;
+//  }
+//  dev.dev = device;
  /******** END NEW CODE *******/
  
   // Get the physical device address from the device tree
@@ -230,34 +231,35 @@ static int pit_probe(struct platform_device *pdev) {
   }
   // Get a (virtual memory) pointer to the device -- ioremap
   dev.virt_addr = ioremap(res->start,dev.mem_size);
-  // Get the IRQ number from the device tree -- platform_get_resource
-  res_irq = platform_get_resource(pdev,IORESOURCE_IRQ,FIRST_RESOURCE);
-  irq_num = res_irq->start;
-  if(res_irq == NULL){ // if the resource returns null, then we hit an error
-    pr_info("Failure Getting Resources 02!\nRollback changes...\\n");
-    release_mem_region(dev.phys_addr,dev.mem_size); // release_mem_region
-//     device_destroy(pit,dev_nums); // device_destroy COMMENTED OUT FROM LAST LAB
-    root_device_unregister(dev.dev); // maybe?
-    cdev_del(&cdev);
-    platform_driver_unregister(&pit_platform_driver);
-    class_destroy(pit);
-    unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
-    return PROBE_ERR;
-  }
+  
+//  // Get the IRQ number from the device tree -- platform_get_resource
+//   res_irq = platform_get_resource(pdev,IORESOURCE_IRQ,FIRST_RESOURCE);
+//   irq_num = res_irq->start;
+//   if(res_irq == NULL){ // if the resource returns null, then we hit an error
+//     pr_info("Failure Getting Resources 02!\nRollback changes...\\n");
+//     release_mem_region(dev.phys_addr,dev.mem_size); // release_mem_region
+// //     device_destroy(pit,dev_nums); // device_destroy COMMENTED OUT FROM LAST LAB
+//     root_device_unregister(dev.dev); // maybe?
+//     cdev_del(&cdev);
+//     platform_driver_unregister(&pit_platform_driver);
+//     class_destroy(pit);
+//     unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
+//     return PROBE_ERR;
+//   }
   dev.pdev = pdev;
   // Register your interrupt service routine -- request_irq
-  int irq_err = request_irq(irq_num,irq_isr,0,MODULE_NAME,NULL);
-  if(irq_err < PROBE_SUCCESS) { // failed to register the platform driver
-    pr_info("Failure calling the request_irq !\nRollback changes...\\n");
-    release_mem_region(dev.phys_addr,dev.mem_size); // release_mem_region
-//     device_destroy(pit,dev_nums); // device_destroy COMMENTED OUT FROM LAST LAB
-    root_device_unregister(dev.dev); // maybe?
-    cdev_del(&cdev);
-    platform_driver_unregister(&pit_platform_driver);
-    class_destroy(pit);
-    unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
-    return PROBE_ERR;
-  }
+//   int irq_err = request_irq(irq_num,irq_isr,0,MODULE_NAME,NULL);
+//   if(irq_err < PROBE_SUCCESS) { // failed to register the platform driver
+//     pr_info("Failure calling the request_irq !\nRollback changes...\\n");
+//     release_mem_region(dev.phys_addr,dev.mem_size); // release_mem_region
+// //     device_destroy(pit,dev_nums); // device_destroy COMMENTED OUT FROM LAST LAB
+//     root_device_unregister(dev.dev); // maybe?
+//     cdev_del(&cdev);
+//     platform_driver_unregister(&pit_platform_driver);
+//     class_destroy(pit);
+//     unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
+//     return PROBE_ERR;
+//   }
  pit_probe_called_once = true; // makes certain we don't run probe twice
   pr_info("%s: PIT Driver probing success!\n", MODULE_NAME);
   pr_info("%s: Major Number: %zu\n", MODULE_NAME, MAJOR(dev_nums));
@@ -271,7 +273,7 @@ static int pit_probe(struct platform_device *pdev) {
 // returns : an int signalling success or failure
 static int pit_remove(struct platform_device * pdev) {
   pr_info("%s: Removing PIT Driver!\n", MODULE_NAME);
-  free_irq(irq_num,NULL); // free the irq to allow interrupts to continue
+  //free_irq(irq_num,NULL); // free the irq to allow interrupts to continue
   ioport_unmap(dev.virt_addr); // iounmap
   release_mem_region(dev.phys_addr,dev.mem_size); // release_mem_region
 //     device_destroy(pit,dev_nums); // device_destroy COMMENTED OUT FROM LAST LAB
