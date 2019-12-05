@@ -265,7 +265,6 @@ static int pit_probe(struct platform_device *pdev) {
   pr_info("%s: Major Number: %zu\n", MODULE_NAME, MAJOR(dev_nums));
   pr_info("%s: Physical Addr: %zu\n", MODULE_NAME, dev.phys_addr);
   pr_info("%s: Virtual Addr: %p\n", MODULE_NAME, dev.virt_addr);
-  pr_info("%s: IRQ Number: %zu\n", MODULE_NAME, irq_num);
   return PROBE_SUCCESS;
 }
 
