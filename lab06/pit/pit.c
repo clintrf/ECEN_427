@@ -69,7 +69,7 @@ static struct platform_driver pit_platform_driver = {
 };
 
 /****************************** global variables ****************************/
-static pit_dev dev; // global audio device
+static pit_dev dev; // global pit device
 static dev_t dev_nums; // contains major and minor numbers
 static struct class *pit;
 static struct device *device;
@@ -96,7 +96,7 @@ static irqreturn_t irq_isr(int irq_loc, void *dev_id) {
 
 // Extend your kernel driver to add ioctl to the list of file operations supported by your character device
 //
-//long audio_ioctl(int fd, unsigned int cmd,unsigned long arg)// or ,
+//long pit_ioctl(int fd, unsigned int cmd,unsigned long arg)// or ,
 /*_IOC(dir,type,nr,size)_IO(type,nr)
 _IOR(type,nr,size)
 _IOW(type,nr,size)
@@ -115,7 +115,7 @@ static long pit_ioctl(struct file *f, unsigned int cmd,unsigned long arg){
 // This is called when Linux loadrite (buffer);s your driver
 // returns : an int signalling a successful initialization or an error
 static int pit_init(void) {
-  pr_info("%s: Initializing Audio Driver!\n", MODULE_NAME);
+  pr_info("%s: Initializing PIT Driver!\n", MODULE_NAME);
   // Get a major number for the driver -- alloc_chrdev_region; // pg. 45, LDD3.
   int err = alloc_chrdev_region(&dev_nums,FIRST_MINOR,NUM_OF_CONTIGUOUS_DEVS,
     MODULE_NAME);
@@ -140,17 +140,17 @@ static int pit_init(void) {
     unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
     return INIT_ERR;
   }
-  pr_info("%s: Audio Driver initialization success!\n", MODULE_NAME);
+  pr_info("%s: PIT Driver initialization success!\n", MODULE_NAME);
   return INIT_SUCCESS;
 }
 
 // This is called when Linux unloads your driver
-static void audio_exit(void) {
-  pr_info("%s: Exiting Audio Driver!\n", MODULE_NAME);
+static void pit_exit(void) {
+  pr_info("%s: Exiting PIT Driver!\n", MODULE_NAME);
   platform_driver_unregister(&pit_platform_driver); // unregister platform
   class_destroy(pit); // class_destroy
   unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
-  pr_info("%s: Finish Exit Audio Driver!\n", MODULE_NAME);
+  pr_info("%s: Finish Exit PIT Driver!\n", MODULE_NAME);
   return;
 }
 
@@ -158,9 +158,9 @@ static void audio_exit(void) {
 // 'compatible' name of this driver.
 // pdev : platform device which to probe
 // returns an int signalling a successful probe or some kind of error
-static int audio_probe(struct platform_device *pdev) {
-  pr_info("%s: Probing Audio Driver!\n", MODULE_NAME);
-  if(audio_probe_called_once == true) { // we want to call this function once
+static int pit_probe(struct platform_device *pdev) {
+  pr_info("%s: Probing PIT Driver!\n", MODULE_NAME);
+  if(pit_probe_called_once == true) { // we want to call this function once
     pr_info("Already called probe() once...\n");
     return PROBE_SUCCESS;
   }
@@ -240,8 +240,8 @@ static int audio_probe(struct platform_device *pdev) {
     unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
     return PROBE_ERR;
   }
-  audio_probe_called_once = true; // makes certain we don't run probe twice
-  pr_info("%s: Audio Driver probing success!\n", MODULE_NAME);
+ pit_probe_called_once = true; // makes certain we don't run probe twice
+  pr_info("%s: PIT Driver probing success!\n", MODULE_NAME);
   pr_info("%s: Major Number: %zu\n", MODULE_NAME, MAJOR(dev_nums));
   pr_info("%s: Physical Addr: %zu\n", MODULE_NAME, dev.phys_addr);
   pr_info("%s: Virtual Addr: %p\n", MODULE_NAME, dev.virt_addr);
@@ -249,15 +249,15 @@ static int audio_probe(struct platform_device *pdev) {
   return PROBE_SUCCESS;
 }
 
-// removes the audio_device by unloaded and unmapping it, destroys device
+// removes the pit_device by unloaded and unmapping it, destroys device
 // returns : an int signalling success or failure
-static int audio_remove(struct platform_device * pdev) {
-  pr_info("%s: Removing Audio Driver!\n", MODULE_NAME);
+static int pit_remove(struct platform_device * pdev) {
+  pr_info("%s: Removing PIT Driver!\n", MODULE_NAME);
   free_irq(irq_num,NULL); // free the irq to allow interrupts to continue
   ioport_unmap(dev.virt_addr); // iounmap
   release_mem_region(dev.phys_addr,dev.mem_size); // release_mem_region
   device_destroy(pit,dev_nums); // device_destroy
   cdev_del(&cdev); // cdev_del
-  pr_info("%s: Removing Audio Driver success!\n", MODULE_NAME);
+  pr_info("%s: Removing PIT Driver success!\n", MODULE_NAME);
   return REMOVE_SUCCESS;
 }
