@@ -51,14 +51,14 @@ static struct file_operations pit_fops = {
 };
 
 // Link between the hardware and its driver
-static struct of_device_id audio_of_match[] = {
+static struct of_device_id pit_of_match[] = {
   { .compatible = "byu,ecen427-pit_codec", },
   {}
 };
-MODULE_DEVICE_TABLE(of, audio_of_match);
+MODULE_DEVICE_TABLE(of, pit_of_match);
 
 // struct containing the platform driver
-static struct platform_driver audio_platform_driver = {
+static struct platform_driver pit_platform_driver = {
   .probe = pit_probe,
   .remove = pit_remove,
   .driver = {
@@ -126,17 +126,17 @@ static int pit_init(void) {
   int minor_num = MINOR(dev_nums); // returns the minor number of a dev_t type
   dev.minor_num = minor_num;
   // Create a device class. -- class_create()
-  audio = class_create(THIS_MODULE,MODULE_NAME);
-  if(audio == NULL) { // failed to create the class, undo allocation
+  pit = class_create(THIS_MODULE,MODULE_NAME);
+  if(pit == NULL) { // failed to create the class, undo allocation
     pr_info("Failure creating device class!\nRollback changes...\\n");
     unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
     return INIT_ERR;
   }
   // Register the driver as a platform driver -- platform_driver_register
-  err = platform_driver_register(&audio_platform_driver);
+  err = platform_driver_register(&pit_platform_driver);
   if(err < INIT_SUCCESS) { // failed to register the platform driver,
     pr_info("Failure registering platform driver!\nRollback changes...\\n");
-    class_destroy(audio);
+    class_destroy(pit);
     unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
     return INIT_ERR;
   }
@@ -147,8 +147,8 @@ static int pit_init(void) {
 // This is called when Linux unloads your driver
 static void audio_exit(void) {
   pr_info("%s: Exiting Audio Driver!\n", MODULE_NAME);
-  platform_driver_unregister(&audio_platform_driver); // unregister platform
-  class_destroy(audio); // class_destroy
+  platform_driver_unregister(&pit_platform_driver); // unregister platform
+  class_destroy(pit); // class_destroy
   unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
   pr_info("%s: Finish Exit Audio Driver!\n", MODULE_NAME);
   return;
@@ -165,26 +165,26 @@ static int audio_probe(struct platform_device *pdev) {
     return PROBE_SUCCESS;
   }
   // Initialize the character device structure (cdev_init)
-  cdev_init(&cdev,&audio_fops);
+  cdev_init(&cdev,&pit_fops);
   cdev.owner = THIS_MODULE;
   // Register the character device with Linux (cdev_add)
   int err = cdev_add(&cdev,dev_nums,NUM_OF_CONTIGUOUS_DEVS);
   if(err < PROBE_SUCCESS) { // if err is negative, the device hasn't been added
     pr_info("Failure registering the cdev!\nRollback changes...\\n");
-    platform_driver_unregister(&audio_platform_driver);
-    class_destroy(audio);
+    platform_driver_unregister(&pit_platform_driver);
+    class_destroy(pit);
     unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
     return PROBE_ERR;
   }
   dev.cdev = cdev;
   // Create a device file in /dev so that the character device can be accessed
   // from user space
-  device = device_create(audio,NULL,dev_nums,NULL,MODULE_NAME);
+  device = device_create(pit,NULL,dev_nums,NULL,MODULE_NAME);
   if(device == NULL) { // if the device returns null, then we hit an error
     pr_info("Failure creating device!\nRollback changes...\\n");
     cdev_del(&cdev);
-    platform_driver_unregister(&audio_platform_driver);
-    class_destroy(audio);
+    platform_driver_unregister(&pit_platform_driver);
+    class_destroy(pit);
     unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
     return PROBE_ERR;
   }
@@ -193,10 +193,10 @@ static int audio_probe(struct platform_device *pdev) {
   res = platform_get_resource(pdev,IORESOURCE_MEM,FIRST_RESOURCE);
   if(res == NULL) { // if the resource returns null, then we hit an error
     pr_info("Failure Getting Resources 01!\nRollback changes...\\n");
-    device_destroy(audio,dev_nums); // device_destroy
+    device_destroy(pit,dev_nums); // device_destroy
     cdev_del(&cdev);
-    platform_driver_unregister(&audio_platform_driver);
-    class_destroy(audio);
+    platform_driver_unregister(&pit_platform_driver);
+    class_destroy(pit);
     unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
     return PROBE_ERR;
   }
@@ -206,10 +206,10 @@ static int audio_probe(struct platform_device *pdev) {
   res_mem = request_mem_region(dev.phys_addr,dev.mem_size,MODULE_NAME);
   if(res_mem == NULL) { // if the resource returns null, then we hit an error
     pr_info("Failure Requesting Memory Region!\nRollback changes...\n");
-    device_destroy(audio,dev_nums); // device_destroy
+    device_destroy(pit,dev_nums); // device_destroy
     cdev_del(&cdev);
-    platform_driver_unregister(&audio_platform_driver);
-    class_destroy(audio);
+    platform_driver_unregister(&pit_platform_driver);
+    class_destroy(pit);
     unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
   }
   // Get a (virtual memory) pointer to the device -- ioremap
@@ -220,10 +220,10 @@ static int audio_probe(struct platform_device *pdev) {
   if(res_irq == NULL){ // if the resource returns null, then we hit an error
     pr_info("Failure Getting Resources 02!\nRollback changes...\\n");
     release_mem_region(dev.phys_addr,dev.mem_size); // release_mem_region
-    device_destroy(audio,dev_nums); // device_destroy
+    device_destroy(pit,dev_nums); // device_destroy
     cdev_del(&cdev);
-    platform_driver_unregister(&audio_platform_driver);
-    class_destroy(audio);
+    platform_driver_unregister(&pit_platform_driver);
+    class_destroy(pit);
     unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
     return PROBE_ERR;
   }
@@ -233,10 +233,10 @@ static int audio_probe(struct platform_device *pdev) {
   if(irq_err < PROBE_SUCCESS) { // failed to register the platform driver
     pr_info("Failure calling the request_irq !\nRollback changes...\\n");
     release_mem_region(dev.phys_addr,dev.mem_size); // release_mem_region
-    device_destroy(audio,dev_nums); // device_destroy
+    device_destroy(pit,dev_nums); // device_destroy
     cdev_del(&cdev);
-    platform_driver_unregister(&audio_platform_driver);
-    class_destroy(audio);
+    platform_driver_unregister(&pit_platform_driver);
+    class_destroy(pit);
     unregister_chrdev_region(dev_nums,NUM_OF_CONTIGUOUS_DEVS);
     return PROBE_ERR;
   }
@@ -256,7 +256,7 @@ static int audio_remove(struct platform_device * pdev) {
   free_irq(irq_num,NULL); // free the irq to allow interrupts to continue
   ioport_unmap(dev.virt_addr); // iounmap
   release_mem_region(dev.phys_addr,dev.mem_size); // release_mem_region
-  device_destroy(audio,dev_nums); // device_destroy
+  device_destroy(pit,dev_nums); // device_destroy
   cdev_del(&cdev); // cdev_del
   pr_info("%s: Removing Audio Driver success!\n", MODULE_NAME);
   return REMOVE_SUCCESS;
