@@ -96,7 +96,7 @@ static struct platform_driver pit_platform_driver = {
 
 /****************************** global variables ****************************/
 static pit_dev dev; // global pit device
-static bool audio_probe_called_once = false; // makes audio_probe call once
+static bool pit_probe_called_once = false; // makes pit_probe call once
 static dev_t dev_nums; // contains major and minor numbers
 static struct class *pit;
 static struct device *device;
